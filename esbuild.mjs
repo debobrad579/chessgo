@@ -6,7 +6,7 @@ const ctx = await esbuild.context({
   entryPoints: ["app/app.tsx"],
   bundle: true,
   minify: true,
-  outfile: "public/app.js",
+  outfile: "static/app.js",
 });
 
 if (isWatch) {

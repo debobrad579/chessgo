@@ -5,5 +5,5 @@ tmp/
 node_modules/
 
 # Generated assets
-public/app.js
-public/style.css
+static/app.js
+static/style.css
