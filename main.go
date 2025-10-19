@@ -2,30 +2,28 @@ package main
 
 import (
 	"net/http"
-	"path/filepath"
-	"strings"
+
+	"github.com/debobrad579/repertoire-go/handlers"
+	"github.com/debobrad579/repertoire-go/utils"
 )
 
 func main() {
 	mux := http.NewServeMux()
 
-	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("static"))))
-
-	mux.HandleFunc("/app/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "app/index.html")
-	})
-
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-
-		if path == "/" {
-			path = "/index"
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+		} else {
+			utils.RenderTemplate(w, "index.html", nil)
 		}
-
-		filePath := filepath.Join("views", strings.TrimPrefix(path, "/")+".html")
-
-		http.ServeFile(w, r, filePath)
 	})
+
+	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("static"))))
+	mux.HandleFunc("/app/", func(w http.ResponseWriter, r *http.Request) { http.ServeFile(w, r, "app/index.html") })
+	mux.HandleFunc("/login", utils.TemplateRenderer("login.html", nil))
+	mux.HandleFunc("POST /login", handlers.LoginPostHandler)
+	mux.HandleFunc("/register", utils.TemplateRenderer("register.html", nil))
+	mux.HandleFunc("POST /register", handlers.RegisterPostHandler)
 
 	http.ListenAndServe(":3000", mux)
 }

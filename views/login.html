@@ -1,15 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
+{{ define "title" }}Login | Repertoire Go{{ end }}
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Repertoire Go</title>
-  <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-  <link rel="stylesheet" href="/static/style.css">
-</head>
-
-<body class="bg-muted min-h-screen flex items-center justify-center p-4">
+{{ define "body" }}
+<div class="bg-muted min-h-screen flex items-center justify-center p-4">
   <div class="flex flex-col lg:flex-row gap-8 w-full max-w-5xl">
     <div class="flex-1 flex flex-col gap-6 w-full max-w-md mx-auto">
       <div class="bg-card rounded-lg shadow border border-border">
@@ -20,14 +12,16 @@
           </p>
         </div>
         <div class="p-6 pt-0">
-          <form>
+          <form action="/login" method="POST" novalidate>
             <div class="flex flex-col gap-4">
               <div class="flex flex-col gap-2">
                 <label for="login-email" class="text-sm font-medium leading-none text-foreground">
                   Email
                 </label>
-                <input id="login-email" type="email" placeholder="m@example.com" required
+                <input id="login-email" name="email" type="email" placeholder="m@example.com" required
+                  value="{{ .Fields.Email }}"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0" />
+                <p id="email-error" class="text-sm text-destructive">{{ .Errors.Email }}</p>
               </div>
               <div class="flex flex-col gap-2">
                 <div class="flex items-center">
@@ -38,8 +32,9 @@
                     Forgot your password?
                   </a>
                 </div>
-                <input id="login-password" type="password" required
+                <input id="login-password" name="password" type="password" required value="{{ .Fields.Password }}"
                   class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0" />
+                <p id="password-error" class="text-sm text-destructive">{{ .Errors.Password }}</p>
               </div>
               <div class="flex flex-col gap-4">
                 <button type="submit"
@@ -52,7 +47,7 @@
                 </button>
                 <p class="text-sm text-muted-foreground text-center">
                   Don't have an account?
-                  <a href="#" class="underline underline-offset-4 hover:text-foreground">
+                  <a href="/register" class="underline underline-offset-4 hover:text-foreground">
                     Sign up
                   </a>
                 </p>
@@ -62,7 +57,42 @@
         </div>
       </div>
     </div>
-    <script src="/static/themes.js"></script>
-</body>
+  </div>
+</div>
+<script>
+  const form = document.querySelector('form')
 
-</html>
+  const email = document.getElementById("login-email")
+  const emailError = document.getElementById("email-error")
+
+  const password = document.getElementById("login-password")
+  const passwordError = document.getElementById("password-error")
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault()
+
+    let hasError = false
+
+    if (email.value == "") {
+      emailError.innerHTML = "Required"
+      hasError = true
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+      emailError.innerHTML = "Invalid email address"
+      hasError = true
+    } else {
+      emailError.innerHTML = ""
+    }
+
+    if (password.value == "") {
+      passwordError.innerHTML = "Required"
+      hasError = true
+    } else {
+      passwordError.innerHTML = ""
+    }
+
+    if (!hasError) {
+      form.submit()
+    }
+  })
+</script>
+{{ end }}
