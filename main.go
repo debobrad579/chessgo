@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/debobrad579/go-mate/handlers"
-	"github.com/debobrad579/go-mate/utils"
+	"github.com/debobrad579/chessgo/handlers"
+	"github.com/debobrad579/chessgo/utils"
 )
 
 const port = ":3000"

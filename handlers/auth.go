@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/debobrad579/repertoire-go/utils"
+	"github.com/debobrad579/chessgo/utils"
 )
 
 func isEmailValid(e string) bool {
