@@ -2,57 +2,10 @@ package handlers
 
 import (
 	"net/http"
-	"regexp"
 
-	"github.com/debobrad579/chessgo/utils"
+	"github.com/debobrad579/chessgo/internal/database"
+	"github.com/lib/pq"
 )
-
-func isEmailValid(e string) bool {
-	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	return emailRegex.MatchString(e)
-}
-
-type LoginData struct {
-	Fields struct {
-		Email    string
-		Password string
-	}
-	Errors struct {
-		Email    string
-		Password string
-	}
-}
-
-func LoginPostHandler(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Error parsing form", http.StatusInternalServerError)
-		return
-	}
-
-	email := r.FormValue("email")
-	password := r.FormValue("password")
-
-	var data LoginData
-	data.Fields.Email = email
-	data.Fields.Password = password
-
-	if email == "" {
-		data.Errors.Email = "Required"
-	} else if !isEmailValid(email) {
-		data.Errors.Email = "Invalid email address"
-	}
-
-	if password == "" {
-		data.Errors.Password = "Required"
-	}
-
-	if data.Errors.Email != "" || data.Errors.Password != "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		utils.RenderTemplate(w, "login.html", data)
-	} else {
-		http.Redirect(w, r, "/app", http.StatusSeeOther)
-	}
-}
 
 type RegisterData struct {
 	Fields struct {
@@ -69,7 +22,7 @@ type RegisterData struct {
 	}
 }
 
-func RegisterPostHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) RegisterPostHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Error parsing form", http.StatusInternalServerError)
 		return
@@ -110,8 +63,26 @@ func RegisterPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	if data.Errors.Name != "" || data.Errors.Email != "" || data.Errors.Password != "" || data.Errors.ConfirmPassword != "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		utils.RenderTemplate(w, "register.html", data)
-	} else {
-		http.Redirect(w, r, "/app", http.StatusSeeOther)
+		RenderTemplate(w, "register.html", data)
+		return
 	}
+
+	_, err := cfg.DB.CreateUser(r.Context(), database.CreateUserParams{Email: email, Name: name})
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok {
+			if pqErr.Code == "23505" {
+				w.WriteHeader(http.StatusConflict)
+				data.Errors.Email = "Email already in use"
+				RenderTemplate(w, "register.html", data)
+				return
+			}
+		}
+
+		w.WriteHeader(http.StatusInternalServerError)
+		data.Errors.Email = "Internal server error"
+		RenderTemplate(w, "register.html", data)
+		return
+	}
+
+	http.Redirect(w, r, "/app", http.StatusSeeOther)
 }

@@ -2,6 +2,9 @@ root = "."
 tmp_dir = "tmp"
 
 [build]
-  cmd = "go build -o ./tmp/main ."
+  cmd = "sqlc generate && go build -o ./tmp/main ./cmd/server"
   bin = "./tmp/main"
-  exclude_dir = ["tmp", "node_modules", "app"]
+  exclude_dir = ["tmp", "node_modules", "app", "internal/database"]
+
+[log]
+  time = true

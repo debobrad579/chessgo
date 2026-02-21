@@ -1,5 +1,6 @@
 # Go
 tmp/
+bin/
 
 # Node
 node_modules/
@@ -7,3 +8,6 @@ node_modules/
 # Generated assets
 static/app.js
 static/style.css
+
+# Environment Variables
+.env
