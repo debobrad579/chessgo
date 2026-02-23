@@ -48,7 +48,6 @@ export function MoveCell({
       [positionAxis.toLowerCase()]: itemStart,
       behavior: "instant",
     })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [undoCount])
 
   const Cell = isTableCell ? TableCell : "div"

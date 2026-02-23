@@ -10,6 +10,12 @@ migrate-down:
 migrate-status:
 	goose -dir sql/schema postgres "$(DB_URL)" status
 
+lint:
+	@echo "Linting Go..."
+	@go vet ./...
+	@echo "Linting TypeScript..."
+	@npx tsc --noEmit
+
 build:
 	@echo "Building Go server..."
 	@sqlc generate && go build -o ./bin/main ./cmd/server

@@ -16,7 +16,9 @@ import (
 const port = ":3000"
 
 func main() {
-	godotenv.Load()
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Failed to load env")
+	}
 
 	db, err := sql.Open("postgres", os.Getenv("DB_URL"))
 	if err != nil {
@@ -53,5 +55,7 @@ func main() {
 	mux.HandleFunc("/ws", handlers.WebsocketsHandler)
 
 	log.Printf("Starting server at port %s\n", port)
-	http.ListenAndServe(port, mux)
+	if err := http.ListenAndServe(port, mux); err != nil {
+		log.Fatal("Failed to start server")
+	}
 }

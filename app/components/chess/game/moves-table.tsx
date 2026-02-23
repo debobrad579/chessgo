@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { MoveCell } from "./move-cell"
-import { Game } from "@/types/chess"
+import type { Game } from "../types"
 import { getMoveNumberArrays } from "./utils"
 import { useRef } from "react"
 

@@ -1,4 +1,18 @@
-export function convertMovesToPgn(moves: string[]): string {
+import { Chess } from "chess.js"
+import { ShortMove } from "../types"
+
+export function moveToSan(fen: string, move: ShortMove): string | null {
+  const chess = new Chess(fen)
+
+  try {
+    const result = chess.move(move)
+    return result.san
+  } catch {
+    return null
+  }
+}
+
+export function movesToPgn(moves: string[]): string {
   let pgn = ""
   for (let i = 0; i < moves.length; i++) {
     const move = moves[i]

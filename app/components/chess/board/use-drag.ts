@@ -68,7 +68,10 @@ export function useDrag({
       targetIndex < 64 &&
       targetIndex !== dragStartSquare
     ) {
-      onMove?.(intToSquare(dragStartSquare), intToSquare(targetIndex))
+      onMove?.({
+        from: intToSquare(dragStartSquare),
+        to: intToSquare(targetIndex),
+      })
     }
 
     setDraggedPiece(null)

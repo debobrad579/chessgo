@@ -1,11 +1,11 @@
-import { Game } from "@/types/chess"
-import { ChessGame } from "./game"
+import { ChessGame, type ChessGameHandle } from "./game"
 import useWebSocket, { ReadyState } from "react-use-websocket"
 import { useUser } from "@/user-context"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
+import type { Game } from "./types"
 
 export const sampleGame: Game = {
-  moves: ["e4", "e5", "Bc4", "Nc6", "Qh5", "Nf6", "Qxf7#"],
+  moves: ["e4", "c5", "Nf3", "e6", "d4", "cxd4", "Nxd4", "Nf6", "Nc3", "Nc6"],
   result: "1-0",
   white: {
     name: "AliceBot",
@@ -31,6 +31,8 @@ export function LiveGame() {
     }
   }, [lastMessage])
 
+  const chessGameRef = useRef<ChessGameHandle>(null)
+
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
     [ReadyState.OPEN]: "Open",
@@ -45,9 +47,12 @@ export function LiveGame() {
       <br />
       {user != null ? <h1>User: {user.Name}</h1> : <h1>No user logged in</h1>}
       <ChessGame
+        ref={chessGameRef}
         gameData={sampleGame}
-        onMove={(from, to) => {
-          sendMessage(`from ${from} to ${to}`)
+        onMove={(move) => {
+          if (!chessGameRef.current?.makeMove(move)) return
+
+          sendMessage(`from ${move.from} to ${move.to}`)
         }}
       />
     </div>

@@ -1,6 +1,6 @@
 import { formatSeconds } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
-import type { Game } from "@/types/chess"
+import type { Game } from "../types"
 
 export function Clock({
   player,

@@ -2,7 +2,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { MoveCell } from "./move-cell"
 import { cn } from "@/lib/utils"
 import { getMoveNumberArrays } from "./utils"
-import { Game } from "@/types/chess"
+import type { Game } from "../types"
 import { useRef } from "react"
 
 export function MovesList({
