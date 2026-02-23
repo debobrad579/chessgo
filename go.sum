@@ -1,3 +1,5 @@
+github.com/RchrdHndrcks/gochess v1.3.0 h1:+bkjlSNDTGLxQ7+6uY4JsuFB2l0rOhM4zgTOPoNpn2w=
+github.com/RchrdHndrcks/gochess v1.3.0/go.mod h1:1Ctq49gtTjvvlr+DJMHLE82q5/7NNBYn1G6pK3KvqHA=
 github.com/alexedwards/argon2id v1.0.0 h1:wJzDx66hqWX7siL/SRUmgz3F8YMrd/nfX/xHHcQQP0w=
 github.com/alexedwards/argon2id v1.0.0/go.mod h1:tYKkqIjzXvZdzPvADMWOEZ+l6+BD6CtBXMj5fnJppiw=
 github.com/golang-jwt/jwt/v5 v5.3.1 h1:kYf81DTWFe7t+1VvL7eS+jKFVWaUnK9cB1qbwn63YCY=

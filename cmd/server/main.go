@@ -28,6 +28,8 @@ func main() {
 	dbQueries := database.New(db)
 	cfg := handlers.Config{DB: dbQueries, TokenSecret: os.Getenv("TOKEN_SECRET")}
 
+	go handlers.HandleBroadcasts()
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

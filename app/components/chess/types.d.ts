@@ -1,13 +1,16 @@
 export type Game = {
-  moves: string[]
+  moves: Move[]
   result: "1-0" | "0-1" | "1/2-1/2" | "*"
-  white: { name: string; elo: string; timestamps: number[]; title?: string }
-  black: { name: string; elo: string; timestamps: number[]; title?: string }
+  white: Player
+  black: Player
   thinkTime?: number
 }
 
-export type ShortMove = {
+export type Player = { name: string; elo: string }
+
+export type Move = {
   from: string
   to: string
+  timestamp: int
   promotion?: string
 }

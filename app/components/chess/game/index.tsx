@@ -11,10 +11,10 @@ import { MovesTable } from "./moves-table"
 import { useChessGame } from "./use-chess-game"
 import { MovesList } from "./moves-list"
 import { forwardRef, useImperativeHandle } from "react"
-import type { Game, ShortMove } from "../types"
+import type { Game, Move } from "../types"
 
 export type ChessGameHandle = {
-  makeMove: (move: ShortMove) => void
+  makeMove: (move: Move) => void
 }
 
 type ChessGameProps = {
@@ -34,7 +34,6 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
       moves,
       undoCount,
       tick,
-      previousMove,
       mouseOverBoard,
       reset,
       undoMove,
@@ -44,7 +43,7 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
     } = useChessGame({ defaultMoves, result, thinkTime })
 
     useImperativeHandle(ref, () => ({
-      makeMove: (move: ShortMove) => {
+      makeMove: (move: Move) => {
         return addMove(move)
       },
     }))
@@ -57,6 +56,8 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
       setUndoCount(moves.length - index * 2 - 2)
     }
 
+    const previousMove = moves.at(moves.length - undoCount - 1)
+
     return (
       <div className="@container">
         <div
@@ -68,6 +69,7 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
             <div>
               <Clock
                 className="bg-gray-800 text-white"
+                timestamp={previousMove?.timestamp}
                 undoCount={undoCount}
                 turn={game.turn() === "b"}
                 result={
@@ -82,7 +84,11 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
                 fen={game.fen()}
                 previousMove={
                   previousMove
-                    ? { from: previousMove.from, to: previousMove.to }
+                    ? {
+                        from: previousMove.from,
+                        to: previousMove.to,
+                        timestamp: previousMove.timestamp,
+                      }
                     : undefined
                 }
                 check={game.inCheck() ? game.turn() : undefined}
@@ -91,6 +97,7 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
               />
               <Clock
                 className="bg-gray-200 text-black"
+                timestamp={previousMove?.timestamp}
                 undoCount={undoCount}
                 turn={game.turn() === "w"}
                 result={

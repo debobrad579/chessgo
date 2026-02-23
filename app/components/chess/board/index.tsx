@@ -5,13 +5,13 @@ import { squareToInt } from "./utils"
 import { useArrows } from "./use-arrows"
 import { useDrag } from "./use-drag"
 import { useBoardWidth } from "./use-board-width"
-import type { ShortMove } from "../types"
+import type { Move } from "../types"
 
 export type ChessboardProps = {
   fen: string
-  previousMove?: ShortMove
+  previousMove?: Move
   check?: "w" | "b"
-  onMove?: (move: ShortMove) => void
+  onMove?: (move: Move) => void
   draggablePieces?: "w" | "b" | "n"
 }
 

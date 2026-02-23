@@ -1,7 +1,7 @@
 import { Chess } from "chess.js"
-import { ShortMove } from "../types"
+import { Move } from "../types"
 
-export function moveToSan(fen: string, move: ShortMove): string | null {
+export function moveToSan(fen: string, move: Move): string | null {
   const chess = new Chess(fen)
 
   try {
@@ -12,25 +12,15 @@ export function moveToSan(fen: string, move: ShortMove): string | null {
   }
 }
 
-export function movesToPgn(moves: string[]): string {
-  let pgn = ""
-  for (let i = 0; i < moves.length; i++) {
-    const move = moves[i]
-    if (i % 2 === 0) {
-      pgn += `${Math.floor(i / 2) + 1}. ${move} `
-    } else {
-      pgn += `${move} `
-    }
-  }
-  return pgn.trim()
-}
+export function getMoveNumberArrays(moves: Move[]): [string, string][] {
+  const chess = new Chess()
+  const result: [string, string][] = []
 
-export function getMoveNumberArrays(arr: string[]): [string, string][] {
-  if (arr.length === 0) {
-    return []
+  for (let i = 0; i < moves.length; i += 2) {
+    const white = chess.move(moves[i]).san
+    const black = i + 1 < moves.length ? chess.move(moves[i + 1]).san : ""
+    result.push([white, black])
   }
 
-  const moveSet: [string, string] = [arr[0] || "", arr[1] || ""]
-
-  return [moveSet, ...getMoveNumberArrays(arr.slice(2))]
+  return result
 }

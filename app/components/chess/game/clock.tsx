@@ -1,24 +1,25 @@
 import { formatSeconds } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
-import type { Game } from "../types"
+import type { Player } from "../types"
 
 export function Clock({
   player,
+  timestamp,
   undoCount,
   result,
   turn,
   thinkTime,
   className,
 }: {
-  player: Game["white"]
+  player: Player
+  timestamp: number
   undoCount: number
   result: "win" | "loss" | "draw" | "*"
   turn: boolean
   thinkTime: number
   className?: string
 }) {
-  let currentTimestamp =
-    player.timestamps.at(-Math.ceil((undoCount + 1 + Number(turn)) / 2)) ?? 5400
+  let currentTimestamp = timestamp
 
   if (undoCount === 0 && result === "*" && turn) currentTimestamp -= thinkTime
 
@@ -30,10 +31,7 @@ export function Clock({
       )}
     >
       <div className="flex gap-2">
-        <div className="font-bold">
-          {player.title && `${player.title} `}
-          {player.name}
-        </div>
+        <div className="font-bold">{player.name}</div>
         <div>{player.elo}</div>
       </div>
       <div

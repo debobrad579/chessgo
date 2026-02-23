@@ -71,6 +71,7 @@ export function useDrag({
       onMove?.({
         from: intToSquare(dragStartSquare),
         to: intToSquare(targetIndex),
+        timestamp: 0,
       })
     }
 

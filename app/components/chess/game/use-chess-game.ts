@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react"
 import { Chess } from "chess.js"
 import { useEventListener } from "@/hooks/useEventListener"
-import { movesToPgn, moveToSan } from "./utils"
-import type { ShortMove } from "../types"
+import type { Move } from "../types"
 
 export function useChessGame({
   defaultMoves,
   result,
   thinkTime,
 }: {
-  defaultMoves: string[]
+  defaultMoves: Move[]
   result: string
   thinkTime?: number | null
 }) {
@@ -21,7 +20,9 @@ export function useChessGame({
   const game = useMemo(() => {
     const chess = new Chess()
     const visibleMoves = moves.slice(0, moves.length - undoCount)
-    chess.loadPgn(movesToPgn(visibleMoves))
+    for (const move of visibleMoves) {
+      chess.move(move)
+    }
     return chess
   }, [moves, undoCount])
 
@@ -69,23 +70,23 @@ export function useChessGame({
     setUndoCount((prev) => prev - 1)
   }
 
-  function addMove(move: ShortMove) {
-    const san = moveToSan(game.fen(), move)
-    if (san == null) return false
+  function addMove(move: Move): boolean {
+    try {
+      game.move(move)
 
-    setMoves((prev) => [...prev, san])
-    setUndoCount(0)
-    return true
+      setMoves((prev) => [...prev, move])
+      setUndoCount(0)
+      return true
+    } catch {
+      return false
+    }
   }
-
-  const previousMove = game.history({ verbose: true }).at(-1)
 
   return {
     moves,
     game,
     undoCount,
     tick,
-    previousMove,
     mouseOverBoard,
     reset,
     undoMove,

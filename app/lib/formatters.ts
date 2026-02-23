@@ -1,5 +1,5 @@
 export function formatSeconds(s: number | undefined) {
-  if (s == null) return "01:30:00"
+  if (s == null) return "00:00:00"
   if (s <= 0) return "00:00:00"
   const hours = Math.floor(s / 3600)
   const minutes = Math.floor((s - hours * 3600) / 60)
