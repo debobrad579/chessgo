@@ -37,14 +37,17 @@ func (g *Game) Move(move Move) {
 		}
 	}
 
-	if toRow == 0 && toCol == 7 {
-		g.State.CastlingRights = strings.ReplaceAll(g.State.CastlingRights, "K", "")
-	} else if toRow == 0 && toCol == 0 {
-		g.State.CastlingRights = strings.ReplaceAll(g.State.CastlingRights, "Q", "")
-	} else if toRow == 7 && toCol == 7 {
-		g.State.CastlingRights = strings.ReplaceAll(g.State.CastlingRights, "k", "")
-	} else if toRow == 7 && toCol == 0 {
-		g.State.CastlingRights = strings.ReplaceAll(g.State.CastlingRights, "q", "")
+	if piece.Type == Rook {
+		switch {
+		case fromRow == 0 && fromCol == 0:
+			g.State.CastlingRights = strings.ReplaceAll(g.State.CastlingRights, "Q", "")
+		case fromRow == 0 && fromCol == 7:
+			g.State.CastlingRights = strings.ReplaceAll(g.State.CastlingRights, "K", "")
+		case fromRow == 7 && fromCol == 0:
+			g.State.CastlingRights = strings.ReplaceAll(g.State.CastlingRights, "q", "")
+		case fromRow == 7 && fromCol == 7:
+			g.State.CastlingRights = strings.ReplaceAll(g.State.CastlingRights, "k", "")
+		}
 	}
 
 	g.State.Board[toRow][toCol] = piece

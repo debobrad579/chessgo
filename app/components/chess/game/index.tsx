@@ -24,14 +24,14 @@ type ChessGameProps = {
 export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
   function ChessGame(
     {
-      gameData: { white, black, moves: defaultMoves, result, thinkTime },
+      gameData: { white, black, moves, result, thinkTime },
       onMove,
     }: ChessGameProps,
     ref,
   ) {
     const {
       game,
-      moves,
+      optimisticMoves,
       undoCount,
       tick,
       mouseOverBoard,
@@ -40,7 +40,7 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
       redoMove,
       setUndoCount,
       addMove,
-    } = useChessGame({ defaultMoves, result, thinkTime })
+    } = useChessGame({ moves, result, thinkTime })
 
     useImperativeHandle(ref, () => ({
       makeMove: (move: Move) => {
@@ -49,14 +49,16 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
     }))
 
     function handleWhiteMoveClick(index: number) {
-      setUndoCount(moves.length - index * 2 - 1)
+      setUndoCount(optimisticMoves.length - index * 2 - 1)
     }
 
     function handleBlackMoveClick(index: number) {
-      setUndoCount(moves.length - index * 2 - 2)
+      setUndoCount(optimisticMoves.length - index * 2 - 2)
     }
 
-    const previousMove = moves.at(moves.length - undoCount - 1)
+    const previousMove = optimisticMoves.at(
+      optimisticMoves.length - undoCount - 1,
+    )
 
     return (
       <div className="@container">
@@ -113,14 +115,14 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
               <Button
                 className="w-full"
                 onClick={reset}
-                disabled={undoCount === moves.length}
+                disabled={undoCount === optimisticMoves.length}
               >
                 <ChevronFirst />
               </Button>
               <Button
                 className="w-full"
                 onClick={undoMove}
-                disabled={undoCount === moves.length}
+                disabled={undoCount === optimisticMoves.length}
               >
                 <ChevronLeft />
               </Button>
@@ -143,14 +145,14 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
             </div>
           </div>
           <MovesTable
-            moves={moves}
+            moves={optimisticMoves}
             result={result}
             undoCount={undoCount}
             onWhiteMoveClick={handleWhiteMoveClick}
             onBlackMoveClick={handleBlackMoveClick}
           />
           <MovesList
-            moves={moves}
+            moves={optimisticMoves}
             result={result}
             undoCount={undoCount}
             onWhiteMoveClick={handleWhiteMoveClick}

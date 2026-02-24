@@ -26,7 +26,7 @@ type Piece struct {
 type Board [8][8]*Piece
 
 type GameState struct {
-	Board           Board  `json:"from"`
+	Board           Board  `json:"board"`
 	ActiveColor     Color  `json:"active_color"`
 	EnPassantTarget string `json:"enpassant_target"`
 	CastlingRights  string `json:"castling_rights"`
@@ -45,7 +45,7 @@ type Player struct {
 }
 
 type Game struct {
-	State  GameState `json:"from"`
+	State  GameState `json:"state"`
 	White  Player    `json:"white"`
 	Black  Player    `json:"black"`
 	Result string    `json:"result"`

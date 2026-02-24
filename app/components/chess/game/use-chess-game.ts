@@ -1,30 +1,33 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useMemo, useOptimistic, useRef, useState } from "react"
 import { Chess } from "chess.js"
 import { useEventListener } from "@/hooks/useEventListener"
 import type { Move } from "../types"
 
 export function useChessGame({
-  defaultMoves,
+  moves,
   result,
   thinkTime,
 }: {
-  defaultMoves: Move[]
+  moves: Move[]
   result: string
   thinkTime?: number | null
 }) {
-  const [moves, setMoves] = useState(defaultMoves)
+  const [optimisticMoves, setOptimisticMoves] = useOptimistic(moves)
   const [undoCount, setUndoCount] = useState(0)
   const [tick, setTick] = useState(0)
   const mouseOverBoard = useRef(false)
 
   const game = useMemo(() => {
     const chess = new Chess()
-    const visibleMoves = moves.slice(0, moves.length - undoCount)
+    const visibleMoves = optimisticMoves.slice(
+      0,
+      optimisticMoves.length - undoCount,
+    )
     for (const move of visibleMoves) {
       chess.move(move)
     }
     return chess
-  }, [moves, undoCount])
+  }, [optimisticMoves, undoCount])
 
   useEffect(() => {
     if (thinkTime == null || result !== "*") return
@@ -33,12 +36,11 @@ export function useChessGame({
       setTick(Math.floor((Date.now() - start) / 1000))
     }, 1000)
     return () => clearInterval(interval)
-  }, [thinkTime, result, moves.length])
+  }, [thinkTime, result, moves])
 
   useEffect(() => {
-    setMoves(defaultMoves)
     setUndoCount(0)
-  }, [defaultMoves.length])
+  }, [moves.length])
 
   useEventListener("keydown", (e: KeyboardEvent) => {
     if (!mouseOverBoard.current) return
@@ -57,11 +59,11 @@ export function useChessGame({
   })
 
   function reset() {
-    setUndoCount(moves.length)
+    setUndoCount(optimisticMoves.length)
   }
 
   function undoMove() {
-    if (undoCount === moves.length) return
+    if (undoCount === optimisticMoves.length) return
     setUndoCount((prev) => prev + 1)
   }
 
@@ -74,7 +76,7 @@ export function useChessGame({
     try {
       game.move(move)
 
-      setMoves((prev) => [...prev, move])
+      setOptimisticMoves((prev) => [...prev, move])
       setUndoCount(0)
       return true
     } catch {
@@ -83,7 +85,7 @@ export function useChessGame({
   }
 
   return {
-    moves,
+    optimisticMoves,
     game,
     undoCount,
     tick,
