@@ -1,10 +1,10 @@
 import React from "react"
 import { createRoot } from "react-dom/client"
 import { BrowserRouter, Route, Routes } from "react-router"
-import { ThemeProvider } from "./components/themes/theme-provider"
-import { ThemeToggle } from "./components/themes/theme-toggle"
-import { PlayPage } from "./pages/play"
-import { UserProvider } from "./user-context"
+import { ThemeToggle } from "@/components/themes/ThemeToggle"
+import { ThemeProvider } from "@/context/ThemeContext"
+import { UserProvider } from "@/context/UserContext"
+import PlayPage from "@/pages/play"
 
 function App() {
   return (

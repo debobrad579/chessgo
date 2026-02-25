@@ -7,8 +7,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { MoveCell } from "./move-cell"
-import type { Game } from "../types"
+import { MoveCell } from "./MoveCell"
+import type { Move, Result } from "../types"
 import { getMoveNumberArrays } from "./utils"
 import { useRef } from "react"
 
@@ -19,8 +19,8 @@ export function MovesTable({
   onWhiteMoveClick,
   onBlackMoveClick,
 }: {
-  moves: Game["moves"]
-  result: Game["result"]
+  moves: Move[]
+  result: Result
   undoCount: number
   onWhiteMoveClick: (index: number) => void
   onBlackMoveClick: (index: number) => void

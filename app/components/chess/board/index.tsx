@@ -1,10 +1,10 @@
-import { Arrow } from "./arrow"
-import { Square } from "./square"
+import { Arrow } from "./Arrow"
+import { Square } from "./Square"
 import { parseFEN } from "@/lib/parsers"
 import { squareToInt } from "./utils"
-import { useArrows } from "./use-arrows"
-import { useDrag } from "./use-drag"
-import { useBoardWidth } from "./use-board-width"
+import { useArrows } from "./useArrows"
+import { useBoardWidth } from "./useBoardWidth"
+import { useDrag } from "./useDrag"
 import type { Move } from "../types"
 
 export type ChessboardProps = {
