@@ -2,19 +2,22 @@ include .env
 export
 
 migrate-up:
-	goose -dir sql/schema postgres "$(DB_URL)" up
+	@goose -dir sql/schema postgres "$(DB_URL)" up
 
 migrate-down:
-	goose -dir sql/schema postgres "$(DB_URL)" down
+	@goose -dir sql/schema postgres "$(DB_URL)" down
 
 migrate-status:
-	goose -dir sql/schema postgres "$(DB_URL)" status
+	@goose -dir sql/schema postgres "$(DB_URL)" status
 
 lint:
 	@echo "Linting Go..."
 	@go vet ./...
 	@echo "Linting TypeScript..."
 	@npx tsc --noEmit
+
+test:
+	@go test ./...
 
 build:
 	@echo "Building Go server..."
