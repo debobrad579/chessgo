@@ -10,7 +10,7 @@ func (r *gameRoom) runBroadcastLoop() {
 	for range r.broadcast {
 		r.mu.Lock()
 
-		data, err := json.Marshal(r.game)
+		data, err := json.Marshal(GameReturnType{Game: r.game, ThinkTime: r.thinkTime})
 		if err != nil {
 			r.mu.Unlock()
 			continue

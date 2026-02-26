@@ -20,17 +20,17 @@ RETURNING
 `
 
 type CreateUserParams struct {
-	Email          string
-	Name           string
-	HashedPassword string
+	Email          string `json:"email"`
+	Name           string `json:"name"`
+	HashedPassword string `json:"hashed_password"`
 }
 
 type CreateUserRow struct {
-	ID        uuid.UUID
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Email     string
-	Name      string
+	ID        uuid.UUID `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Email     string    `json:"email"`
+	Name      string    `json:"name"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {

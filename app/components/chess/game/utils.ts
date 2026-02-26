@@ -1,4 +1,4 @@
-import { Chess } from "chess.js"
+import { Chess, Color } from "chess.js"
 import { Move } from "../types"
 
 export function moveToSan(fen: string, move: Move): string | null {
@@ -23,4 +23,38 @@ export function getMoveNumberArrays(moves: Move[]): [string, string][] {
   }
 
   return result
+}
+
+export function getPlayerTimestamp({
+  moves,
+  undoCount,
+  gameTurn,
+  playerColor,
+  thinkTime,
+  initialTime,
+}: {
+  moves: Move[]
+  undoCount: number
+  gameTurn: Color
+  playerColor: Color
+  thinkTime: number
+  initialTime: number
+}) {
+  const playerMoves = moves
+    .slice(0, moves.length - undoCount)
+    .filter((_, i) => (playerColor === "w" ? i % 2 === 0 : i % 2 === 1))
+  const lastMove = playerMoves.at(-1)
+
+  if (!lastMove) {
+    if (gameTurn === playerColor) {
+      return initialTime - thinkTime
+    }
+    return initialTime
+  }
+
+  if (gameTurn === playerColor) {
+    return lastMove.timestamp - thinkTime
+  }
+
+  return lastMove.timestamp
 }

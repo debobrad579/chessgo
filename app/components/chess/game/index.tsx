@@ -19,28 +19,24 @@ export type ChessGameHandle = {
 
 type ChessGameProps = {
   gameData: Game
+  thinkTime: number
   onMove: ChessboardProps["onMove"]
 }
+
 export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
-  function ChessGame(
-    {
-      gameData: { white, black, moves, result, thinkTime },
-      onMove,
-    }: ChessGameProps,
-    ref,
-  ) {
+  function ChessGame({ gameData, thinkTime, onMove }, ref) {
     const {
       game,
       optimisticMoves,
+      optimisticThinkTime,
       undoCount,
-      tick,
       mouseOverBoard,
       reset,
       undoMove,
       redoMove,
       setUndoCount,
       addMove,
-    } = useChessGame({ moves, result, thinkTime })
+    } = useChessGame({ gameData, thinkTime })
 
     useImperativeHandle(ref, () => ({
       makeMove: (move: Move) => {
@@ -56,9 +52,10 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
       setUndoCount(optimisticMoves.length - index * 2 - 2)
     }
 
-    const previousMove = optimisticMoves.at(
-      optimisticMoves.length - undoCount - 1,
-    )
+    const previousMove =
+      optimisticMoves.length >= 1
+        ? optimisticMoves.at(optimisticMoves.length - undoCount - 1)
+        : null
 
     return (
       <div className="@container">
@@ -71,16 +68,18 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
             <div>
               <Clock
                 className="bg-gray-800 text-white"
-                timestamp={previousMove?.timestamp}
+                moves={optimisticMoves}
+                gameTurn={game.turn()}
+                playerColor="b"
                 undoCount={undoCount}
-                turn={game.turn() === "b"}
+                thinkTime={optimisticThinkTime}
+                initialTime={gameData.time_control.base}
                 result={
                   { "0-1": "win", "1-0": "loss", "1/2-1/2": "draw", "*": "*" }[
-                    result
+                    gameData.result
                   ] as "win" | "loss" | "draw" | "*"
                 }
-                thinkTime={(thinkTime ?? 0) + tick}
-                player={black}
+                player={gameData.black}
               />
               <Chessboard
                 fen={game.fen()}
@@ -99,16 +98,18 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
               />
               <Clock
                 className="bg-gray-200 text-black"
-                timestamp={previousMove?.timestamp}
+                moves={optimisticMoves}
+                gameTurn={game.turn()}
+                playerColor="w"
                 undoCount={undoCount}
-                turn={game.turn() === "w"}
+                thinkTime={optimisticThinkTime}
+                initialTime={gameData.time_control.base}
                 result={
                   { "1-0": "win", "0-1": "loss", "1/2-1/2": "draw", "*": "*" }[
-                    result
+                    gameData.result
                   ] as "win" | "loss" | "draw" | "*"
                 }
-                thinkTime={(thinkTime ?? 0) + tick}
-                player={white}
+                player={gameData.white}
               />
             </div>
             <div className="flex gap-2">
@@ -146,14 +147,14 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
           </div>
           <MovesTable
             moves={optimisticMoves}
-            result={result}
+            result={gameData.result}
             undoCount={undoCount}
             onWhiteMoveClick={handleWhiteMoveClick}
             onBlackMoveClick={handleBlackMoveClick}
           />
           <MovesList
             moves={optimisticMoves}
-            result={result}
+            result={gameData.result}
             undoCount={undoCount}
             onWhiteMoveClick={handleWhiteMoveClick}
             onBlackMoveClick={handleBlackMoveClick}

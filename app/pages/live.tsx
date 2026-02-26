@@ -1,7 +1,7 @@
 import { LiveGame } from "@/components/chess/LiveGame"
 import { useParams } from "react-router"
 
-export default function ConnectPage() {
+export default function LivePage() {
   const { gameID } = useParams()
 
   return (

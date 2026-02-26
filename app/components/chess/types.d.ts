@@ -7,12 +7,20 @@ export type Move = {
 
 export type Result = "1-0" | "0-1" | "1/2-1/2" | "*"
 
-export type Player = { name: string; elo: string }
+export type TimeControl = {
+  base: number
+  increment: number
+}
 
 export type Game = {
   moves: Move[]
   result: Result
-  white: Player
-  black: Player
-  thinkTime?: number
+  white: User | null
+  black: User | null
+  time_control: TimeControl
+}
+
+export type GameReturnType = {
+  game: Game
+  think_time: number
 }

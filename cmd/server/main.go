@@ -52,7 +52,7 @@ func main() {
 
 	mux.HandleFunc("/api/me", cfg.ApiMeHandler)
 
-	mux.HandleFunc("/games/new", cfg.NewGameHandler)
+	mux.HandleFunc("POST /games/new", cfg.NewGameHandler)
 	mux.HandleFunc("/games/{gameID}", cfg.ConnectToGameHandler)
 
 	log.Printf("Starting server at port %s\n", port)

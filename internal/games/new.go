@@ -16,25 +16,29 @@ func New() ([]byte, error) {
 		State:  chess.NewGameState(),
 		Moves:  []chess.Move{},
 		Result: "*",
-		White:  chess.Player{Name: "White", Elo: 1600},
-		Black:  chess.Player{Name: "Black", Elo: 1600},
+		TimeControl: chess.TimeControl{
+			Base:      3 * 60 * 1000,
+			Increment: 2 * 1000,
+		},
 	}
 
 	room := gameRoom{
 		game:      &game,
 		broadcast: make(chan struct{}),
+		whiteTime: game.TimeControl.Base,
+		blackTime: game.TimeControl.Base,
 	}
 
 	gameID := uuid.New()
-
-	registry.mu.Lock()
-	registry.rooms[gameID] = &room
-	registry.mu.Unlock()
 
 	data, err := json.Marshal(returnVals{gameID})
 	if err != nil {
 		return nil, err
 	}
+
+	registry.mu.Lock()
+	registry.rooms[gameID] = &room
+	registry.mu.Unlock()
 
 	go room.runBroadcastLoop()
 

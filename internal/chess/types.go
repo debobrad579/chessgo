@@ -1,5 +1,7 @@
 package chess
 
+import "github.com/debobrad579/chessgo/internal/database"
+
 type Color byte
 
 const (
@@ -35,19 +37,20 @@ type GameState struct {
 type Move struct {
 	From      string     `json:"from"`
 	To        string     `json:"to"`
-	Timestamp int        `json:"timestamp"`
 	Promotion *PieceType `json:"promotion,omitempty"`
+	Timestamp int        `json:"timestamp"`
 }
 
-type Player struct {
-	Name string `json:"name"`
-	Elo  int    `json:"elo"`
+type TimeControl struct {
+	Base      int `json:"base"`
+	Increment int `json:"increment"`
 }
 
 type Game struct {
-	State  GameState `json:"state"`
-	White  Player    `json:"white"`
-	Black  Player    `json:"black"`
-	Result string    `json:"result"`
-	Moves  []Move    `json:"moves"`
+	State       GameState      `json:"state"`
+	White       *database.User `json:"white"`
+	Black       *database.User `json:"black"`
+	Result      string         `json:"result"`
+	Moves       []Move         `json:"moves"`
+	TimeControl TimeControl    `json:"time_control"`
 }

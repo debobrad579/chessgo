@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/debobrad579/chessgo/internal/chess"
 	"github.com/debobrad579/chessgo/internal/database"
@@ -40,17 +41,25 @@ func ConnectToGame(w http.ResponseWriter, r *http.Request, gameID uuid.UUID, use
 	}
 
 	isWhite := false
-	if room.whiteConn == nil {
+	if room.game.White == nil {
+		room.game.White = user
 		room.whiteConn = conn
-		if user != nil {
-			room.game.White.Name = user.Name
-		}
 		isWhite = true
-	} else {
+	} else if room.whiteConn == nil && room.game.White.ID == user.ID {
+		room.whiteConn = conn
+		isWhite = true
+	} else if room.game.Black == nil {
+		room.game.Black = user
 		room.blackConn = conn
-		if user != nil {
-			room.game.Black.Name = user.Name
-		}
+		room.turnStart = time.Now()
+	} else if room.blackConn == nil && room.game.Black.ID == user.ID {
+		room.blackConn = conn
+	}
+
+	if room.game.Black != nil && room.game.White != nil {
+		room.thinkTime = int(time.Since(room.turnStart).Milliseconds())
+	} else {
+		room.thinkTime = 0
 	}
 
 	room.mu.Unlock()
@@ -58,6 +67,7 @@ func ConnectToGame(w http.ResponseWriter, r *http.Request, gameID uuid.UUID, use
 	defer func() {
 		conn.Close()
 		room.mu.Lock()
+
 		if isWhite {
 			room.whiteConn = nil
 		} else {
@@ -91,6 +101,11 @@ func ConnectToGame(w http.ResponseWriter, r *http.Request, gameID uuid.UUID, use
 
 		room.mu.Lock()
 
+		if room.game.Black == nil || room.game.White == nil {
+			room.mu.Unlock()
+			continue
+		}
+
 		if (isWhite && room.game.Turn() == chess.Black) || (!isWhite && room.game.Turn() == chess.White) {
 			room.mu.Unlock()
 			continue
@@ -101,7 +116,17 @@ func ConnectToGame(w http.ResponseWriter, r *http.Request, gameID uuid.UUID, use
 			continue
 		}
 
+		if isWhite {
+			room.whiteTime -= int(time.Since(room.turnStart).Milliseconds()) - room.game.TimeControl.Increment
+			move.Timestamp = room.whiteTime
+		} else {
+			room.blackTime -= int(time.Since(room.turnStart).Milliseconds()) - room.game.TimeControl.Increment
+			move.Timestamp = room.blackTime
+		}
+
 		room.game.Move(move)
+		room.turnStart = time.Now()
+
 		room.mu.Unlock()
 
 		select {

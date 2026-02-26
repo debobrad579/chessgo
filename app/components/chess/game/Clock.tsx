@@ -1,28 +1,33 @@
-import { formatSeconds } from "@/lib/formatters"
+import { formatMilliseconds } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
-import type { Player } from "../types"
+import { User } from "@/types/user"
+import { getPlayerTimestamp } from "./utils"
+import { Move } from "../types"
+import { Color } from "chess.js"
+
+type ClockProps = {
+  player: User | null
+  moves: Move[]
+  undoCount: number
+  gameTurn: Color
+  playerColor: Color
+  thinkTime: number
+  initialTime: number
+  result: "win" | "loss" | "draw" | "*"
+  className?: string
+}
 
 export function Clock({
   player,
-  timestamp,
+  moves,
   undoCount,
-  result,
-  turn,
+  gameTurn,
+  playerColor,
   thinkTime,
+  initialTime,
+  result,
   className,
-}: {
-  player: Player
-  timestamp: number
-  undoCount: number
-  result: "win" | "loss" | "draw" | "*"
-  turn: boolean
-  thinkTime: number
-  className?: string
-}) {
-  let currentTimestamp = timestamp
-
-  if (undoCount === 0 && result === "*" && turn) currentTimestamp -= thinkTime
-
+}: ClockProps) {
   return (
     <div
       className={cn(
@@ -30,25 +35,27 @@ export function Clock({
         className,
       )}
     >
-      <div className="flex gap-2">
-        <div className="font-bold">{player.name}</div>
-        <div>{player.elo}</div>
-      </div>
+      <div className="font-bold">{player?.name ?? "Player"}</div>
       <div
         className={
-          undoCount !== 0
-            ? undefined
-            : result === "win"
-              ? "text-green-500"
-              : result === "loss"
-                ? "text-red-500"
-                : result === "*" && turn
-                  ? "text-orange-500"
-                  : undefined
+          result === "win"
+            ? "text-green-500"
+            : result === "loss"
+              ? "text-red-500"
+              : undefined
         }
       >
-        {undoCount !== 0 || result === "*"
-          ? formatSeconds(currentTimestamp)
+        {result === "*"
+          ? formatMilliseconds(
+              getPlayerTimestamp({
+                moves,
+                undoCount,
+                gameTurn,
+                playerColor,
+                thinkTime,
+                initialTime,
+              }),
+            )
           : result === "win"
             ? 1
             : result === "loss"

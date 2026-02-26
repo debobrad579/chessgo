@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { useNavigate } from "react-router"
 
-export default function PlayPage() {
+export default function HomePage() {
   const navigate = useNavigate()
 
   return (
@@ -9,10 +9,10 @@ export default function PlayPage() {
       <div className="aspect-square w-[min(100vw,100vh)] p-4">
         <Button
           onClick={() => {
-            fetch("/games/new")
+            fetch("/games/new", { method: "POST" })
               .then((res) => res.json())
               .then((data) => {
-                navigate(`/games/${data?.game_id}`, { replace: true })
+                navigate(`/live/${data?.game_id}`, { replace: true })
               })
           }}
         >

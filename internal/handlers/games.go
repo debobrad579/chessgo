@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -35,4 +36,17 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 	}
 
 	games.ConnectToGame(w, r, gameID, user)
+}
+
+func (cfg *Config) GamesListHandler(w http.ResponseWriter, r *http.Request) {
+	gameRooms := games.GetGamesList()
+
+	data, err := json.Marshal(gameRooms)
+	if err != nil {
+		http.Error(w, "failed to marshal data", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
 }
