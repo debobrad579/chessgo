@@ -3,36 +3,45 @@ package games
 import (
 	"time"
 
+	"github.com/debobrad579/chessgo/internal/chess"
 	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/gorilla/websocket"
 )
 
-func (gr *GameRoom) assignRole(conn *websocket.Conn, user *database.User) PlayerRole {
+type PlayerRole int
+
+const (
+	White PlayerRole = iota
+	Black
+	Spectator
+)
+
+func (room *GameRoom) assignRole(conn *websocket.Conn, user *database.User) PlayerRole {
 	switch {
-	case gr.Game.White != nil && gr.Game.White.ID == user.ID:
-		gr.whiteConn = conn
+	case user.ID == room.game.White.ID:
+		room.whiteConn = conn
 		return White
-	case gr.Game.Black != nil && gr.Game.Black.ID == user.ID:
-		gr.blackConn = conn
+	case user.ID == room.game.Black.ID:
+		room.blackConn = conn
 		return Black
-	case gr.whiteConn == nil:
-		gr.Game.White = user
-		gr.whiteConn = conn
-		if gr.blackConn != nil {
-			gr.turnStart = time.Now()
+	case room.whiteConn == nil:
+		room.game.White = chess.Player{ID: user.ID, Name: user.Name}
+		room.whiteConn = conn
+		if room.blackConn != nil {
+			room.turnStart = time.Now()
 			registry.notifySubscribers()
 		}
 		return White
-	case gr.blackConn == nil:
-		gr.Game.Black = user
-		gr.blackConn = conn
-		if gr.whiteConn != nil {
-			gr.turnStart = time.Now()
+	case room.blackConn == nil:
+		room.game.Black = chess.Player{ID: user.ID, Name: user.Name}
+		room.blackConn = conn
+		if room.whiteConn != nil {
+			room.turnStart = time.Now()
 			registry.notifySubscribers()
 		}
 		return Black
 	default:
-		data, err := gr.getGameData()
+		data, err := room.getGameData()
 		if err != nil {
 			return Spectator
 		}
@@ -40,7 +49,7 @@ func (gr *GameRoom) assignRole(conn *websocket.Conn, user *database.User) Player
 			conn.Close()
 			return Spectator
 		}
-		gr.spectatorConns[user.ID] = conn
+		room.spectatorConns[user.ID] = conn
 		return Spectator
 	}
 }

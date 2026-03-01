@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import type { CSSProperties } from "react"
 
 type SquareProps = {
   index: number
@@ -28,6 +28,41 @@ export function Square({
   const isLight = (Math.floor(index / 8) + (index % 8)) % 2 === 0
   const rank = 8 - Math.floor(index / 8)
   const file = String.fromCharCode(97 + (index % 8))
+  const showRank = flipBoard ? file === "h" : file === "a"
+  const showFile = flipBoard ? rank === 8 : rank === 1
+
+  function getBackgroundStyle(): CSSProperties {
+    let backgroundColor = "#ba8765"
+    let textColor = "#eed7b4"
+
+    if (isLight) {
+      if (isHighlighted) {
+        backgroundColor = "#ee7965"
+        textColor = "#e46956"
+      } else if (isYellow) {
+        backgroundColor = "#f6eb81"
+        textColor = "#dcc35a"
+      } else {
+        backgroundColor = "#eed6b2"
+        textColor = "#ba8765"
+      }
+    } else {
+      if (isHighlighted) {
+        backgroundColor = "#e46956"
+        textColor = "#ee7965"
+      } else if (isYellow) {
+        backgroundColor = "#dcc35a"
+        textColor = "#f6eb81"
+      }
+    }
+
+    return {
+      background: check
+        ? `radial-gradient(ellipse at center, rgb(255,0,0) 0%, rgb(231,0,0) 25%, rgba(169,0,0,0) 89%, rgba(158,0,0,0) 100%), ${backgroundColor}`
+        : backgroundColor,
+      color: textColor,
+    }
+  }
 
   return (
     <div
@@ -46,41 +81,25 @@ export function Square({
         }
       }}
       onContextMenu={(e) => e.preventDefault()}
-      className={cn(
-        "w-full aspect-square relative leading-none",
-        check &&
-          "bg-[radial-gradient(ellipse_at_center,_rgb(255,0,0)_0%,_rgb(231,0,0)_25%,_rgba(169,0,0,0)_89%,_rgba(158,0,0,0)_100%)]",
-        isLight
-          ? isHighlighted
-            ? "bg-[#ee7965] text-[#e46956]"
-            : isYellow
-              ? "bg-[#f6eb81] text-[#dcc35a]"
-              : "bg-[#eed6b2] text-[#ba8765]"
-          : isHighlighted
-            ? "bg-[#e46956] text-[#ee7965]"
-            : isYellow
-              ? "bg-[#dcc35a] text-[#f6eb81]"
-              : "bg-[#ba8765] text-[hsl(36,64%,82%)]",
-      )}
+      className={"w-full aspect-square relative leading-none"}
+      style={getBackgroundStyle()}
     >
-      {(file === "a" && !flipBoard) ||
-        (file === "h" && flipBoard && (
-          <div
-            className={"absolute top-[2px] left-[2px]"}
-            style={{ fontSize: squareWidth / 5 }}
-          >
-            {rank}
-          </div>
-        ))}
-      {(rank === 1 && !flipBoard) ||
-        (rank === 8 && flipBoard && (
-          <div
-            className={"absolute bottom-[2px] right-[2px]"}
-            style={{ fontSize: squareWidth / 5 }}
-          >
-            {file}
-          </div>
-        ))}
+      {showRank && (
+        <div
+          className={"absolute top-[2px] left-[2px]"}
+          style={{ fontSize: squareWidth / 5 }}
+        >
+          {rank}
+        </div>
+      )}
+      {showFile && (
+        <div
+          className={"absolute bottom-[2px] right-[2px]"}
+          style={{ fontSize: squareWidth / 5 }}
+        >
+          {file}
+        </div>
+      )}
       {piece != null && (
         <img
           src={`/static/pieces/${piece}.svg`}

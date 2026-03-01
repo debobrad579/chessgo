@@ -1,39 +1,10 @@
 package games
 
 import (
-	"errors"
 	"sync"
-	"time"
 
-	"github.com/debobrad579/chessgo/internal/chess"
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 )
-
-type GameRoom struct {
-	ID             uuid.UUID   `json:"id"`
-	Game           *chess.Game `json:"game"`
-	whiteConn      *websocket.Conn
-	blackConn      *websocket.Conn
-	whiteTime      int
-	blackTime      int
-	mu             sync.Mutex
-	broadcast      chan struct{}
-	turnStart      time.Time
-	spectatorConns map[uuid.UUID]*websocket.Conn
-}
-
-func GetGameRoom(gameID uuid.UUID) (*GameRoom, error) {
-	registry.mu.Lock()
-	room, ok := registry.rooms[gameID]
-	registry.mu.Unlock()
-
-	if !ok {
-		return nil, errors.New("game room not found")
-	}
-
-	return room, nil
-}
 
 type gamesRegistry struct {
 	mu          sync.Mutex

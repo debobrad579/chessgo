@@ -1,47 +1,64 @@
 package games
 
 import (
+	"encoding/json"
+
 	"github.com/gorilla/websocket"
+
+	"github.com/debobrad579/chessgo/internal/chess"
 )
 
-func (gr *GameRoom) runBroadcastLoop() {
-	for range gr.broadcast {
-		gr.mu.Lock()
+type GameData struct {
+	Moves       []chess.Move      `json:"moves"`
+	TimeControl chess.TimeControl `json:"time_control"`
+	ThinkTime   int               `json:"think_time"`
+	Result      string            `json:"result"`
+	White       chess.Player      `json:"white"`
+	Black       chess.Player      `json:"black"`
+}
 
-		data, err := gr.getGameData()
+func (room *GameRoom) getGameData() ([]byte, error) {
+	return json.Marshal(GameData{
+		Moves:       room.game.Moves,
+		TimeControl: room.game.TimeControl,
+		ThinkTime:   room.getThinkTime(),
+		Result:      "*",
+		White:       room.game.White,
+		Black:       room.game.Black,
+	})
+}
+
+func (room *GameRoom) runBroadcastLoop() {
+	for range room.broadcast {
+		room.mu.Lock()
+
+		data, err := room.getGameData()
 		if err != nil {
-			gr.mu.Unlock()
+			room.mu.Unlock()
 			continue
 		}
 
-		white := gr.whiteConn
-		black := gr.blackConn
+		room.mu.Unlock()
 
-		gr.mu.Unlock()
-
-		if white != nil {
-			if err := white.WriteMessage(websocket.TextMessage, data); err != nil {
-				white.Close()
-				gr.mu.Lock()
-				if gr.whiteConn == white {
-					gr.whiteConn = nil
-				}
-				gr.mu.Unlock()
+		if room.whiteConn != nil {
+			if err := room.whiteConn.WriteMessage(websocket.TextMessage, data); err != nil {
+				room.whiteConn.Close()
+				room.mu.Lock()
+				room.whiteConn = nil
+				room.mu.Unlock()
 			}
 		}
 
-		if black != nil {
-			if err := black.WriteMessage(websocket.TextMessage, data); err != nil {
-				black.Close()
-				gr.mu.Lock()
-				if gr.blackConn == black {
-					gr.blackConn = nil
-				}
-				gr.mu.Unlock()
+		if room.blackConn != nil {
+			if err := room.blackConn.WriteMessage(websocket.TextMessage, data); err != nil {
+				room.blackConn.Close()
+				room.mu.Lock()
+				room.blackConn = nil
+				room.mu.Unlock()
 			}
 		}
 
-		for _, conn := range gr.spectatorConns {
+		for _, conn := range room.spectatorConns {
 			if err := conn.WriteMessage(websocket.TextMessage, data); err != nil {
 				conn.Close()
 			}

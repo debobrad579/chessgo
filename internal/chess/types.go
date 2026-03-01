@@ -1,6 +1,8 @@
 package chess
 
-import "github.com/debobrad579/chessgo/internal/database"
+import (
+	"github.com/google/uuid"
+)
 
 type Color byte
 
@@ -46,11 +48,16 @@ type TimeControl struct {
 	Increment int `json:"increment"`
 }
 
+type Player struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
+}
+
 type Game struct {
-	State       GameState      `json:"state"`
-	White       *database.User `json:"white"`
-	Black       *database.User `json:"black"`
-	Result      string         `json:"result"`
-	Moves       []Move         `json:"moves"`
-	TimeControl TimeControl    `json:"time_control"`
+	State       GameState   `json:"state"`
+	White       Player      `json:"white"`
+	Black       Player      `json:"black"`
+	Result      string      `json:"result"`
+	Moves       []Move      `json:"moves"`
+	TimeControl TimeControl `json:"time_control"`
 }

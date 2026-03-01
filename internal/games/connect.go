@@ -14,24 +14,21 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (gr *GameRoom) Connect(w http.ResponseWriter, r *http.Request, user *database.User) (*websocket.Conn, PlayerRole) {
+func (room *GameRoom) Connect(w http.ResponseWriter, r *http.Request, user *database.User) (*websocket.Conn, PlayerRole) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, "failed to upgrade websocket", http.StatusBadRequest)
 		return nil, Spectator
 	}
 
-	gr.mu.Lock()
-	defer gr.mu.Unlock()
+	room.mu.Lock()
+	defer room.mu.Unlock()
 
-	playerRole := gr.assignRole(conn, user)
+	playerRole := room.assignRole(conn, user)
 
 	if playerRole != Spectator {
-		if gr.Game.White != nil && gr.Game.Black != nil {
-		}
-
 		select {
-		case gr.broadcast <- struct{}{}:
+		case room.broadcast <- struct{}{}:
 		default:
 		}
 	}
@@ -39,32 +36,32 @@ func (gr *GameRoom) Connect(w http.ResponseWriter, r *http.Request, user *databa
 	return conn, playerRole
 }
 
-func (gr *GameRoom) Disconnect(user *database.User) {
-	gr.mu.Lock()
+func (room *GameRoom) Disconnect(user *database.User) {
+	room.mu.Lock()
 
 	switch {
-	case gr.spectatorConns[user.ID] != nil:
-		gr.spectatorConns[user.ID].Close()
-		delete(gr.spectatorConns, user.ID)
-	case gr.Game.White != nil && gr.whiteConn != nil && user.ID == gr.Game.White.ID:
-		gr.whiteConn.Close()
-		gr.whiteConn = nil
-	case gr.Game.Black != nil && gr.blackConn != nil && user.ID == gr.Game.Black.ID:
-		gr.blackConn.Close()
-		gr.blackConn = nil
+	case room.spectatorConns[user.ID] != nil:
+		room.spectatorConns[user.ID].Close()
+		delete(room.spectatorConns, user.ID)
+	case room.whiteConn != nil && user.ID == room.game.White.ID:
+		room.whiteConn.Close()
+		room.whiteConn = nil
+	case room.blackConn != nil && user.ID == room.game.Black.ID:
+		room.blackConn.Close()
+		room.blackConn = nil
 	}
 
-	roomEmpty := gr.whiteConn == nil && gr.blackConn == nil
+	roomEmpty := room.whiteConn == nil && room.blackConn == nil
 
 	if roomEmpty {
-		close(gr.broadcast)
+		close(room.broadcast)
 	}
 
-	gr.mu.Unlock()
+	room.mu.Unlock()
 
 	if roomEmpty {
 		registry.mu.Lock()
-		delete(registry.rooms, gr.ID)
+		delete(registry.rooms, room.id)
 		registry.mu.Unlock()
 		registry.notifySubscribers()
 	}

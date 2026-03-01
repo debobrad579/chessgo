@@ -1,0 +1,52 @@
+package games
+
+import (
+	"errors"
+	"sync"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/websocket"
+
+	"github.com/debobrad579/chessgo/internal/chess"
+)
+
+type GameRoom struct {
+	id             uuid.UUID
+	game           *chess.Game
+	whiteConn      *websocket.Conn
+	blackConn      *websocket.Conn
+	whiteTime      int
+	blackTime      int
+	mu             sync.Mutex
+	broadcast      chan struct{}
+	turnStart      time.Time
+	spectatorConns map[uuid.UUID]*websocket.Conn
+}
+
+func (room *GameRoom) getThinkTime() int {
+	if !room.whiteExists() || !room.blackExists() {
+		return 0
+	}
+	return int(time.Since(room.turnStart).Milliseconds())
+}
+
+func (room *GameRoom) whiteExists() bool {
+	return room.game.White.ID != uuid.Nil
+}
+
+func (room *GameRoom) blackExists() bool {
+	return room.game.Black.ID != uuid.Nil
+}
+
+func GetGameRoom(gameID uuid.UUID) (*GameRoom, error) {
+	registry.mu.Lock()
+	room, ok := registry.rooms[gameID]
+	registry.mu.Unlock()
+
+	if !ok {
+		return nil, errors.New("game room not found")
+	}
+
+	return room, nil
+}

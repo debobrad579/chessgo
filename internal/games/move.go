@@ -8,7 +8,7 @@ import (
 	"github.com/debobrad579/chessgo/internal/chess"
 )
 
-func (gr *GameRoom) MakeMove(message []byte, playerRole PlayerRole) error {
+func (room *GameRoom) MakeMove(message []byte, playerRole PlayerRole) error {
 	if playerRole == Spectator {
 		return errors.New("cannot make move as spectator")
 	}
@@ -18,34 +18,34 @@ func (gr *GameRoom) MakeMove(message []byte, playerRole PlayerRole) error {
 		return err
 	}
 
-	gr.mu.Lock()
-	defer gr.mu.Unlock()
+	room.mu.Lock()
+	defer room.mu.Unlock()
 
-	if gr.Game.White == nil || gr.Game.Black == nil {
+	if !room.whiteExists() || !room.blackExists() {
 		return errors.New("game not started")
 	}
 
-	if (playerRole == White) != (gr.Game.Turn() == chess.White) {
+	if (playerRole == White) != (room.game.Turn() == chess.White) {
 		return errors.New("not your turn")
 	}
 
-	if !gr.Game.IsMoveValid(move) {
+	if !room.game.IsMoveValid(move) {
 		return errors.New("invalid move")
 	}
 
 	if playerRole == White {
-		gr.whiteTime -= int(time.Since(gr.turnStart).Milliseconds()) - gr.Game.TimeControl.Increment
-		move.Timestamp = gr.whiteTime
+		room.whiteTime -= int(time.Since(room.turnStart).Milliseconds()) - room.game.TimeControl.Increment
+		move.Timestamp = room.whiteTime
 	} else {
-		gr.blackTime -= int(time.Since(gr.turnStart).Milliseconds()) - gr.Game.TimeControl.Increment
-		move.Timestamp = gr.blackTime
+		room.blackTime -= int(time.Since(room.turnStart).Milliseconds()) - room.game.TimeControl.Increment
+		move.Timestamp = room.blackTime
 	}
 
-	gr.Game.Move(move)
-	gr.turnStart = time.Now()
+	room.game.Move(move)
+	room.turnStart = time.Now()
 
 	select {
-	case gr.broadcast <- struct{}{}:
+	case room.broadcast <- struct{}{}:
 	default:
 	}
 
