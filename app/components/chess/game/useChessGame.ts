@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useOptimistic, useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { Chess } from "chess.js"
 import { useEventListener } from "@/hooks/useEventListener"
 import { GameData, Move } from "@/types/chess"
 import { playerExists } from "./utils"
 
 export function useChessGame({ gameData }: { gameData: GameData }) {
-  const [optimisticMoves, setOptimisticMoves] = useOptimistic(gameData.moves)
+  const [optimisticMoves, setOptimisticMoves] = useState(gameData.moves)
   const [optimisticThinkTime, setOptimisticThinkTime] = useState(
     gameData.think_time,
   )
@@ -25,8 +25,9 @@ export function useChessGame({ gameData }: { gameData: GameData }) {
   }, [optimisticMoves, undoCount])
 
   useEffect(() => {
-    setUndoCount(0)
+    setOptimisticMoves(gameData.moves)
     setOptimisticThinkTime(gameData.think_time)
+    setUndoCount(0)
 
     if (
       gameData.result !== "*" ||

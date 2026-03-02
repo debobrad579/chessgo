@@ -20,7 +20,7 @@ export type ChessGameHandle = {
 
 type ChessGameProps = {
   gameData: GameData
-  onMove: ChessboardProps["onMove"]
+  onMove?: ChessboardProps["onMove"]
 }
 
 export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
@@ -112,7 +112,7 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
                 check={game.inCheck() ? game.turn() : undefined}
                 onMove={onMove}
                 draggablePieces={
-                  undoCount !== 0
+                  undoCount !== 0 || gameData.result !== "*"
                     ? "n"
                     : user?.id === gameData.white.id
                       ? "w"

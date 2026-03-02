@@ -47,7 +47,11 @@ func (room *GameRoom) MakeMove(message []byte, playerRole PlayerRole) error {
 
 	room.game.Move(move)
 	room.result = room.game.Result().Result
-	room.startTurnTimer()
+	if room.result != chess.ResultGameOngoing {
+		room.saveGame()
+	} else {
+		room.startTurnTimer()
+	}
 
 	select {
 	case room.broadcast <- struct{}{}:

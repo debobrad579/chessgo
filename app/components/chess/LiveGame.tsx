@@ -26,7 +26,7 @@ export function LiveGame({ gameID }: { gameID: string }) {
   const chessGameRef = useRef<ChessGameHandle>(null)
 
   const { readyState, sendJsonMessage } = useWebSocket(
-    `/games/${gameID}`,
+    `/live/${gameID}`,
     (event) => {
       const parsed: GameData = JSON.parse(event.data)
       setGameData(parsed)

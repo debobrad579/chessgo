@@ -9,6 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"github.com/debobrad579/chessgo/internal/chess"
+	"github.com/debobrad579/chessgo/internal/database"
 )
 
 type GameRoom struct {
@@ -24,6 +25,7 @@ type GameRoom struct {
 	spectatorConns map[uuid.UUID]*websocket.Conn
 	turnStart      time.Time
 	turnTimer      *time.Timer
+	db             *database.Queries
 }
 
 func (room *GameRoom) whiteExists() bool {

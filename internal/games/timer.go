@@ -26,6 +26,7 @@ func (room *GameRoom) startTurnTimer() {
 		} else {
 			room.result = chess.ResultWhiteWon
 		}
+		room.saveGame()
 		room.mu.Unlock()
 
 		select {

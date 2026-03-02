@@ -16,7 +16,7 @@ export default function Layout() {
         </Link>
         <div className="flex gap-2">
           <Button asChild variant="ghost">
-            <Link to="#">My Games</Link>
+            <Link to="/games">My Games</Link>
           </Button>
           <ThemeToggle />
         </div>

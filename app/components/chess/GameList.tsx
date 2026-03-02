@@ -14,35 +14,33 @@ import { Timer } from "lucide-react"
 import { playerExists } from "./game/utils"
 
 export function GameList() {
-  const { data } = useEventSource<GameListItem[]>("/games")
+  const { data } = useEventSource<GameListItem[]>("/live")
   const navigate = useNavigate()
 
   return (
-    <div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Player</TableHead>
-            <TableHead>
-              <Timer />
-            </TableHead>
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Player</TableHead>
+          <TableHead>
+            <Timer />
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {data?.map((item) => (
+          <TableRow
+            key={item.id}
+            onClick={() => navigate(`/live/${item.id}`)}
+            className="cursor-pointer"
+          >
+            <TableCell>
+              {playerExists(item.white) ? item.white.name : item.black.name}
+            </TableCell>
+            <TableCell>{formatTimeControl(item.time_control)}</TableCell>
           </TableRow>
-        </TableHeader>
-        <TableBody>
-          {data?.map((item) => (
-            <TableRow
-              key={item.id}
-              onClick={() => navigate(`/live/${item.id}`)}
-              className="cursor-pointer"
-            >
-              <TableCell>
-                {playerExists(item.white) ? item.white.name : item.black.name}
-              </TableCell>
-              <TableCell>{formatTimeControl(item.time_control)}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+        ))}
+      </TableBody>
+    </Table>
   )
 }

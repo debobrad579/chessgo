@@ -10,7 +10,7 @@ import (
 	"github.com/debobrad579/chessgo/internal/database"
 )
 
-func New(user *database.User, color chess.Color, timeControl chess.TimeControl) ([]byte, error) {
+func New(user *database.User, db *database.Queries, color chess.Color, timeControl chess.TimeControl) ([]byte, error) {
 	type returnVals struct {
 		GameID uuid.UUID `json:"game_id"`
 	}
@@ -37,6 +37,7 @@ func New(user *database.User, color chess.Color, timeControl chess.TimeControl) 
 		whiteTime:      game.TimeControl.Base,
 		blackTime:      game.TimeControl.Base,
 		spectatorConns: make(map[uuid.UUID]*websocket.Conn),
+		db:             db,
 	}
 
 	data, err := json.Marshal(returnVals{room.id})

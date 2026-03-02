@@ -37,23 +37,6 @@ type GameState struct {
 	HalfMoveCount   int    `json:"half_move_count"`
 }
 
-type Move struct {
-	From      string     `json:"from"`
-	To        string     `json:"to"`
-	Promotion *PieceType `json:"promotion,omitempty"`
-	Timestamp int        `json:"timestamp"`
-}
-
-type TimeControl struct {
-	Base      int `json:"base"`
-	Increment int `json:"increment"`
-}
-
-type Player struct {
-	ID   uuid.UUID `json:"id"`
-	Name string    `json:"name"`
-}
-
 type Reason int
 
 const (
@@ -79,6 +62,23 @@ const (
 type GameOver struct {
 	Result Result
 	Reason Reason
+}
+
+type Move struct {
+	From      string     `json:"from"`
+	To        string     `json:"to"`
+	Promotion *PieceType `json:"promotion,omitempty"`
+	Timestamp int        `json:"timestamp"`
+}
+
+type TimeControl struct {
+	Base      int `json:"base"`
+	Increment int `json:"increment"`
+}
+
+type Player struct {
+	ID   uuid.UUID `json:"id"`
+	Name string    `json:"name"`
 }
 
 type Game struct {

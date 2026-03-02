@@ -1,64 +1,28 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
-	"strconv"
-	"strings"
 
+	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/google/uuid"
-
-	"github.com/debobrad579/chessgo/internal/chess"
-	"github.com/debobrad579/chessgo/internal/games"
 )
 
-type newGameOptions struct {
-	Color       string `json:"color"`
-	TimeControl string `json:"time_control"`
-}
-
-func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUser(r)
+	if err != nil || user == nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	games, err := cfg.DB.GetGamesByUser(r.Context(), database.GetGamesByUserParams{WhiteID: user.ID, Limit: 10, Column3: 1})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	defer r.Body.Close()
-
-	var gameOptions newGameOptions
-
-	if err = json.NewDecoder(r.Body).Decode(&gameOptions); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	playerColor := chess.White
-	if gameOptions.Color == "black" {
-		playerColor = chess.Black
-	}
-
-	baseStr, incrementStr, found := strings.Cut(gameOptions.TimeControl, "+")
-	if !found {
-		http.Error(w, "Invalid time control format", http.StatusBadRequest)
-		return
-	}
-
-	base, err := strconv.Atoi(baseStr)
-	if err != nil {
-		http.Error(w, "Invalid time control format", http.StatusBadRequest)
-		return
-	}
-
-	increment, err := strconv.Atoi(incrementStr)
-	if err != nil {
-		http.Error(w, "Invalid time control format", http.StatusBadRequest)
-		return
-	}
-
-	data, err := games.New(user, playerColor, chess.TimeControl{Base: base * 60 * 1000, Increment: increment * 1000})
+	data, err := json.Marshal(games)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -68,7 +32,7 @@ func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) GameHandler(w http.ResponseWriter, r *http.Request) {
 	gameIDStr := r.PathValue("gameID")
 
 	gameID, err := uuid.Parse(gameIDStr)
@@ -77,66 +41,22 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user, err := cfg.getUser(r)
+	game, err := cfg.DB.GetGame(r.Context(), gameID)
 	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	room, err := games.GetGameRoom(gameID)
-	if err != nil {
-		http.Error(w, "game room not found", http.StatusNotFound)
-		return
-	}
-
-	conn, playerRole := room.Connect(w, r, user)
-	if conn == nil {
-		return
-	}
-	defer room.Disconnect(user)
-
-	for {
-		_, message, err := conn.ReadMessage()
-		if err != nil {
-			log.Println("failed to read message: ", err)
+		if err == sql.ErrNoRows {
+			http.Error(w, "game not found", http.StatusNotFound)
 			return
 		}
-
-		room.MakeMove(message, playerRole)
-	}
-}
-
-func (cfg *Config) GamesListHandler(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "streaming unsupported", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	ch := games.Subscribe()
-	defer games.Unsubscribe(ch)
-
-	sendSnapshot(w, flusher)
-
-	for {
-		select {
-		case <-r.Context().Done():
-			return
-		case <-ch:
-			sendSnapshot(w, flusher)
-		}
-	}
-}
-
-func sendSnapshot(w http.ResponseWriter, flusher http.Flusher) {
-	data, err := json.Marshal(games.GetGamesList())
+	data, err := json.Marshal(game)
 	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, "data: %s\n\n", data)
-	flusher.Flush()
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
 }

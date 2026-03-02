@@ -6,10 +6,23 @@ package database
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+type Game struct {
+	ID                   uuid.UUID       `json:"id"`
+	CreatedAt            time.Time       `json:"created_at"`
+	UpdatedAt            time.Time       `json:"updated_at"`
+	WhiteID              uuid.UUID       `json:"white_id"`
+	BlackID              uuid.UUID       `json:"black_id"`
+	TimeControlBase      int32           `json:"time_control_base"`
+	TimeControlIncrement int32           `json:"time_control_increment"`
+	Result               string          `json:"result"`
+	Moves                json.RawMessage `json:"moves"`
+}
 
 type RefreshToken struct {
 	Token     string       `json:"token"`
