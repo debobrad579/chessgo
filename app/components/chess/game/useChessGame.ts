@@ -1,10 +1,20 @@
-import { useEffect, useMemo, useRef, useState } from "react"
+import {
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { Chess } from "chess.js"
 import { useEventListener } from "@/hooks/useEventListener"
 import { GameData, Move } from "@/types/chess"
 import { playerExists } from "./utils"
+import { ChessGameHandle } from "."
 
-export function useChessGame({ gameData }: { gameData: GameData }) {
+export function useChessGame(
+  gameData: GameData,
+  ref: React.Ref<ChessGameHandle>,
+) {
   const [optimisticMoves, setOptimisticMoves] = useState(gameData.moves)
   const [optimisticThinkTime, setOptimisticThinkTime] = useState(
     gameData.think_time,
@@ -48,9 +58,15 @@ export function useChessGame({ gameData }: { gameData: GameData }) {
   useEventListener("keydown", (e: KeyboardEvent) => {
     if (!mouseOverBoard.current) return
     const actions: Record<string, () => void> = {
-      ArrowLeft: undoMove,
-      ArrowRight: redoMove,
-      ArrowUp: reset,
+      ArrowLeft: () => {
+        if (undoCount === optimisticMoves.length) return
+        setUndoCount((prev) => prev + 1)
+      },
+      ArrowRight: () => {
+        if (undoCount === 0) return
+        setUndoCount((prev) => prev - 1)
+      },
+      ArrowUp: () => setUndoCount(optimisticMoves.length),
       ArrowDown: () => {
         setUndoCount(0)
       },
@@ -61,43 +77,31 @@ export function useChessGame({ gameData }: { gameData: GameData }) {
     }
   })
 
-  function reset() {
-    setUndoCount(optimisticMoves.length)
-  }
+  useImperativeHandle(ref, () => ({
+    makeMove: (move: Move) => {
+      try {
+        game.move(move)
 
-  function undoMove() {
-    if (undoCount === optimisticMoves.length) return
-    setUndoCount((prev) => prev + 1)
-  }
+        const justMovedIsWhite = game.turn() === "b"
+        const playerMoves = optimisticMoves.filter((_, i) =>
+          justMovedIsWhite ? i % 2 === 0 : i % 2 === 1,
+        )
+        const lastTimestamp =
+          playerMoves.at(-1)?.timestamp ?? gameData.time_control.base
+        const optimisticTimestamp = lastTimestamp - optimisticThinkTime
 
-  function redoMove() {
-    if (undoCount === 0) return
-    setUndoCount((prev) => prev - 1)
-  }
-
-  function addMove(move: Move): boolean {
-    try {
-      game.move(move)
-
-      const justMovedIsWhite = game.turn() === "b"
-      const playerMoves = optimisticMoves.filter((_, i) =>
-        justMovedIsWhite ? i % 2 === 0 : i % 2 === 1,
-      )
-      const lastTimestamp =
-        playerMoves.at(-1)?.timestamp ?? gameData.time_control.base
-      const optimisticTimestamp = lastTimestamp - optimisticThinkTime
-
-      setOptimisticMoves((prev) => [
-        ...prev,
-        { ...move, timestamp: optimisticTimestamp },
-      ])
-      setOptimisticThinkTime(0)
-      setUndoCount(0)
-      return true
-    } catch {
-      return false
-    }
-  }
+        setOptimisticMoves((prev) => [
+          ...prev,
+          { ...move, timestamp: optimisticTimestamp },
+        ])
+        setOptimisticThinkTime(0)
+        setUndoCount(0)
+        return true
+      } catch {
+        return false
+      }
+    },
+  }))
 
   return {
     optimisticMoves,
@@ -105,10 +109,6 @@ export function useChessGame({ gameData }: { gameData: GameData }) {
     game,
     undoCount,
     mouseOverBoard,
-    reset,
-    undoMove,
-    redoMove,
     setUndoCount,
-    addMove,
   }
 }

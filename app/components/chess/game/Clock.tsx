@@ -27,10 +27,10 @@ export function Clock({
   return (
     <div
       className={cn(
-        "flex justify-between gap-2 w-full px-2 py-1 font-bold",
+        "h-9 px-4 py-2 rounded-md text-xs font-semibold transition-colors flex justify-between items-center gap-2 w-full px-2 py-1 font-bold",
         playerColor === "w"
-          ? "bg-gray-200 text-black"
-          : "bg-gray-800 text-white",
+          ? "bg-gray-200 hover:bg-gray-300 text-black"
+          : "bg-gray-800 hover:bg-gray-700 text-white",
       )}
     >
       <div className="font-bold">{player.name}</div>

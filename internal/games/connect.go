@@ -54,6 +54,7 @@ func (room *GameRoom) Disconnect(user *database.User) {
 	roomEmpty := room.whiteConn == nil && room.blackConn == nil
 
 	if roomEmpty {
+		room.turnTimer.Stop()
 		close(room.broadcast)
 	}
 

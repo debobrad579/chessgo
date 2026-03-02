@@ -5,7 +5,7 @@ import { Link, Outlet } from "react-router"
 
 export default function Layout() {
   return (
-    <>
+    <div className="flex flex-col">
       <nav className="flex justify-between items-center p-4">
         <Link to="/">
           <img
@@ -25,6 +25,6 @@ export default function Layout() {
       <main className="p-4">
         <Outlet />
       </main>
-    </>
+    </div>
   )
 }
