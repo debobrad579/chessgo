@@ -34,6 +34,7 @@ type GameState struct {
 	ActiveColor     Color  `json:"active_color"`
 	EnPassantTarget string `json:"enpassant_target"`
 	CastlingRights  string `json:"castling_rights"`
+	HalfMoveCount   int    `json:"half_move_count"`
 }
 
 type Move struct {
@@ -53,11 +54,38 @@ type Player struct {
 	Name string    `json:"name"`
 }
 
+type Reason int
+
+const (
+	Checkmate Reason = iota
+	Resignation
+	Timeout
+	Stalemate
+	ThreefoldRepetition
+	FiftyMoveRule
+	InsufficentMaterial
+	GameOngoing
+)
+
+type Result string
+
+const (
+	ResultWhiteWon    Result = "1-0"
+	ResultBlackWon    Result = "0-1"
+	ResultDraw        Result = "1/2-1/2"
+	ResultGameOngoing Result = "*"
+)
+
+type GameOver struct {
+	Result Result
+	Reason Reason
+}
+
 type Game struct {
-	State       GameState   `json:"state"`
-	White       Player      `json:"white"`
-	Black       Player      `json:"black"`
-	Result      string      `json:"result"`
-	Moves       []Move      `json:"moves"`
-	TimeControl TimeControl `json:"time_control"`
+	State          GameState      `json:"state"`
+	White          Player         `json:"white"`
+	Black          Player         `json:"black"`
+	Moves          []Move         `json:"moves"`
+	TimeControl    TimeControl    `json:"time_control"`
+	PositionCounts map[string]int `json:"-"`
 }

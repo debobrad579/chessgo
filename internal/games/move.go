@@ -25,6 +25,10 @@ func (room *GameRoom) MakeMove(message []byte, playerRole PlayerRole) error {
 		return errors.New("game not started")
 	}
 
+	if room.result != chess.ResultGameOngoing {
+		return errors.New("game ended")
+	}
+
 	if (playerRole == White) != (room.game.Turn() == chess.White) {
 		return errors.New("not your turn")
 	}
@@ -42,7 +46,8 @@ func (room *GameRoom) MakeMove(message []byte, playerRole PlayerRole) error {
 	}
 
 	room.game.Move(move)
-	room.turnStart = time.Now()
+	room.result = room.game.Result().Result
+	room.startTurnTimer()
 
 	select {
 	case room.broadcast <- struct{}{}:

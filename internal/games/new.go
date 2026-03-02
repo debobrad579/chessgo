@@ -18,7 +18,6 @@ func New(user *database.User, color chess.Color, timeControl chess.TimeControl) 
 	game := chess.Game{
 		State:       chess.NewGameState(),
 		Moves:       []chess.Move{},
-		Result:      "*",
 		TimeControl: timeControl,
 	}
 
@@ -33,6 +32,7 @@ func New(user *database.User, color chess.Color, timeControl chess.TimeControl) 
 	room := GameRoom{
 		id:             uuid.New(),
 		game:           &game,
+		result:         chess.ResultGameOngoing,
 		broadcast:      make(chan struct{}),
 		whiteTime:      game.TimeControl.Base,
 		blackTime:      game.TimeControl.Base,

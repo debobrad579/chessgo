@@ -28,31 +28,34 @@ export function getMoveNumberArrays(moves: Move[]): [string, string][] {
 export function getPlayerTimestamp({
   moves,
   undoCount,
-  gameTurn,
   playerColor,
   thinkTime,
   initialTime,
 }: {
   moves: Move[]
   undoCount: number
-  gameTurn: Color
   playerColor: Color
   thinkTime: number
   initialTime: number
 }) {
-  const playerMoves = moves
-    .slice(0, moves.length - undoCount)
-    .filter((_, i) => (playerColor === "w" ? i % 2 === 0 : i % 2 === 1))
+  const effectiveMoves = moves.slice(0, moves.length - undoCount)
+
+  const currentTurn: Color = effectiveMoves.length % 2 === 0 ? "w" : "b"
+
+  const playerMoves = effectiveMoves.filter((_, i) =>
+    playerColor === "w" ? i % 2 === 0 : i % 2 === 1,
+  )
+
   const lastMove = playerMoves.at(-1)
 
   if (!lastMove) {
-    if (gameTurn === playerColor) {
+    if (currentTurn === playerColor && undoCount === 0) {
       return initialTime - thinkTime
     }
     return initialTime
   }
 
-  if (gameTurn === playerColor) {
+  if (currentTurn === playerColor && undoCount === 0) {
     return lastMove.timestamp - thinkTime
   }
 

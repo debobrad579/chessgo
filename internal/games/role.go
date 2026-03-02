@@ -1,8 +1,6 @@
 package games
 
 import (
-	"time"
-
 	"github.com/debobrad579/chessgo/internal/chess"
 	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/gorilla/websocket"
@@ -28,7 +26,7 @@ func (room *GameRoom) assignRole(conn *websocket.Conn, user *database.User) Play
 		room.game.White = chess.Player{ID: user.ID, Name: user.Name}
 		room.whiteConn = conn
 		if room.blackConn != nil {
-			room.turnStart = time.Now()
+			room.startTurnTimer()
 			registry.notifySubscribers()
 		}
 		return White
@@ -36,7 +34,7 @@ func (room *GameRoom) assignRole(conn *websocket.Conn, user *database.User) Play
 		room.game.Black = chess.Player{ID: user.ID, Name: user.Name}
 		room.blackConn = conn
 		if room.whiteConn != nil {
-			room.turnStart = time.Now()
+			room.startTurnTimer()
 			registry.notifySubscribers()
 		}
 		return Black

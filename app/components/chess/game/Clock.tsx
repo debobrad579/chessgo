@@ -8,7 +8,6 @@ type ClockProps = {
   player: Player
   moves: Move[]
   undoCount: number
-  gameTurn: Color
   playerColor: Color
   thinkTime: number
   initialTime: number
@@ -20,7 +19,6 @@ export function Clock({
   player,
   moves,
   undoCount,
-  gameTurn,
   playerColor,
   thinkTime,
   initialTime,
@@ -38,19 +36,18 @@ export function Clock({
       <div className="font-bold">{player.name}</div>
       <div
         className={
-          result === "win"
+          undoCount === 0 && result === "win"
             ? "text-green-500"
-            : result === "loss"
+            : undoCount === 0 && result === "loss"
               ? "text-red-500"
               : undefined
         }
       >
-        {result === "*"
+        {undoCount !== 0 || result === "*"
           ? formatMilliseconds(
               getPlayerTimestamp({
                 moves,
                 undoCount,
-                gameTurn,
                 playerColor,
                 thinkTime,
                 initialTime,

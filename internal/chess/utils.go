@@ -7,6 +7,10 @@ func squareToRC(square string) (int, int) {
 	return rankToRow(square[1]), fileToCol(square[0])
 }
 
+func rcToSquare(row, col int) string {
+	return string(rune('a'+col)) + string(rune('1'+row))
+}
+
 func abs(x int) int {
 	if x < 0 {
 		return -x

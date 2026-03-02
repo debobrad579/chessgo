@@ -14,21 +14,16 @@ import (
 type GameRoom struct {
 	id             uuid.UUID
 	game           *chess.Game
+	result         chess.Result
 	whiteConn      *websocket.Conn
 	blackConn      *websocket.Conn
 	whiteTime      int
 	blackTime      int
 	mu             sync.Mutex
 	broadcast      chan struct{}
-	turnStart      time.Time
 	spectatorConns map[uuid.UUID]*websocket.Conn
-}
-
-func (room *GameRoom) getThinkTime() int {
-	if !room.whiteExists() || !room.blackExists() {
-		return 0
-	}
-	return int(time.Since(room.turnStart).Milliseconds())
+	turnStart      time.Time
+	turnTimer      *time.Timer
 }
 
 func (room *GameRoom) whiteExists() bool {

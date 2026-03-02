@@ -57,6 +57,20 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
         ? optimisticMoves.at(optimisticMoves.length - undoCount - 1)
         : null
 
+    const whiteResult = {
+      "1-0": "win",
+      "0-1": "loss",
+      "1/2-1/2": "draw",
+      "*": "*",
+    }[gameData.result] as "win" | "loss" | "draw" | "*"
+
+    const blackResult = {
+      "0-1": "win",
+      "1-0": "loss",
+      "1/2-1/2": "draw",
+      "*": "*",
+    }[gameData.result] as "win" | "loss" | "draw" | "*"
+
     const { user } = useUser()
 
     return (
@@ -70,15 +84,12 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
             <div>
               <Clock
                 moves={optimisticMoves}
-                gameTurn={game.turn()}
                 playerColor={user?.id === gameData.black.id ? "w" : "b"}
                 undoCount={undoCount}
                 thinkTime={optimisticThinkTime}
                 initialTime={gameData.time_control.base}
                 result={
-                  { "0-1": "win", "1-0": "loss", "1/2-1/2": "draw", "*": "*" }[
-                    gameData.result
-                  ] as "win" | "loss" | "draw" | "*"
+                  user?.id === gameData.black.id ? whiteResult : blackResult
                 }
                 player={
                   user?.id === gameData.black.id
@@ -112,15 +123,12 @@ export const ChessGame = forwardRef<ChessGameHandle, ChessGameProps>(
               />
               <Clock
                 moves={optimisticMoves}
-                gameTurn={game.turn()}
                 playerColor={user?.id === gameData.black.id ? "b" : "w"}
                 undoCount={undoCount}
                 thinkTime={optimisticThinkTime}
                 initialTime={gameData.time_control.base}
                 result={
-                  { "1-0": "win", "0-1": "loss", "1/2-1/2": "draw", "*": "*" }[
-                    gameData.result
-                  ] as "win" | "loss" | "draw" | "*"
+                  user?.id === gameData.black.id ? blackResult : whiteResult
                 }
                 player={
                   user?.id === gameData.black.id

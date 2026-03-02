@@ -50,6 +50,12 @@ func (g *Game) Move(move Move) {
 		}
 	}
 
+	if piece.Type == Pawn || g.State.Board[toRow][toCol] != nil {
+		g.State.HalfMoveCount = 0
+	} else {
+		g.State.HalfMoveCount++
+	}
+
 	g.State.Board[toRow][toCol] = piece
 	g.State.Board[fromRow][fromCol] = nil
 
@@ -77,6 +83,11 @@ func (g *Game) Move(move Move) {
 	}
 
 	g.Moves = append(g.Moves, move)
+
+	if g.PositionCounts == nil {
+		g.PositionCounts = make(map[string]int)
+	}
+	g.PositionCounts[g.State.getHashedPosition()]++
 }
 
 func (b Board) getBoardAfterMove(move Move) Board {

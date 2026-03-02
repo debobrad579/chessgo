@@ -12,7 +12,7 @@ type GameData struct {
 	Moves       []chess.Move      `json:"moves"`
 	TimeControl chess.TimeControl `json:"time_control"`
 	ThinkTime   int               `json:"think_time"`
-	Result      string            `json:"result"`
+	Result      chess.Result      `json:"result"`
 	White       chess.Player      `json:"white"`
 	Black       chess.Player      `json:"black"`
 }
@@ -22,7 +22,7 @@ func (room *GameRoom) getGameData() ([]byte, error) {
 		Moves:       room.game.Moves,
 		TimeControl: room.game.TimeControl,
 		ThinkTime:   room.getThinkTime(),
-		Result:      "*",
+		Result:      room.result,
 		White:       room.game.White,
 		Black:       room.game.Black,
 	})
