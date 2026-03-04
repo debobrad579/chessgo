@@ -3,29 +3,12 @@ import { Game, GameData } from "@/types/chess"
 import { useWebSocket } from "@/hooks/useWebSocket"
 import { useRef, useState } from "react"
 import { useParams } from "react-router"
-
-export const defaultGame: Game = {
-  moves: [],
-  think_time: 0,
-  result: "*",
-  white: {
-    id: "",
-    name: "White",
-  },
-  black: {
-    id: "",
-    name: "Black",
-  },
-  time_control: {
-    base: 600000,
-    increment: 0,
-  },
-}
+import { ChessGameSkeleton } from "@/components/chess/game/GameSkeleton"
 
 export default function LivePage() {
   const { gameID } = useParams()
 
-  const [gameData, setGameData] = useState(defaultGame)
+  const [gameData, setGameData] = useState<Game | null>(null)
   const [pendingDrawOffer, setPendingDrawOffer] = useState<"w" | "b" | "n">("n")
   const chessGameRef = useRef<ChessGameHandle>(null)
 
@@ -35,7 +18,7 @@ export default function LivePage() {
     setPendingDrawOffer(parsed.pending_draw_offer)
   })
 
-  return (
+  return gameData != null ? (
     <ChessGame
       ref={chessGameRef}
       gameData={gameData}
@@ -51,5 +34,7 @@ export default function LivePage() {
       }}
       pendingDrawOffer={pendingDrawOffer}
     />
+  ) : (
+    <ChessGameSkeleton />
   )
 }

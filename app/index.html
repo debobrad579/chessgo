@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,7 +8,37 @@
     <link rel="stylesheet" href="/static/style.css" />
   </head>
   <body class="bg-background text-foreground">
-    <div id="app"></div>
+    <div id="app">
+      <nav class="flex justify-between items-center p-4 border-b border-border">
+        <div class="relative h-12 flex items-center">
+          <div id="logo-placeholder" class="absolute text-6xl font-bold">
+            ChessGO
+          </div>
+          <img
+            class="h-12 dark:invert"
+            src="/static/logo.svg"
+            alt=""
+            onload="
+              document
+                .getElementById('logo-placeholder')
+                .classList.add('opacity-0')
+            "
+          />
+        </div>
+        <div class="flex gap-2">
+          <a
+            href="/app/games"
+            class="rounded-md text-sm font-medium h-9 px-4 py-2 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            My Games
+          </a>
+          <button
+            class="h-8 w-8 rounded-md border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+          ></button>
+        </div>
+      </nav>
+    </div>
+    <script src="/static/themes.js"></script>
     <script src="/static/app.js"></script>
   </body>
 </html>
