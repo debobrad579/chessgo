@@ -17,7 +17,7 @@ export type TimeControl = {
   increment: number
 }
 
-export type GameData = {
+export type Game = {
   moves: Move[]
   think_time: number
   time_control: TimeControl
@@ -25,6 +25,8 @@ export type GameData = {
   white: Player
   black: Player
 }
+
+export type GameData = Game & { pending_draw_offer: "w" | "b" | "n" }
 
 export type GameListItem = {
   id: string

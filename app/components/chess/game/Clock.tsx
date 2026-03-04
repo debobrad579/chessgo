@@ -1,44 +1,32 @@
 import { formatMilliseconds } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
 import { getPlayerTimestamp } from "./utils"
-import { Player, Move } from "@/types/chess"
 import { Color } from "chess.js"
+import { useChessGameContext } from "./ChessGameContext"
 
-type ClockProps = {
-  player: Player
-  moves: Move[]
-  undoCount: number
-  playerColor: Color
-  thinkTime: number
-  initialTime: number
-  result: "win" | "loss" | "draw" | "*"
-  className?: string
-}
+export function Clock({ color }: { color: Color }) {
+  const { moves, undoCount, thinkTime, timeControl, result, white, black } =
+    useChessGameContext()
 
-export function Clock({
-  player,
-  moves,
-  undoCount,
-  playerColor,
-  thinkTime,
-  initialTime,
-  result,
-}: ClockProps) {
+  const won =
+    (result === "1-0" && color === "w") || (result === "0-1" && color === "b")
+  const lost =
+    (result === "0-1" && color === "w") || (result === "1-0" && color === "b")
+
   return (
     <div
       className={cn(
-        "h-9 px-4 py-2 rounded-md text-xs font-semibold transition-colors flex justify-between items-center gap-2 w-full px-2 py-1 font-bold",
-        playerColor === "w"
-          ? "bg-gray-200 hover:bg-gray-300 text-black"
-          : "bg-gray-800 hover:bg-gray-700 text-white",
+        "h-9 px-4 py-2 rounded-md font-semibold transition-colors flex justify-between items-center gap-2 w-full px-2 py-1 font-bold",
+        color === "w"
+          ? "bg-gray-100 hover:bg-gray-200 text-black border border-gray-900"
+          : "bg-gray-900 hover:bg-gray-800 text-white border border-gray-100",
       )}
     >
-      <div className="font-bold">{player.name}</div>
       <div
         className={
-          undoCount === 0 && result === "win"
+          undoCount === 0 && won
             ? "text-green-500"
-            : undoCount === 0 && result === "loss"
+            : undoCount === 0 && lost
               ? "text-red-500"
               : undefined
         }
@@ -46,19 +34,20 @@ export function Clock({
         {undoCount !== 0 || result === "*"
           ? formatMilliseconds(
               getPlayerTimestamp({
+                playerColor: color,
+                initialTime: timeControl.base,
                 moves,
                 undoCount,
-                playerColor,
                 thinkTime,
-                initialTime,
               }),
             )
-          : result === "win"
+          : won
             ? 1
-            : result === "loss"
+            : lost
               ? 0
               : "1/2"}
       </div>
+      <div className="font-bold">{color === "w" ? white.name : black.name}</div>
     </div>
   )
 }

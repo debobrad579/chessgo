@@ -1,21 +1,15 @@
 package games
 
 import (
-	"encoding/json"
 	"errors"
 	"time"
 
 	"github.com/debobrad579/chessgo/internal/chess"
 )
 
-func (room *GameRoom) MakeMove(message []byte, playerRole PlayerRole) error {
+func (room *GameRoom) MakeMove(move chess.Move, playerRole PlayerRole) error {
 	if playerRole == Spectator {
 		return errors.New("cannot make move as spectator")
-	}
-
-	var move chess.Move
-	if err := json.Unmarshal(message, &move); err != nil {
-		return err
 	}
 
 	room.mu.Lock()
@@ -46,6 +40,9 @@ func (room *GameRoom) MakeMove(message []byte, playerRole PlayerRole) error {
 	}
 
 	room.game.Move(move)
+	if room.pendingDrawOffer != playerRole {
+		room.pendingDrawOffer = Spectator
+	}
 	room.result = room.game.Result().Result
 	if room.result != chess.ResultGameOngoing {
 		room.saveGame()

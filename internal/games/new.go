@@ -2,6 +2,7 @@ package games
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -11,6 +12,10 @@ import (
 )
 
 func New(user *database.User, db *database.Queries, color chess.Color, timeControl chess.TimeControl) ([]byte, error) {
+	if user == nil {
+		return nil, errors.New("must be logged in")
+	}
+
 	type returnVals struct {
 		GameID uuid.UUID `json:"game_id"`
 	}
@@ -30,14 +35,15 @@ func New(user *database.User, db *database.Queries, color chess.Color, timeContr
 	}
 
 	room := GameRoom{
-		id:             uuid.New(),
-		game:           &game,
-		result:         chess.ResultGameOngoing,
-		broadcast:      make(chan struct{}),
-		whiteTime:      game.TimeControl.Base,
-		blackTime:      game.TimeControl.Base,
-		spectatorConns: make(map[uuid.UUID]*websocket.Conn),
-		db:             db,
+		id:               uuid.New(),
+		game:             &game,
+		result:           chess.ResultGameOngoing,
+		broadcast:        make(chan struct{}),
+		whiteTime:        game.TimeControl.Base,
+		blackTime:        game.TimeControl.Base,
+		spectatorConns:   make(map[uuid.UUID]*websocket.Conn),
+		db:               db,
+		pendingDrawOffer: Spectator,
 	}
 
 	data, err := json.Marshal(returnVals{room.id})

@@ -1,26 +1,20 @@
 import { Chessboard } from "@/components/chess/board"
 import { Clock } from "./Clock"
 import { NavigationButtons } from "./NavigationButtons"
-import { ChessGameProps } from "."
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import { MoveCell } from "./MoveCell"
 import { getMoveNumberArrays } from "./utils"
-import { useRef } from "react"
+import { useRef, useState } from "react"
+import { useUser } from "@/context/UserContext"
+import { useChessGameContext } from "./ChessGameContext"
+import { GameButtons } from "./GameButtons"
 
-export function MobileGameView({
-  moves,
-  result,
-  thinkTime,
-  undoCount,
-  user,
-  white,
-  black,
-  mouseOverBoard,
-  timeControl,
-  game,
-  setUndoCount,
-  onMove,
-}: ChessGameProps) {
+export function MobileGameView() {
+  const { user } = useUser()
+  const { moves, result, undoCount, white, black, game, setUndoCount, onMove } =
+    useChessGameContext()
+
+  const [flipBoard, setFlipBoard] = useState(user?.id === black.id)
   const listScrollAreaRef = useRef<HTMLDivElement>(null)
 
   const previousMove =
@@ -28,38 +22,12 @@ export function MobileGameView({
       ? moves.at(moves.length - undoCount - 1)
       : null
 
-  const whiteResult = {
-    "1-0": "win",
-    "0-1": "loss",
-    "1/2-1/2": "draw",
-    "*": "*",
-  }[result] as "win" | "loss" | "draw" | "*"
-
-  const blackResult = {
-    "0-1": "win",
-    "1-0": "loss",
-    "1/2-1/2": "draw",
-    "*": "*",
-  }[result] as "win" | "loss" | "draw" | "*"
-
   return (
-    <div
-      className="flex flex-col gap-2"
-      onMouseEnter={() => (mouseOverBoard.current = true)}
-      onMouseLeave={() => (mouseOverBoard.current = false)}
-    >
-      <Clock
-        moves={moves}
-        playerColor={user?.id === black.id ? "w" : "b"}
-        undoCount={undoCount}
-        thinkTime={thinkTime}
-        initialTime={timeControl.base}
-        result={user?.id === black.id ? whiteResult : blackResult}
-        player={user?.id === black.id ? white : black}
-      />
+    <div className="flex flex-col gap-2">
+      <Clock color={flipBoard ? "w" : "b"} />
       <Chessboard
         fen={game.fen()}
-        flipBoard={user?.id === black.id}
+        flipBoard={flipBoard}
         previousMove={
           previousMove
             ? {
@@ -81,15 +49,7 @@ export function MobileGameView({
                 : "n"
         }
       />
-      <Clock
-        moves={moves}
-        playerColor={user?.id === black.id ? "b" : "w"}
-        undoCount={undoCount}
-        thinkTime={thinkTime}
-        initialTime={timeControl.base}
-        result={user?.id === black.id ? blackResult : whiteResult}
-        player={user?.id === black.id ? black : white}
-      />
+      <Clock color={flipBoard ? "b" : "w"} />
       <ScrollArea ref={listScrollAreaRef} className="w-full text-nowrap">
         <MoveCell
           active={undoCount === moves.length}
@@ -130,6 +90,7 @@ export function MobileGameView({
         undoCount={undoCount}
         setUndoCount={setUndoCount}
       />
+      <GameButtons handleFlipBoard={() => setFlipBoard((prev) => !prev)} />
     </div>
   )
 }

@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   ChevronFirst,
   ChevronLast,
   ChevronLeft,
@@ -18,40 +23,64 @@ export function NavigationButtons({
 }) {
   return (
     <div className="flex gap-2">
-      <Button
-        className="w-full"
-        onClick={() => setUndoCount(moveCount)}
-        disabled={undoCount === moveCount}
-      >
-        <ChevronFirst />
-      </Button>
-      <Button
-        className="w-full"
-        onClick={() => {
-          if (undoCount === moveCount) return
-          setUndoCount((prev) => prev + 1)
-        }}
-        disabled={undoCount === moveCount}
-      >
-        <ChevronLeft />
-      </Button>
-      <Button
-        className="w-full"
-        onClick={() => {
-          if (undoCount === moveCount) return
-          setUndoCount((prev) => prev - 1)
-        }}
-        disabled={undoCount === 0}
-      >
-        <ChevronRight />
-      </Button>
-      <Button
-        className="w-full"
-        onClick={() => setUndoCount(0)}
-        disabled={undoCount === 0}
-      >
-        <ChevronLast />
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => setUndoCount(moveCount)}
+            disabled={undoCount === moveCount}
+          >
+            <ChevronFirst />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>First move</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => {
+              if (undoCount === moveCount) return
+              setUndoCount((prev) => prev + 1)
+            }}
+            disabled={undoCount === moveCount}
+          >
+            <ChevronLeft />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Previous move</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => {
+              if (undoCount === 0) return
+              setUndoCount((prev) => prev - 1)
+            }}
+            disabled={undoCount === 0}
+          >
+            <ChevronRight />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Next move</TooltipContent>
+      </Tooltip>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="w-full"
+            variant="outline"
+            onClick={() => setUndoCount(0)}
+            disabled={undoCount === 0}
+          >
+            <ChevronLast />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Last move</TooltipContent>
+      </Tooltip>
     </div>
   )
 }

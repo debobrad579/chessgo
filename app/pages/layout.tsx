@@ -22,7 +22,7 @@ export default function Layout() {
         </div>
       </nav>
       <Separator />
-      <main className="p-4">
+      <main className="p-4 flex-1">
         <Outlet />
       </main>
     </div>

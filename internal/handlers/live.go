@@ -19,10 +19,29 @@ type newGameOptions struct {
 	TimeControl string `json:"time_control"`
 }
 
+type clientMessageType string
+
+const (
+	typeMove         clientMessageType = "move"
+	typeResign       clientMessageType = "resign"
+	typeDrawOffer    clientMessageType = "draw_offer"
+	typeDrawResponse clientMessageType = "draw_response"
+)
+
+type clientMessage struct {
+	Type    clientMessageType `json:"type"`
+	Payload json.RawMessage   `json:"payload"`
+}
+
 func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUser(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if user == nil {
+		http.Error(w, "must be logged in", http.StatusUnauthorized)
 		return
 	}
 
@@ -102,7 +121,38 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		room.MakeMove(message, playerRole)
+		var clientMessage clientMessage
+		if err := json.Unmarshal(message, &clientMessage); err != nil {
+			log.Println("failed to unmarshal message")
+			return
+		}
+
+		switch clientMessage.Type {
+		case typeMove:
+			var move chess.Move
+			if err := json.Unmarshal(clientMessage.Payload, &move); err != nil {
+				log.Println("invalid move structure")
+				return
+			}
+
+			room.MakeMove(move, playerRole)
+		case typeResign:
+			room.Resign(playerRole)
+		case typeDrawOffer:
+			room.OfferDraw(playerRole)
+		case typeDrawResponse:
+			var accept struct {
+				Accept bool `json:"accept"`
+			}
+			if err := json.Unmarshal(clientMessage.Payload, &accept); err != nil {
+				log.Println("invalid draw response structure")
+				return
+			}
+
+			room.RespondToDraw(playerRole, accept.Accept)
+		default:
+			log.Println("invalid client message type")
+		}
 	}
 }
 

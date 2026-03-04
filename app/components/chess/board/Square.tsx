@@ -86,7 +86,7 @@ export function Square({
     >
       {showRank && (
         <div
-          className={"absolute top-[2px] left-[2px]"}
+          className={"absolute top-1 left-1"}
           style={{ fontSize: squareWidth / 5 }}
         >
           {rank}
@@ -94,7 +94,7 @@ export function Square({
       )}
       {showFile && (
         <div
-          className={"absolute bottom-[2px] right-[2px]"}
+          className={"absolute bottom-1 right-1"}
           style={{ fontSize: squareWidth / 5 }}
         >
           {file}

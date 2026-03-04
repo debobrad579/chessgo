@@ -1,26 +1,16 @@
-import {
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react"
+import { useEffect, useImperativeHandle, useMemo, useState } from "react"
 import { Chess } from "chess.js"
 import { useEventListener } from "@/hooks/useEventListener"
-import { GameData, Move } from "@/types/chess"
+import { Game, Move } from "@/types/chess"
 import { playerExists } from "./utils"
 import { ChessGameHandle } from "."
 
-export function useChessGame(
-  gameData: GameData,
-  ref: React.Ref<ChessGameHandle>,
-) {
+export function useChessGame(gameData: Game, ref: React.Ref<ChessGameHandle>) {
   const [optimisticMoves, setOptimisticMoves] = useState(gameData.moves)
   const [optimisticThinkTime, setOptimisticThinkTime] = useState(
     gameData.think_time,
   )
   const [undoCount, setUndoCount] = useState(0)
-  const mouseOverBoard = useRef(false)
 
   const game = useMemo(() => {
     const chess = new Chess()
@@ -56,7 +46,6 @@ export function useChessGame(
   }, [gameData])
 
   useEventListener("keydown", (e: KeyboardEvent) => {
-    if (!mouseOverBoard.current) return
     const actions: Record<string, () => void> = {
       ArrowLeft: () => {
         if (undoCount === optimisticMoves.length) return
@@ -108,7 +97,6 @@ export function useChessGame(
     optimisticThinkTime,
     game,
     undoCount,
-    mouseOverBoard,
     setUndoCount,
   }
 }

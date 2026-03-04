@@ -1,6 +1,6 @@
 import { Chessboard } from "@/components/chess/board"
 import { Clock } from "./Clock"
-import { useRef } from "react"
+import { useRef, useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   Table,
@@ -13,22 +13,16 @@ import {
 import { MoveCell } from "./MoveCell"
 import { getMoveNumberArrays } from "./utils"
 import { NavigationButtons } from "./NavigationButtons"
-import { ChessGameProps } from "."
+import { GameButtons } from "./GameButtons"
+import { useUser } from "@/context/UserContext"
+import { useChessGameContext } from "./ChessGameContext"
 
-export function DesktopGameView({
-  moves,
-  result,
-  thinkTime,
-  undoCount,
-  user,
-  white,
-  black,
-  mouseOverBoard,
-  timeControl,
-  game,
-  setUndoCount,
-  onMove,
-}: ChessGameProps) {
+export function DesktopGameView() {
+  const { user } = useUser()
+  const { moves, result, undoCount, white, black, game, setUndoCount, onMove } =
+    useChessGameContext()
+
+  const [flipBoard, setFlipBoard] = useState(user?.id === black.id)
   const tableScrollAreaRef = useRef<HTMLDivElement>(null)
 
   const previousMove =
@@ -36,30 +30,12 @@ export function DesktopGameView({
       ? moves.at(moves.length - undoCount - 1)
       : null
 
-  const whiteResult = {
-    "1-0": "win",
-    "0-1": "loss",
-    "1/2-1/2": "draw",
-    "*": "*",
-  }[result] as "win" | "loss" | "draw" | "*"
-
-  const blackResult = {
-    "0-1": "win",
-    "1-0": "loss",
-    "1/2-1/2": "draw",
-    "*": "*",
-  }[result] as "win" | "loss" | "draw" | "*"
-
   return (
-    <div
-      className="flex gap-2"
-      onMouseEnter={() => (mouseOverBoard.current = true)}
-      onMouseLeave={() => (mouseOverBoard.current = false)}
-    >
-      <div className="w-[min(100vw-2rem,100vh-7rem)]">
+    <div className="flex gap-2 h-full">
+      <div className="w-[calc(100vh-7rem-1px)]">
         <Chessboard
           fen={game.fen()}
-          flipBoard={user?.id === black.id}
+          flipBoard={flipBoard}
           previousMove={
             previousMove
               ? {
@@ -82,15 +58,12 @@ export function DesktopGameView({
           }
         />
       </div>
-      <div className="flex-1 flex flex-col gap-2 h-[min(100vw-2rem,100vh-7rem)]">
-        <Clock
-          moves={moves}
-          playerColor={user?.id === black.id ? "w" : "b"}
+      <div className="flex-1 flex flex-col gap-2 h-[calc(100vh-7rem-1px)]">
+        <Clock color={flipBoard ? "w" : "b"} />
+        <NavigationButtons
+          moveCount={moves.length}
           undoCount={undoCount}
-          thinkTime={thinkTime}
-          initialTime={timeControl.base}
-          result={user?.id === black.id ? whiteResult : blackResult}
-          player={user?.id === black.id ? white : black}
+          setUndoCount={setUndoCount}
         />
         <ScrollArea
           ref={tableScrollAreaRef}
@@ -150,20 +123,8 @@ export function DesktopGameView({
             </TableFooter>
           </Table>
         </ScrollArea>
-        <NavigationButtons
-          moveCount={moves.length}
-          undoCount={undoCount}
-          setUndoCount={setUndoCount}
-        />
-        <Clock
-          moves={moves}
-          playerColor={user?.id === black.id ? "b" : "w"}
-          undoCount={undoCount}
-          thinkTime={thinkTime}
-          initialTime={timeControl.base}
-          result={user?.id === black.id ? blackResult : whiteResult}
-          player={user?.id === black.id ? black : white}
-        />
+        <GameButtons handleFlipBoard={() => setFlipBoard((prev) => !prev)} />
+        <Clock color={flipBoard ? "b" : "w"} />
       </div>
     </div>
   )

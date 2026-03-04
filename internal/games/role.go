@@ -6,12 +6,12 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-type PlayerRole int
+type PlayerRole string
 
 const (
-	White PlayerRole = iota
-	Black
-	Spectator
+	White     PlayerRole = "w"
+	Black     PlayerRole = "b"
+	Spectator PlayerRole = "n"
 )
 
 func (room *GameRoom) assignRole(conn *websocket.Conn, user *database.User) PlayerRole {

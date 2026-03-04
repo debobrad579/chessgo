@@ -13,19 +13,20 @@ import (
 )
 
 type GameRoom struct {
-	id             uuid.UUID
-	game           *chess.Game
-	result         chess.Result
-	whiteConn      *websocket.Conn
-	blackConn      *websocket.Conn
-	whiteTime      int
-	blackTime      int
-	mu             sync.Mutex
-	broadcast      chan struct{}
-	spectatorConns map[uuid.UUID]*websocket.Conn
-	turnStart      time.Time
-	turnTimer      *time.Timer
-	db             *database.Queries
+	id               uuid.UUID
+	game             *chess.Game
+	result           chess.Result
+	whiteConn        *websocket.Conn
+	blackConn        *websocket.Conn
+	whiteTime        int
+	blackTime        int
+	mu               sync.Mutex
+	broadcast        chan struct{}
+	spectatorConns   map[uuid.UUID]*websocket.Conn
+	turnStart        time.Time
+	turnTimer        *time.Timer
+	db               *database.Queries
+	pendingDrawOffer PlayerRole
 }
 
 func (room *GameRoom) whiteExists() bool {
