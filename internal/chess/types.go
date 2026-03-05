@@ -82,10 +82,12 @@ type Player struct {
 }
 
 type Game struct {
-	State          GameState      `json:"state"`
+	ID             uuid.UUID      `json:"id"`
+	State          GameState      `json:"-"`
 	White          Player         `json:"white"`
 	Black          Player         `json:"black"`
 	Moves          []Move         `json:"moves"`
+	Result         Result         `json:"result"`
 	TimeControl    TimeControl    `json:"time_control"`
 	PositionCounts map[string]int `json:"-"`
 }

@@ -14,7 +14,7 @@ import { Timer } from "lucide-react"
 import { playerExists } from "./game/utils"
 
 export function GameList() {
-  const { data } = useEventSource<GameListItem[]>("/live")
+  const { data } = useEventSource<GameListItem[]>("/api/live")
   const navigate = useNavigate()
 
   return (

@@ -6,15 +6,9 @@ import (
 )
 
 func (cfg *Config) ApiMeHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := cfg.getUser(r)
+	user, err := cfg.getUserOrGuest(w, r)
 	if err != nil {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if user == nil {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("null"))
 		return
 	}
 

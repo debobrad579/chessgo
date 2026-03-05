@@ -43,15 +43,15 @@ func (room *GameRoom) Disconnect(user *database.User) {
 	case room.spectatorConns[user.ID] != nil:
 		room.spectatorConns[user.ID].Close()
 		delete(room.spectatorConns, user.ID)
-	case room.whiteConn != nil && user.ID == room.game.White.ID:
-		room.whiteConn.Close()
-		room.whiteConn = nil
-	case room.blackConn != nil && user.ID == room.game.Black.ID:
-		room.blackConn.Close()
-		room.blackConn = nil
+	case room.white.conn != nil && user.ID == room.game.White.ID:
+		room.white.conn.Close()
+		room.white.conn = nil
+	case room.black.conn != nil && user.ID == room.game.Black.ID:
+		room.black.conn.Close()
+		room.black.conn = nil
 	}
 
-	roomEmpty := room.whiteConn == nil && room.blackConn == nil
+	roomEmpty := room.white.conn == nil && room.black.conn == nil
 
 	if roomEmpty {
 		if room.turnTimer != nil {

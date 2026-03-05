@@ -12,7 +12,7 @@ export default function LivePage() {
   const [pendingDrawOffer, setPendingDrawOffer] = useState<"w" | "b" | "n">("n")
   const chessGameRef = useRef<ChessGameHandle>(null)
 
-  const { sendJsonMessage } = useWebSocket(`/live/${gameID}`, (event) => {
+  const { sendJsonMessage } = useWebSocket(`/api/live/${gameID}`, (event) => {
     const parsed: GameData = JSON.parse(event.data)
     setGameData(parsed)
     setPendingDrawOffer(parsed.pending_draw_offer)

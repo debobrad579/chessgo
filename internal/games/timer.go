@@ -13,18 +13,18 @@ func (room *GameRoom) startTurnTimer() {
 
 	var remaining int
 	if room.game.Turn() == chess.White {
-		remaining = room.whiteTime
+		remaining = room.white.time
 	} else {
-		remaining = room.blackTime
+		remaining = room.black.time
 	}
 
 	room.turnStart = time.Now()
 	room.turnTimer = time.AfterFunc(time.Duration(remaining)*time.Millisecond, func() {
 		room.mu.Lock()
 		if room.game.Turn() == chess.White {
-			room.result = chess.ResultBlackWon
+			room.game.Result = chess.ResultBlackWon
 		} else {
-			room.result = chess.ResultWhiteWon
+			room.game.Result = chess.ResultWhiteWon
 		}
 		room.saveGame()
 		room.mu.Unlock()

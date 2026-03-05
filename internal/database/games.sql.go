@@ -7,6 +7,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"time"
 
@@ -22,8 +23,8 @@ RETURNING
 
 type CreateGameParams struct {
 	ID                   uuid.UUID       `json:"id"`
-	WhiteID              uuid.UUID       `json:"white_id"`
-	BlackID              uuid.UUID       `json:"black_id"`
+	WhiteID              uuid.NullUUID   `json:"white_id"`
+	BlackID              uuid.NullUUID   `json:"black_id"`
 	TimeControlBase      int32           `json:"time_control_base"`
 	TimeControlIncrement int32           `json:"time_control_increment"`
 	Result               string          `json:"result"`
@@ -62,8 +63,8 @@ SELECT
     bu.name AS black_name
 FROM
     games g
-    JOIN users wu ON g.white_id = wu.id
-    JOIN users bu ON g.black_id = bu.id
+    LEFT JOIN users wu ON g.white_id = wu.id
+    LEFT JOIN users bu ON g.black_id = bu.id
 WHERE
     g.id = $1
 `
@@ -72,14 +73,14 @@ type GetGameRow struct {
 	ID                   uuid.UUID       `json:"id"`
 	CreatedAt            time.Time       `json:"created_at"`
 	UpdatedAt            time.Time       `json:"updated_at"`
-	WhiteID              uuid.UUID       `json:"white_id"`
-	BlackID              uuid.UUID       `json:"black_id"`
+	WhiteID              uuid.NullUUID   `json:"white_id"`
+	BlackID              uuid.NullUUID   `json:"black_id"`
 	TimeControlBase      int32           `json:"time_control_base"`
 	TimeControlIncrement int32           `json:"time_control_increment"`
 	Result               string          `json:"result"`
 	Moves                json.RawMessage `json:"moves"`
-	WhiteName            string          `json:"white_name"`
-	BlackName            string          `json:"black_name"`
+	WhiteName            sql.NullString  `json:"white_name"`
+	BlackName            sql.NullString  `json:"black_name"`
 }
 
 func (q *Queries) GetGame(ctx context.Context, id uuid.UUID) (GetGameRow, error) {
@@ -113,11 +114,11 @@ SELECT
     g.result
 FROM
     games g
-    JOIN users wu ON g.white_id = wu.id
-    JOIN users bu ON g.black_id = bu.id
+    LEFT JOIN users wu ON g.white_id = wu.id
+    LEFT JOIN users bu ON g.black_id = bu.id
 WHERE
-    g.white_id = $1
-    OR g.black_id = $1
+    g.white_id IS NOT DISTINCT FROM $1
+    OR g.black_id IS NOT DISTINCT FROM $1
 ORDER BY
     g.created_at DESC,
     g.id DESC
@@ -125,20 +126,20 @@ LIMIT $2 OFFSET ($3 - 1) * $2
 `
 
 type GetGamesByUserParams struct {
-	WhiteID uuid.UUID   `json:"white_id"`
-	Limit   int32       `json:"limit"`
-	Column3 interface{} `json:"column_3"`
+	WhiteID uuid.NullUUID `json:"white_id"`
+	Limit   int32         `json:"limit"`
+	Column3 interface{}   `json:"column_3"`
 }
 
 type GetGamesByUserRow struct {
-	ID                   uuid.UUID `json:"id"`
-	WhiteID              uuid.UUID `json:"white_id"`
-	WhiteName            string    `json:"white_name"`
-	BlackID              uuid.UUID `json:"black_id"`
-	BlackName            string    `json:"black_name"`
-	TimeControlBase      int32     `json:"time_control_base"`
-	TimeControlIncrement int32     `json:"time_control_increment"`
-	Result               string    `json:"result"`
+	ID                   uuid.UUID      `json:"id"`
+	WhiteID              uuid.NullUUID  `json:"white_id"`
+	WhiteName            sql.NullString `json:"white_name"`
+	BlackID              uuid.NullUUID  `json:"black_id"`
+	BlackName            sql.NullString `json:"black_name"`
+	TimeControlBase      int32          `json:"time_control_base"`
+	TimeControlIncrement int32          `json:"time_control_increment"`
+	Result               string         `json:"result"`
 }
 
 func (q *Queries) GetGamesByUser(ctx context.Context, arg GetGamesByUserParams) ([]GetGamesByUserRow, error) {
@@ -171,4 +172,21 @@ func (q *Queries) GetGamesByUser(ctx context.Context, arg GetGamesByUserParams) 
 		return nil, err
 	}
 	return items, nil
+}
+
+const getGamesCount = `-- name: GetGamesCount :one
+SELECT
+    COUNT(*)
+FROM
+    games
+WHERE
+    white_id IS NOT DISTINCT FROM $1
+    OR black_id IS NOT DISTINCT FROM $1
+`
+
+func (q *Queries) GetGamesCount(ctx context.Context, whiteID uuid.NullUUID) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getGamesCount, whiteID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
 }

@@ -16,11 +16,11 @@ SELECT
     g.result
 FROM
     games g
-    JOIN users wu ON g.white_id = wu.id
-    JOIN users bu ON g.black_id = bu.id
+    LEFT JOIN users wu ON g.white_id = wu.id
+    LEFT JOIN users bu ON g.black_id = bu.id
 WHERE
-    g.white_id = $1
-    OR g.black_id = $1
+    g.white_id IS NOT DISTINCT FROM $1
+    OR g.black_id IS NOT DISTINCT FROM $1
 ORDER BY
     g.created_at DESC,
     g.id DESC
@@ -33,8 +33,17 @@ SELECT
     bu.name AS black_name
 FROM
     games g
-    JOIN users wu ON g.white_id = wu.id
-    JOIN users bu ON g.black_id = bu.id
+    LEFT JOIN users wu ON g.white_id = wu.id
+    LEFT JOIN users bu ON g.black_id = bu.id
 WHERE
     g.id = $1;
+
+-- name: GetGamesCount :one
+SELECT
+    COUNT(*)
+FROM
+    games
+WHERE
+    white_id IS NOT DISTINCT FROM $1
+    OR black_id IS NOT DISTINCT FROM $1;
 

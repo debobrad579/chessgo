@@ -10,7 +10,7 @@ func (room *GameRoom) OfferDraw(playerRole PlayerRole) error {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
-	if room.result != chess.ResultGameOngoing {
+	if room.game.Result != chess.ResultGameOngoing {
 		return errors.New("game already ended")
 	}
 	if playerRole == Spectator {
@@ -50,7 +50,7 @@ func (room *GameRoom) RespondToDraw(playerRole PlayerRole, accept bool) error {
 		return nil
 	}
 
-	room.result = chess.ResultDraw
+	room.game.Result = chess.ResultDraw
 	room.pendingDrawOffer = Spectator
 	room.saveGame()
 

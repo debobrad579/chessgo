@@ -19,7 +19,7 @@ func (cfg *Config) AuthMiddleware(handler http.Handler) http.Handler {
 
 		refreshCookie, err := r.Cookie("refresh_token")
 		if err != nil {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+			handler.ServeHTTP(w, r)
 			return
 		}
 

@@ -40,7 +40,7 @@ func TestFourKnightsEnglish(t *testing.T) {
 		game.Move(move)
 	}
 
-	result := game.Result()
+	result := game.GetResult()
 	assert.Equal(t, chess.Checkmate, result.Reason)
 	assert.Equal(t, chess.ResultWhiteWon, result.Result)
 }
@@ -70,7 +70,7 @@ func TestBerlinDraw(t *testing.T) {
 		game.Move(move)
 	}
 
-	result := game.Result()
+	result := game.GetResult()
 	assert.Equal(t, chess.ThreefoldRepetition, result.Reason)
 	assert.Equal(t, chess.ResultDraw, result.Result)
 }

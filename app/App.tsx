@@ -9,6 +9,7 @@ import HomePage from "@/pages"
 import LivePage from "@/pages/live"
 import GamesPage from "@/pages/games"
 import GamePage from "@/pages/game"
+import NotFound from "@/pages/not-found"
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/live/:gameID" element={<LivePage />} />
           <Route path="/games" element={<GamesPage />} />
           <Route path="/games/:gameID" element={<GamePage />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,6 +1,6 @@
 {{ define "body" }}
 <section
-  class="flex flex-col items-center justify-center text-center flex-1 px-4 py-24 gap-6 h-screen"
+  class="flex flex-col items-center justify-center text-center flex-1 px-4 py-24 gap-4 h-screen"
 >
   <img src="/static/logo.svg" alt="Logo" class="h-16 dark:invert" />
   <div class="font-medium text-muted-foreground">REAL-TIME CHESS</div>
@@ -18,5 +18,11 @@
       Sign in
     </a>
   </div>
+  <a
+    href="/app"
+    class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-8 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+  >
+    Play as guest
+  </a>
 </section>
 {{ end }}

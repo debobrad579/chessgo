@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/debobrad579/chessgo/internal/chess"
 	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/google/uuid"
 )
@@ -16,18 +18,99 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	games, err := cfg.DB.GetGamesByUser(r.Context(), database.GetGamesByUserParams{WhiteID: user.ID, Limit: 10, Column3: 1})
+	pageStr := r.URL.Query().Get("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		page = 1
+	}
+
+	limitStr := r.URL.Query().Get("limit")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	games, err := cfg.DB.GetGamesByUser(r.Context(), database.GetGamesByUserParams{
+		WhiteID: uuid.NullUUID{UUID: user.ID, Valid: true},
+		Limit:   int32(limit),
+		Column3: page,
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	data, err := json.Marshal(games)
+	var response []chess.Game
+
+	for _, game := range games {
+		var whiteID uuid.UUID
+		if game.WhiteID.Valid {
+			whiteID = game.WhiteID.UUID
+		}
+
+		var blackID uuid.UUID
+		if game.BlackID.Valid {
+			blackID = game.BlackID.UUID
+		}
+
+		whiteName := "Anonymous"
+		if game.WhiteName.Valid {
+			whiteName = game.WhiteName.String
+		}
+
+		blackName := "Anonymous"
+		if game.BlackName.Valid {
+			blackName = game.BlackName.String
+		}
+
+		response = append(response, chess.Game{
+			ID: game.ID,
+			White: chess.Player{
+				ID:   whiteID,
+				Name: whiteName,
+			},
+			Black: chess.Player{
+				ID:   blackID,
+				Name: blackName,
+			},
+			TimeControl: chess.TimeControl{
+				Base:      int(game.TimeControlBase),
+				Increment: int(game.TimeControlIncrement),
+			},
+			Result: chess.Result(game.Result),
+		})
+	}
+
+	data, err := json.Marshal(response)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+func (cfg *Config) GetGamesCountHandler(w http.ResponseWriter, r *http.Request) {
+	user, err := cfg.getUser(r)
+	if err != nil || user == nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	count, err := cfg.DB.GetGamesCount(r.Context(), uuid.NullUUID{UUID: user.ID, Valid: true})
+	if err != nil {
+		http.Error(w, "failed to fetch count", http.StatusInternalServerError)
+		return
+	}
+
+	data, err := json.Marshal(count)
+	if err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(data)
 }
@@ -51,7 +134,49 @@ func (cfg *Config) GameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := json.Marshal(game)
+	var moves []chess.Move
+	if err := json.Unmarshal(game.Moves, &moves); err != nil {
+		http.Error(w, "invalid moves JSON", http.StatusInternalServerError)
+		return
+	}
+
+	var whiteID uuid.UUID
+	if game.WhiteID.Valid {
+		whiteID = game.WhiteID.UUID
+	}
+
+	var blackID uuid.UUID
+	if game.BlackID.Valid {
+		blackID = game.BlackID.UUID
+	}
+
+	whiteName := "Anonymous"
+	if game.WhiteName.Valid {
+		whiteName = game.WhiteName.String
+	}
+
+	blackName := "Anonymous"
+	if game.BlackName.Valid {
+		blackName = game.BlackName.String
+	}
+
+	data, err := json.Marshal(chess.Game{
+		ID:    gameID,
+		Moves: moves,
+		White: chess.Player{
+			ID:   whiteID,
+			Name: whiteName,
+		},
+		Black: chess.Player{
+			ID:   blackID,
+			Name: blackName,
+		},
+		TimeControl: chess.TimeControl{
+			Base:      int(game.TimeControlBase),
+			Increment: int(game.TimeControlIncrement),
+		},
+		Result: chess.Result(game.Result),
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

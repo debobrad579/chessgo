@@ -52,12 +52,13 @@ func main() {
 
 	mux.HandleFunc("/api/me", cfg.ApiMeHandler)
 
-	mux.HandleFunc("POST /live/new", cfg.NewGameHandler)
-	mux.HandleFunc("/live/{gameID}", cfg.ConnectToGameHandler)
-	mux.HandleFunc("/live", cfg.GamesListHandler)
+	mux.HandleFunc("POST /api/live/new", cfg.NewGameHandler)
+	mux.HandleFunc("/api/live/{gameID}", cfg.ConnectToGameHandler)
+	mux.HandleFunc("/api/live", cfg.GamesListHandler)
 
-	mux.HandleFunc("/games", cfg.MyGamesHandler)
-	mux.HandleFunc("/games/{gameID}", cfg.GameHandler)
+	mux.HandleFunc("/api/games", cfg.MyGamesHandler)
+	mux.HandleFunc("/api/games/count", cfg.GetGamesCountHandler)
+	mux.HandleFunc("/api/games/{gameID}", cfg.GameHandler)
 
 	log.Printf("Starting server at port %s\n", port)
 	if err := http.ListenAndServe(port, mux); err != nil {

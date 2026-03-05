@@ -24,6 +24,7 @@ func New(user *database.User, db *database.Queries, color chess.Color, timeContr
 		State:       chess.NewGameState(),
 		Moves:       []chess.Move{},
 		TimeControl: timeControl,
+		Result:      chess.ResultGameOngoing,
 	}
 
 	player := chess.Player{ID: user.ID, Name: user.Name}
@@ -37,13 +38,18 @@ func New(user *database.User, db *database.Queries, color chess.Color, timeContr
 	room := GameRoom{
 		id:               uuid.New(),
 		game:             &game,
-		result:           chess.ResultGameOngoing,
 		broadcast:        make(chan struct{}),
-		whiteTime:        game.TimeControl.Base,
-		blackTime:        game.TimeControl.Base,
+		white:            playerInfo{time: game.TimeControl.Base},
+		black:            playerInfo{time: game.TimeControl.Base},
 		spectatorConns:   make(map[uuid.UUID]*websocket.Conn),
 		db:               db,
 		pendingDrawOffer: Spectator,
+	}
+
+	if color == chess.White {
+		room.white.isGuest = user.Email == ""
+	} else {
+		room.black.isGuest = user.Email == ""
 	}
 
 	data, err := json.Marshal(returnVals{room.id})

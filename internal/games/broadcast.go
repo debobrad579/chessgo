@@ -23,7 +23,7 @@ func (room *GameRoom) getGameData() ([]byte, error) {
 		Moves:            room.game.Moves,
 		TimeControl:      room.game.TimeControl,
 		ThinkTime:        room.getThinkTime(),
-		Result:           room.result,
+		Result:           room.game.Result,
 		White:            room.game.White,
 		Black:            room.game.Black,
 		PendingDrawOffer: room.pendingDrawOffer,
@@ -42,20 +42,20 @@ func (room *GameRoom) runBroadcastLoop() {
 
 		room.mu.Unlock()
 
-		if room.whiteConn != nil {
-			if err := room.whiteConn.WriteMessage(websocket.TextMessage, data); err != nil {
-				room.whiteConn.Close()
+		if room.white.conn != nil {
+			if err := room.white.conn.WriteMessage(websocket.TextMessage, data); err != nil {
+				room.white.conn.Close()
 				room.mu.Lock()
-				room.whiteConn = nil
+				room.white.conn = nil
 				room.mu.Unlock()
 			}
 		}
 
-		if room.blackConn != nil {
-			if err := room.blackConn.WriteMessage(websocket.TextMessage, data); err != nil {
-				room.blackConn.Close()
+		if room.black.conn != nil {
+			if err := room.black.conn.WriteMessage(websocket.TextMessage, data); err != nil {
+				room.black.conn.Close()
 				room.mu.Lock()
-				room.blackConn = nil
+				room.black.conn = nil
 				room.mu.Unlock()
 			}
 		}

@@ -27,7 +27,7 @@ export function CreateGameButton() {
   const [timeControl, setTimeControl] = useState("3+2")
 
   function handleNewGame() {
-    fetch("/live/new", {
+    fetch("/api/live/new", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ color: color, time_control: timeControl }),

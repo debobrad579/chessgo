@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ArrowDownUp, Flag } from "lucide-react"
+import { ArrowDownUp, Flag, Share } from "lucide-react"
 import { useState } from "react"
 import { useChessGameContext } from "./ChessGameContext"
 import { useUser } from "@/context/UserContext"
@@ -50,7 +50,8 @@ export function GameButtons({
                   <PopoverTrigger asChild>
                     <Button
                       className="text-2xl"
-                      variant={drawOfferActive ? "default" : "outline"}
+                      size="icon"
+                      variant={drawOfferActive ? "default" : "ghost"}
                       disabled={playerColor === pendingDrawOffer}
                     >
                       &frac12;
@@ -107,7 +108,7 @@ export function GameButtons({
             >
               <TooltipTrigger asChild>
                 <PopoverTrigger asChild>
-                  <Button variant="outline">
+                  <Button size="icon" variant="ghost">
                     <Flag />
                   </Button>
                 </PopoverTrigger>
@@ -141,14 +142,39 @@ export function GameButtons({
           </Tooltip>
         )}
       </div>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button variant="outline" onClick={handleFlipBoard}>
-            <ArrowDownUp />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>Flip board</TooltipContent>
-      </Tooltip>
+      <div className="flex gap-2">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button size="icon" variant="ghost" onClick={handleFlipBoard}>
+              <ArrowDownUp />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Flip board</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <Popover>
+            <TooltipTrigger asChild>
+              <PopoverTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(window.location.href)
+                    } catch (err) {
+                      console.error("Failed to copy URL:", err)
+                    }
+                  }}
+                >
+                  <Share />
+                </Button>
+              </PopoverTrigger>
+            </TooltipTrigger>
+            <TooltipContent>Copy URL</TooltipContent>
+            <PopoverContent className="w-fit">URL Copied!</PopoverContent>
+          </Popover>
+        </Tooltip>
+      </div>
     </div>
   )
 }

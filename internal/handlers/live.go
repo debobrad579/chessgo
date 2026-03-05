@@ -34,14 +34,9 @@ type clientMessage struct {
 }
 
 func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := cfg.getUser(r)
+	user, err := cfg.getUserOrGuest(w, r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if user == nil {
-		http.Error(w, "must be logged in", http.StatusUnauthorized)
 		return
 	}
 
@@ -96,7 +91,7 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	user, err := cfg.getUser(r)
+	user, err := cfg.getUserOrGuest(w, r)
 	if err != nil {
 		http.Error(w, "unauthorized", http.StatusUnauthorized)
 		return

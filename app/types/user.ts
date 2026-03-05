@@ -4,4 +4,5 @@ export type User = {
   updated_at: string
   email: string
   name: string
+  is_guest: boolean
 }

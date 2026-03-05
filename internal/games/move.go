@@ -19,7 +19,7 @@ func (room *GameRoom) MakeMove(move chess.Move, playerRole PlayerRole) error {
 		return errors.New("game not started")
 	}
 
-	if room.result != chess.ResultGameOngoing {
+	if room.game.Result != chess.ResultGameOngoing {
 		return errors.New("game ended")
 	}
 
@@ -32,19 +32,19 @@ func (room *GameRoom) MakeMove(move chess.Move, playerRole PlayerRole) error {
 	}
 
 	if playerRole == White {
-		room.whiteTime -= int(time.Since(room.turnStart).Milliseconds()) - room.game.TimeControl.Increment
-		move.Timestamp = room.whiteTime
+		room.white.time -= int(time.Since(room.turnStart).Milliseconds()) - room.game.TimeControl.Increment
+		move.Timestamp = room.white.time
 	} else {
-		room.blackTime -= int(time.Since(room.turnStart).Milliseconds()) - room.game.TimeControl.Increment
-		move.Timestamp = room.blackTime
+		room.black.time -= int(time.Since(room.turnStart).Milliseconds()) - room.game.TimeControl.Increment
+		move.Timestamp = room.black.time
 	}
 
 	room.game.Move(move)
 	if room.pendingDrawOffer != playerRole {
 		room.pendingDrawOffer = Spectator
 	}
-	room.result = room.game.Result().Result
-	if room.result != chess.ResultGameOngoing {
+	room.game.Result = room.game.GetResult().Result
+	if room.game.Result != chess.ResultGameOngoing {
 		room.saveGame()
 	} else {
 		room.startTurnTimer()

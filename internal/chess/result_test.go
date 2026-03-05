@@ -9,7 +9,7 @@ import (
 
 func TestResultAtStart(t *testing.T) {
 	g := newGame()
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, GameOngoing, result.Reason)
 	assert.Equal(t, ResultGameOngoing, result.Result)
 }
@@ -24,7 +24,7 @@ func TestResultFoolsMate(t *testing.T) {
 		require.True(t, g.IsMoveValid(move))
 		g.Move(move)
 	}
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, Checkmate, result.Reason)
 	assert.Equal(t, ResultBlackWon, result.Result)
 }
@@ -37,7 +37,7 @@ func TestResultStalemate(t *testing.T) {
 
 	g := &Game{State: GameState{Board: b, ActiveColor: Black, CastlingRights: ""}}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, Stalemate, result.Reason)
 	assert.Equal(t, ResultDraw, result.Result)
 }
@@ -62,7 +62,7 @@ func TestResultFiftyMoveRule(t *testing.T) {
 		}
 	}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, FiftyMoveRule, result.Reason)
 	assert.Equal(t, ResultDraw, result.Result)
 }
@@ -96,7 +96,7 @@ func TestResultFiftyMoveRulePawnMoved(t *testing.T) {
 		}
 	}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.NotEqual(t, FiftyMoveRule, result.Reason)
 }
 
@@ -121,7 +121,7 @@ func TestResultFiftyMoveRuleCapture(t *testing.T) {
 		}
 	}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.NotEqual(t, FiftyMoveRule, result.Reason)
 }
 
@@ -144,7 +144,7 @@ func TestResultThreefoldRepetition(t *testing.T) {
 		}
 	}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, ThreefoldRepetition, result.Reason)
 	assert.Equal(t, ResultDraw, result.Result)
 }
@@ -156,7 +156,7 @@ func TestResultInsufficientKvK(t *testing.T) {
 
 	g := &Game{State: GameState{Board: b, ActiveColor: White, CastlingRights: ""}}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, InsufficentMaterial, result.Reason)
 	assert.Equal(t, ResultDraw, result.Result)
 }
@@ -169,7 +169,7 @@ func TestResultInsufficientKBvK(t *testing.T) {
 
 	g := &Game{State: GameState{Board: b, ActiveColor: White, CastlingRights: ""}}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, InsufficentMaterial, result.Reason)
 	assert.Equal(t, ResultDraw, result.Result)
 }
@@ -182,7 +182,7 @@ func TestResultInsufficientKNvK(t *testing.T) {
 
 	g := &Game{State: GameState{Board: b, ActiveColor: White, CastlingRights: ""}}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, InsufficentMaterial, result.Reason)
 	assert.Equal(t, ResultDraw, result.Result)
 }
@@ -196,7 +196,7 @@ func TestResultInsufficientKBvKBSameColor(t *testing.T) {
 
 	g := &Game{State: GameState{Board: b, ActiveColor: White, CastlingRights: ""}}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, InsufficentMaterial, result.Reason)
 	assert.Equal(t, ResultDraw, result.Result)
 }
@@ -210,7 +210,7 @@ func TestResultSufficientKBvKBDifferentColor(t *testing.T) {
 
 	g := &Game{State: GameState{Board: b, ActiveColor: White, CastlingRights: ""}}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, GameOngoing, result.Reason)
 	assert.Equal(t, ResultGameOngoing, result.Result)
 }
@@ -223,7 +223,7 @@ func TestResultSufficientWithQueen(t *testing.T) {
 
 	g := &Game{State: GameState{Board: b, ActiveColor: White, CastlingRights: ""}}
 
-	result := g.Result()
+	result := g.GetResult()
 	assert.Equal(t, GameOngoing, result.Reason)
 	assert.Equal(t, ResultGameOngoing, result.Result)
 }

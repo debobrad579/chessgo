@@ -18,6 +18,7 @@ export type TimeControl = {
 }
 
 export type Game = {
+  id: string
   moves: Move[]
   think_time: number
   time_control: TimeControl

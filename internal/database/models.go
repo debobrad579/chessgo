@@ -16,8 +16,8 @@ type Game struct {
 	ID                   uuid.UUID       `json:"id"`
 	CreatedAt            time.Time       `json:"created_at"`
 	UpdatedAt            time.Time       `json:"updated_at"`
-	WhiteID              uuid.UUID       `json:"white_id"`
-	BlackID              uuid.UUID       `json:"black_id"`
+	WhiteID              uuid.NullUUID   `json:"white_id"`
+	BlackID              uuid.NullUUID   `json:"black_id"`
 	TimeControlBase      int32           `json:"time_control_base"`
 	TimeControlIncrement int32           `json:"time_control_increment"`
 	Result               string          `json:"result"`

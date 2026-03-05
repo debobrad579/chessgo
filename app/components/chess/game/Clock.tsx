@@ -16,10 +16,10 @@ export function Clock({ color }: { color: Color }) {
   return (
     <div
       className={cn(
-        "h-9 px-4 py-2 rounded-md font-semibold transition-colors flex justify-between items-center gap-2 w-full px-2 py-1 font-bold",
+        "h-9 px-4 py-2 rounded-md border border-input font-semibold transition-colors flex justify-between items-center gap-2 w-full px-2 py-1 font-bold",
         color === "w"
-          ? "bg-gray-100 hover:bg-gray-200 text-black border border-gray-900"
-          : "bg-gray-900 hover:bg-gray-800 text-white border border-gray-100",
+          ? "bg-gray-100 hover:bg-gray-200 text-black"
+          : "bg-gray-900 hover:bg-gray-800 text-white",
       )}
     >
       <div

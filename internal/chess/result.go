@@ -1,6 +1,6 @@
 package chess
 
-func (g *Game) Result() GameOver {
+func (g *Game) GetResult() GameOver {
 	if g.State.HalfMoveCount >= 100 {
 		return GameOver{Result: ResultDraw, Reason: FiftyMoveRule}
 	}

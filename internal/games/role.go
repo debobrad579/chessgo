@@ -17,23 +17,25 @@ const (
 func (room *GameRoom) assignRole(conn *websocket.Conn, user *database.User) PlayerRole {
 	switch {
 	case user.ID == room.game.White.ID:
-		room.whiteConn = conn
+		room.white.conn = conn
 		return White
 	case user.ID == room.game.Black.ID:
-		room.blackConn = conn
+		room.black.conn = conn
 		return Black
-	case room.whiteConn == nil:
+	case room.white.conn == nil:
 		room.game.White = chess.Player{ID: user.ID, Name: user.Name}
-		room.whiteConn = conn
-		if room.blackConn != nil {
+		room.white.conn = conn
+		room.black.isGuest = user.Email == ""
+		if room.black.conn != nil {
 			room.startTurnTimer()
 			registry.notifySubscribers()
 		}
 		return White
-	case room.blackConn == nil:
+	case room.black.conn == nil:
 		room.game.Black = chess.Player{ID: user.ID, Name: user.Name}
-		room.blackConn = conn
-		if room.whiteConn != nil {
+		room.black.conn = conn
+		room.black.isGuest = user.Email == ""
+		if room.white.conn != nil {
 			room.startTurnTimer()
 			registry.notifySubscribers()
 		}

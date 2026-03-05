@@ -7,15 +7,15 @@ import (
 )
 
 func (room *GameRoom) Resign(playerRole PlayerRole) error {
-	if room.result != chess.ResultGameOngoing {
+	if room.game.Result != chess.ResultGameOngoing {
 		return errors.New("game already ended")
 	}
 
 	switch playerRole {
 	case White:
-		room.result = chess.ResultBlackWon
+		room.game.Result = chess.ResultBlackWon
 	case Black:
-		room.result = chess.ResultBlackWon
+		room.game.Result = chess.ResultBlackWon
 	default:
 		return errors.New("invalid role")
 	}

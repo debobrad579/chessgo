@@ -10,22 +10,10 @@
   <body class="bg-background text-foreground">
     <div id="app">
       <nav class="flex justify-between items-center p-4 border-b border-border">
-        <div class="relative h-12 flex items-center">
-          <div id="logo-placeholder" class="absolute text-6xl font-bold">
-            ChessGO
-          </div>
-          <img
-            class="h-12 dark:invert"
-            src="/static/logo.svg"
-            alt=""
-            onload="
-              document
-                .getElementById('logo-placeholder')
-                .classList.add('opacity-0')
-            "
-          />
+        <div class="h-12 flex items-center">
+          <img class="h-12 dark:invert" src="/static/logo.svg" alt="ChessGO" />
         </div>
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2">
           <a
             href="/app/games"
             class="rounded-md text-sm font-medium h-9 px-4 py-2 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground transition-colors"
