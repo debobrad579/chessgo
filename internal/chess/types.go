@@ -11,15 +11,15 @@ const (
 	Black Color = 'b'
 )
 
-type PieceType byte
+type PieceType string
 
 const (
-	Pawn   PieceType = 'p'
-	Knight PieceType = 'n'
-	Bishop PieceType = 'b'
-	Rook   PieceType = 'r'
-	Queen  PieceType = 'q'
-	King   PieceType = 'k'
+	Pawn   PieceType = "p"
+	Knight PieceType = "n"
+	Bishop PieceType = "b"
+	Rook   PieceType = "r"
+	Queen  PieceType = "q"
+	King   PieceType = "k"
 )
 
 type Piece struct {
@@ -65,10 +65,10 @@ type GameOver struct {
 }
 
 type Move struct {
-	From      string     `json:"from"`
-	To        string     `json:"to"`
-	Promotion *PieceType `json:"promotion,omitempty"`
-	Timestamp int        `json:"timestamp"`
+	From      string    `json:"from"`
+	To        string    `json:"to"`
+	Promotion PieceType `json:"promotion"`
+	Timestamp int       `json:"timestamp"`
 }
 
 type TimeControl struct {

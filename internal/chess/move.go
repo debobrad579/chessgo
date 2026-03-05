@@ -63,8 +63,8 @@ func (g *Game) Move(move Move) {
 		if (piece.Color == White && toRow == 7) || (piece.Color == Black && toRow == 0) {
 			promotionType := Queen
 
-			if move.Promotion != nil {
-				promotionType = *move.Promotion
+			if move.Promotion != "" {
+				promotionType = move.Promotion
 			}
 
 			g.State.Board[toRow][toCol] = &Piece{Type: promotionType, Color: piece.Color}
@@ -118,8 +118,8 @@ func (b Board) getBoardAfterMove(move Move) Board {
 		if (piece.Color == White && toRow == 7) || (piece.Color == Black && toRow == 0) {
 			promotionType := Queen
 
-			if move.Promotion != nil {
-				promotionType = *move.Promotion
+			if move.Promotion != "" {
+				promotionType = move.Promotion
 			}
 
 			b[toRow][toCol] = &Piece{Type: promotionType, Color: piece.Color}

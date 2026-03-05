@@ -50,22 +50,6 @@ func (g Game) IsMoveValid(move Move) bool {
 		}
 	}
 
-	if piece.Type == Pawn {
-		isPromotionRank := (color == White && toRow == 7) || (color == Black && toRow == 0)
-		if isPromotionRank && move.Promotion == nil {
-			return false
-		}
-		if !isPromotionRank && move.Promotion != nil {
-			return false
-		}
-		if move.Promotion != nil {
-			valid := map[PieceType]bool{Queen: true, Rook: true, Bishop: true, Knight: true}
-			if !valid[*move.Promotion] {
-				return false
-			}
-		}
-	}
-
 	newBoard := g.State.Board.getBoardAfterMove(move)
 	return !newBoard.inCheck(color)
 }

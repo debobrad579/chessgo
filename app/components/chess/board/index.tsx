@@ -29,12 +29,18 @@ export function Chessboard({
     arrows,
     highlightedSquares,
     handleArrowStart,
-    handleArrowRelease,
+    handleArrowEnd,
     handleBoardClick,
   } = useArrows(fen)
-  const { draggedPiece, handleDragStart } = useDrag({
+  const {
+    draggedPiece,
+    selectedSquare,
+    handleDragStart,
+    handleDragMove,
+    handleDragEnd,
+  } = useDrag({
+    boardRef: ref,
     width,
-    ref,
     draggablePieces,
     onMove,
     flipBoard,
@@ -44,8 +50,9 @@ export function Chessboard({
   return (
     <div
       ref={ref}
-      className="aspect-square grid grid-cols-8 grid-rows-8 relative"
+      className="aspect-square grid grid-cols-8 grid-rows-8 relative touch-none"
       onClick={handleBoardClick}
+      onPointerMove={handleDragMove}
     >
       {board.flat().map((_, i) => {
         const displayIndex = flipBoard ? 63 - i : i
@@ -57,25 +64,28 @@ export function Chessboard({
             index={displayIndex}
             flipBoard={flipBoard}
             squareWidth={width / 8}
-            piece={draggedPiece?.index !== displayIndex ? piece : null}
+            showPiece={draggedPiece?.index !== displayIndex}
+            piece={piece}
             isHighlighted={highlightedSquares
               .filter((h) => h.fen === fen)
               .map((h) => h.index)
               .includes(displayIndex)}
             isYellow={
-              previousMove != null &&
-              [
-                squareToInt(previousMove.from),
-                squareToInt(previousMove.to),
-              ].includes(displayIndex)
+              selectedSquare === displayIndex ||
+              (previousMove != null &&
+                [
+                  squareToInt(previousMove.from),
+                  squareToInt(previousMove.to),
+                ].includes(displayIndex))
             }
             check={
               (check === "w" && piece === "K") ||
               (check === "b" && piece === "k")
             }
-            onRightClick={() => handleArrowStart(displayIndex)}
-            onRightRelease={() => handleArrowRelease(displayIndex)}
-            onDragStart={(e) => handleDragStart(displayIndex, piece ?? "", e)}
+            handleArrowStart={handleArrowStart}
+            handleArrowEnd={handleArrowEnd}
+            handleDragStart={handleDragStart}
+            handleDragEnd={handleDragEnd}
           />
         )
       })}

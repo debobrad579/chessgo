@@ -7,9 +7,11 @@ type SquareProps = {
   isYellow: boolean
   check: boolean
   squareWidth: number
-  onRightClick: () => void
-  onRightRelease: () => void
-  onDragStart?: (e: React.MouseEvent) => void
+  handleArrowStart: (index: number) => void
+  handleArrowEnd: (index: number) => void
+  handleDragStart: (index: number, piece: string, e: React.PointerEvent) => void
+  handleDragEnd: (index: number, piece: string, e: React.PointerEvent) => void
+  showPiece?: boolean
   flipBoard?: boolean
 }
 
@@ -20,9 +22,11 @@ export function Square({
   isYellow,
   check,
   squareWidth,
-  onRightClick,
-  onRightRelease,
-  onDragStart,
+  handleArrowStart,
+  handleArrowEnd,
+  handleDragStart,
+  handleDragEnd,
+  showPiece = true,
   flipBoard = false,
 }: SquareProps) {
   const isLight = (Math.floor(index / 8) + (index % 8)) % 2 === 0
@@ -67,17 +71,27 @@ export function Square({
   return (
     <div
       onMouseDown={(e) => {
-        e.preventDefault()
         if (e.button === 2) {
-          onRightClick()
-        } else if (e.button === 0 && piece && onDragStart) {
-          onDragStart(e)
+          e.preventDefault()
+          handleArrowStart(index)
         }
       }}
       onMouseUp={(e) => {
         if (e.button === 2) {
           e.preventDefault()
-          onRightRelease()
+          handleArrowEnd(index)
+        }
+      }}
+      onPointerDown={(e) => {
+        if (e.button !== 2) {
+          e.preventDefault()
+          handleDragStart(index, piece ?? "", e)
+        }
+      }}
+      onPointerUp={(e) => {
+        if (e.button !== 2) {
+          e.preventDefault()
+          handleDragEnd(index, piece ?? "", e)
         }
       }}
       onContextMenu={(e) => e.preventDefault()}
@@ -100,7 +114,7 @@ export function Square({
           {file}
         </div>
       )}
-      {piece != null && (
+      {showPiece && piece != null && (
         <img
           src={`/static/pieces/${piece}.svg`}
           alt={piece}

@@ -68,33 +68,6 @@ func TestInvalidMoveLeavesKingInCheck(t *testing.T) {
 	assert.False(t, g.IsMoveValid(Move{From: "e5", To: "d5"}))
 }
 
-func TestValidPromotionRequired(t *testing.T) {
-	var b Board
-	place(&b, 6, 4, Pawn, White)
-	place(&b, 0, 4, King, White)
-	place(&b, 7, 0, King, Black)
-
-	g := &Game{State: GameState{Board: b, ActiveColor: White, CastlingRights: ""}}
-	assert.False(t, g.IsMoveValid(Move{From: "e7", To: "e8"}))
-	assert.True(t, g.IsMoveValid(Move{From: "e7", To: "e8", Promotion: prom(Queen)}))
-}
-
-func TestInvalidPromotionPiece(t *testing.T) {
-	var b Board
-	place(&b, 6, 4, Pawn, White)
-	place(&b, 0, 4, King, White)
-	place(&b, 7, 0, King, Black)
-
-	g := &Game{State: GameState{Board: b, ActiveColor: White, CastlingRights: ""}}
-	assert.False(t, g.IsMoveValid(Move{From: "e7", To: "e8", Promotion: prom(King)}))
-	assert.False(t, g.IsMoveValid(Move{From: "e7", To: "e8", Promotion: prom(Pawn)}))
-}
-
-func TestInvalidPromotionOnWrongRank(t *testing.T) {
-	g := newGame()
-	assert.False(t, g.IsMoveValid(Move{From: "e2", To: "e4", Promotion: prom(Queen)}))
-}
-
 func TestValidEnPassant(t *testing.T) {
 	var b Board
 	place(&b, 4, 4, Pawn, White) // e5

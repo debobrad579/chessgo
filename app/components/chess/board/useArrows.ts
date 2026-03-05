@@ -50,7 +50,7 @@ export function useArrows(fen: string) {
     setStartArrowIndex(i)
   }
 
-  function handleArrowRelease(i: number) {
+  function handleArrowEnd(i: number) {
     if (startArrowIndex === i) addHighlightedSquare(i)
     else addArrow(i)
     setStartArrowIndex(undefined)
@@ -65,7 +65,7 @@ export function useArrows(fen: string) {
     arrows,
     highlightedSquares,
     handleArrowStart,
-    handleArrowRelease,
+    handleArrowEnd,
     handleBoardClick,
   }
 }

@@ -1,46 +1,68 @@
-import { RefObject, useEffect, useState } from "react"
+import { RefObject, useState } from "react"
 import { canDragPiece, intToSquare } from "./utils"
 import type { ChessboardProps } from "."
 
 export function useDrag({
   width,
-  ref,
+  boardRef,
   draggablePieces = "n",
-  flipBoard = false,
   onMove,
+  flipBoard = false,
 }: {
   width: number
-  ref: RefObject<HTMLDivElement | null>
+  boardRef: RefObject<HTMLDivElement | null>
   draggablePieces: ChessboardProps["draggablePieces"]
-  flipBoard: boolean
   onMove: ChessboardProps["onMove"]
+  flipBoard?: boolean
 }) {
-  const [dragStartSquare, setDragStartSquare] = useState<number | null>(null)
   const [draggedPiece, setDraggedPiece] = useState<{
     index: number
     piece: string
     x: number
     y: number
   } | null>(null)
+  const [selectedSquare, setSelectedSquare] = useState<number | null>(null)
 
-  function handleDragStart(index: number, piece: string, e: React.MouseEvent) {
-    if (!ref.current || piece === "" || !canDragPiece(piece, draggablePieces))
+  function handleDragStart(
+    index: number,
+    piece: string,
+    e: React.PointerEvent,
+  ) {
+    if (
+      selectedSquare != null &&
+      selectedSquare != index &&
+      !canDragPiece(piece, draggablePieces)
+    ) {
+      onMove?.({
+        from: intToSquare(selectedSquare),
+        to: intToSquare(index),
+        timestamp: 360,
+      })
+      return
+    }
+
+    if (
+      !boardRef.current ||
+      piece === "" ||
+      !canDragPiece(piece, draggablePieces)
+    )
       return
 
-    const rect = ref.current.getBoundingClientRect()
+    e.currentTarget.setPointerCapture(e.pointerId)
+
+    const rect = boardRef.current.getBoundingClientRect()
     setDraggedPiece({
       index,
       piece,
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     })
-    setDragStartSquare(index)
   }
 
-  function handleDragMove(e: MouseEvent) {
-    if (!draggedPiece || !ref.current) return
+  function handleDragMove(e: React.PointerEvent) {
+    if (!draggedPiece || !boardRef.current) return
 
-    const rect = ref.current.getBoundingClientRect()
+    const rect = boardRef.current.getBoundingClientRect()
 
     setDraggedPiece({
       ...draggedPiece,
@@ -49,14 +71,12 @@ export function useDrag({
     })
   }
 
-  function handleDragEnd(e: MouseEvent) {
-    if (!draggedPiece || !ref.current || dragStartSquare === null) {
-      setDraggedPiece(null)
-      setDragStartSquare(null)
-      return
-    }
+  function handleDragEnd(index: number, piece: string, e: React.PointerEvent) {
+    setSelectedSquare(null)
 
-    const rect = ref.current.getBoundingClientRect()
+    if (boardRef.current == null) return
+
+    const rect = boardRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
     const squareWidth = width / 8
@@ -69,39 +89,33 @@ export function useDrag({
       : Math.floor(y / squareWidth)
     const targetIndex = row * 8 + col
 
-    if (
-      targetIndex >= 0 &&
-      targetIndex < 64 &&
-      targetIndex !== dragStartSquare
-    ) {
+    if (index === targetIndex && canDragPiece(piece, draggablePieces)) {
+      setSelectedSquare(selectedSquare === index ? null : index)
+      setDraggedPiece(null)
+      return
+    }
+
+    if (draggedPiece == null) {
+      setDraggedPiece(null)
+      return
+    }
+
+    if (targetIndex >= 0 && targetIndex < 64) {
       onMove?.({
-        from: intToSquare(dragStartSquare),
+        from: intToSquare(index),
         to: intToSquare(targetIndex),
         timestamp: 360,
       })
     }
 
     setDraggedPiece(null)
-    setDragStartSquare(null)
   }
-
-  useEffect(() => {
-    if (!draggedPiece) return
-
-    const handleMove = (e: MouseEvent) => handleDragMove(e)
-    const handleUp = (e: MouseEvent) => handleDragEnd(e)
-
-    window.addEventListener("mousemove", handleMove)
-    window.addEventListener("mouseup", handleUp)
-
-    return () => {
-      window.removeEventListener("mousemove", handleMove)
-      window.removeEventListener("mouseup", handleUp)
-    }
-  }, [draggedPiece, width, dragStartSquare])
 
   return {
     draggedPiece,
+    selectedSquare,
     handleDragStart,
+    handleDragMove,
+    handleDragEnd,
   }
 }

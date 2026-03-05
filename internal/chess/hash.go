@@ -9,7 +9,7 @@ func (gs GameState) getHashedPosition() string {
 			if p == nil {
 				buf[idx] = '.'
 			} else {
-				buf[idx] = byte(p.Type)
+				buf[idx] = p.Type[0]
 				if p.Color == White {
 					buf[idx] ^= 0x20
 				}

@@ -11,7 +11,7 @@ export function intToSquare(index: number) {
 }
 
 export function canDragPiece(piece: string, draggablePieces: "w" | "b" | "n") {
-  if (draggablePieces == "n") return false
+  if (draggablePieces == "n" || piece == "") return false
 
   if (piece == piece.toUpperCase()) {
     if (draggablePieces == "b") return false
