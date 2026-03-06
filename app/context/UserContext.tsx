@@ -1,36 +1,13 @@
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react"
+import { createContext, useContext, type ReactNode } from "react"
+import { useFetch } from "@/hooks/useFetch"
 import type { User } from "@/types/user"
 
-type UserContextType = {
-  user: User | null
-  loading: boolean
-}
-
-const UserContext = createContext<UserContextType | null>(null)
+const UserContext = createContext<User | null>(null)
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { data: user } = useFetch<User>("/api/me")
 
-  useEffect(() => {
-    fetch("/api/me")
-      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
-      .then(setUser)
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false))
-  }, [])
-
-  return (
-    <UserContext.Provider value={{ user, loading }}>
-      {children}
-    </UserContext.Provider>
-  )
+  return <UserContext.Provider value={user}>{children}</UserContext.Provider>
 }
 
 export function useUser() {

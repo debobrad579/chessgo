@@ -3,7 +3,7 @@ import { Game, GameData } from "@/types/chess"
 import { useWebSocket } from "@/hooks/useWebSocket"
 import { useRef, useState } from "react"
 import { useParams } from "react-router"
-import { ChessGameSkeleton } from "@/components/chess/game/GameSkeleton"
+import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 
 export default function LivePage() {
   const { gameID } = useParams()

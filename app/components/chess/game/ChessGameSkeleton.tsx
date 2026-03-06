@@ -44,12 +44,14 @@ function GameButtonsSkeleton() {
         <Skeleton className="h-9 w-9 rounded-md" />
         <Skeleton className="h-9 w-9 rounded-md" />
       </div>
-      <Skeleton className="h-9 w-9 rounded-md" />
+      <div className="flex gap-2">
+        <Skeleton className="h-9 w-9 rounded-md" />
+        <Skeleton className="h-9 w-9 rounded-md" />
+      </div>
     </div>
   )
 }
 
-// Vary move widths to mimic real SAN notation length variance (e.g. "e4" vs "Nxf3+")
 const MOVE_WIDTHS: [number, number][] = [
   [16, 16],
   [20, 24],
@@ -69,34 +71,27 @@ function MoveTableSkeleton() {
       <Table>
         <TableHeader>
           <TableRow className="text-muted-foreground">
-            <TableCell>
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 w-5 rounded" />
-            </TableCell>
-            <TableCell>
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 w-10 rounded" />
-            </TableCell>
-            <TableCell>
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 w-10 rounded" />
-            </TableCell>
+            <TableCell>No.</TableCell>
+            <TableCell>White</TableCell>
+            <TableCell>Black</TableCell>
           </TableRow>
         </TableHeader>
         <TableBody>
           {MOVE_WIDTHS.map(([wWidth, bWidth], i) => (
             <TableRow key={i} style={{ opacity: 1 - i * 0.07 }}>
               <TableCell>
-                <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 w-4 rounded" />
+                <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] w-4 rounded" />
               </TableCell>
               <TableCell>
                 <div
-                  className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 rounded"
+                  className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] rounded"
                   style={{ width: wWidth }}
                 />
               </TableCell>
               <TableCell>
-                {/* Last row's black move cell is intentionally empty to mimic an odd number of moves */}
                 {i < MOVE_WIDTHS.length - 1 && (
                   <div
-                    className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 rounded"
+                    className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] rounded"
                     style={{ width: bWidth }}
                   />
                 )}
@@ -107,13 +102,13 @@ function MoveTableSkeleton() {
         <TableFooter>
           <TableRow>
             <TableCell className="font-bold text-right">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 w-3 rounded ml-auto" />
+              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] w-3 rounded ml-auto" />
             </TableCell>
             <TableCell className="font-bold text-center">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 w-3 rounded mx-auto" />
+              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] w-3 rounded mx-auto" />
             </TableCell>
             <TableCell className="font-bold">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-3 w-3 rounded" />
+              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] w-3 rounded" />
             </TableCell>
           </TableRow>
         </TableFooter>
@@ -140,9 +135,9 @@ function MoveListSkeleton() {
             className="flex gap-2 shrink-0"
             style={{ opacity: 1 - i * 0.12 }}
           >
-            <Skeleton className="h-3 w-5" />
-            <Skeleton className="h-3" style={{ width: wWidth }} />
-            <Skeleton className="h-3" style={{ width: bWidth }} />
+            <Skeleton className="h-[1lh] w-5" />
+            <Skeleton className="h-[1lh]" style={{ width: wWidth }} />
+            <Skeleton className="h-[1lh]" style={{ width: bWidth }} />
           </div>
         ))}
       </div>

@@ -10,11 +10,11 @@ import { useChessGameContext } from "./ChessGameContext"
 import { GameButtons } from "./GameButtons"
 
 export function MobileGameView() {
-  const { user } = useUser()
+  const user = useUser()
   const { moves, result, undoCount, white, black, game, setUndoCount, onMove } =
     useChessGameContext()
 
-  const [flipBoard, setFlipBoard] = useState(user?.id === black.id)
+  const [flipBoard, setFlipBoard] = useState(user.id === black.id)
   const listScrollAreaRef = useRef<HTMLDivElement>(null)
 
   const previousMove =
@@ -42,9 +42,9 @@ export function MobileGameView() {
         draggablePieces={
           undoCount !== 0 || result !== "*"
             ? "n"
-            : user?.id === white.id
+            : user.id === white.id
               ? "w"
-              : user?.id === black.id
+              : user.id === black.id
                 ? "b"
                 : "n"
         }

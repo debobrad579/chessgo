@@ -1,12 +1,21 @@
+import { Suspense } from "react"
 import { ChessGame } from "@/components/chess/game"
 import { useFetch } from "@/hooks/useFetch"
 import { useParams } from "react-router"
-import { ChessGameSkeleton } from "@/components/chess/game/GameSkeleton"
+import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { Game } from "@/types/chess"
 
-export default function GamePage() {
+function GamePageContent() {
   const { gameID } = useParams()
   const { data } = useFetch<Game>(`/api/games/${gameID}`)
 
-  return data != null ? <ChessGame gameData={data} /> : <ChessGameSkeleton />
+  return <ChessGame gameData={data} />
+}
+
+export default function GamePage() {
+  return (
+    <Suspense fallback={<ChessGameSkeleton />}>
+      <GamePageContent />
+    </Suspense>
+  )
 }

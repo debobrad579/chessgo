@@ -1,39 +1,37 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
-type UseFetchState<T> = {
-  data: T | null
-  loading: boolean
-  error: string | null
-  refetch: () => void
-}
+const cache = new Map<string, unknown>()
+const pending = new Map<string, Promise<void>>()
 
 export function useFetch<T = unknown>(
-  url: string | null,
-  options?: RequestInit,
-): UseFetchState<T> {
-  const [data, setData] = useState<T | null>(null)
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  url: string,
+): { data: T; refetch: () => void } {
+  const [, rerender] = useState(0)
 
-  const fetchData = useCallback(async () => {
-    if (!url) return
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch(url, options)
-      if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
-      const json: T = await res.json()
-      setData(json)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error")
-    } finally {
-      setLoading(false)
-    }
+  const load = useCallback(() => {
+    cache.delete(url)
+    pending.delete(url)
+    rerender((n) => n + 1)
   }, [url])
 
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
+  if (cache.has(url)) {
+    return { data: cache.get(url) as T, refetch: load }
+  }
 
-  return { data, loading, error, refetch: fetchData }
+  if (!pending.has(url)) {
+    pending.set(
+      url,
+      fetch(url)
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
+          return res.json()
+        })
+        .then((data) => {
+          cache.set(url, data)
+          pending.delete(url)
+        }),
+    )
+  }
+
+  throw pending.get(url)
 }

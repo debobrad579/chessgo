@@ -19,7 +19,7 @@ export function GameButtons({
 }: {
   handleFlipBoard: () => void
 }) {
-  const { user } = useUser()
+  const user = useUser()
   const [resignPopoverOpen, setResignPopoverOpen] = useState(false)
   const [drawOfferPopoverOpen, setDrawOfferPopoverOpen] = useState(false)
   const {
@@ -31,7 +31,7 @@ export function GameButtons({
     handleRespondToDrawOffer,
   } = useChessGameContext()
 
-  const playerColor = user?.id === black.id ? "b" : "w"
+  const playerColor = user.id === black.id ? "b" : "w"
   const drawOfferActive =
     pendingDrawOffer !== "n" && playerColor !== pendingDrawOffer
 
@@ -64,7 +64,9 @@ export function GameButtons({
                 <PopoverContent>
                   <div className="space-y-2">
                     <p>
-                      {drawOfferActive ? "Accept a draw?" : "Offer a draw?"}
+                      {drawOfferActive
+                        ? "Do you want to accept a draw?"
+                        : "Do you want to offer a draw?"}
                     </p>
                     <div className="flex justify-center gap-2">
                       <Button

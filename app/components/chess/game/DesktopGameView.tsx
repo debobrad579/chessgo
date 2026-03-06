@@ -18,11 +18,11 @@ import { useUser } from "@/context/UserContext"
 import { useChessGameContext } from "./ChessGameContext"
 
 export function DesktopGameView() {
-  const { user } = useUser()
+  const user = useUser()
   const { moves, result, undoCount, white, black, game, setUndoCount, onMove } =
     useChessGameContext()
 
-  const [flipBoard, setFlipBoard] = useState(user?.id === black.id)
+  const [flipBoard, setFlipBoard] = useState(user.id === black.id)
   const tableScrollAreaRef = useRef<HTMLDivElement>(null)
 
   const previousMove =
@@ -50,9 +50,9 @@ export function DesktopGameView() {
           draggablePieces={
             undoCount !== 0 || result !== "*"
               ? "n"
-              : user?.id === white.id
+              : user.id === white.id
                 ? "w"
-                : user?.id === black.id
+                : user.id === black.id
                   ? "b"
                   : "n"
           }

@@ -11,11 +11,15 @@ import { useEventSource } from "@/hooks/useEventSource"
 import { formatTimeControl } from "@/lib/formatters"
 import { useNavigate } from "react-router"
 import { Timer } from "lucide-react"
-import { playerExists } from "./game/utils"
+import { playerExists } from "@/components/chess/game/utils"
 
 export function GameList() {
-  const { data } = useEventSource<GameListItem[]>("/api/live")
+  const { data, error } = useEventSource<GameListItem[]>("/api/live")
   const navigate = useNavigate()
+
+  if (error) {
+    return <p className="text-muted-foreground text-sm">{error.message}</p>
+  }
 
   return (
     <Table>
