@@ -2,7 +2,7 @@ export type Move = {
   from: string
   to: string
   timestamp: number
-  promotion?: string
+  promotion?: "q" | "r" | "b" | "n"
 }
 
 export type Result = "1-0" | "0-1" | "1/2-1/2" | "*"

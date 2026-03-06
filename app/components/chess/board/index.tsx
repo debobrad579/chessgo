@@ -1,11 +1,12 @@
 import { Arrow } from "./Arrow"
 import { Square } from "./Square"
 import { parseFEN } from "@/lib/parsers"
-import { squareToInt } from "./utils"
+import { squareToInt, squareToPosition } from "./utils"
 import { useArrows } from "./useArrows"
 import { useBoardWidth } from "./useBoardWidth"
 import { useDrag } from "./useDrag"
 import type { Move } from "@/types/chess"
+import { PromotionPopover } from "./PromotionPopover"
 
 export type ChessboardProps = {
   fen: string
@@ -38,14 +39,27 @@ export function Chessboard({
     handleDragStart,
     handleDragMove,
     handleDragEnd,
+    pendingPromotion,
+    setPendingPromotion,
   } = useDrag({
     boardRef: ref,
     width,
+    fen,
     draggablePieces,
     onMove,
     flipBoard,
   })
   const board = parseFEN(fen)
+
+  const anchorPos = pendingPromotion
+    ? squareToPosition(pendingPromotion.to, width, flipBoard)
+    : null
+
+  function completePromotion(piece: "q" | "r" | "b" | "n") {
+    if (!pendingPromotion) return
+    onMove?.({ ...pendingPromotion, promotion: piece })
+    setPendingPromotion(null)
+  }
 
   return (
     <div
@@ -64,14 +78,17 @@ export function Chessboard({
             index={displayIndex}
             flipBoard={flipBoard}
             squareWidth={width / 8}
-            showPiece={draggedPiece?.index !== displayIndex}
+            showPiece={
+              draggedPiece?.index !== displayIndex &&
+              squareToInt(pendingPromotion?.from ?? "") !== displayIndex
+            }
             piece={piece}
             isHighlighted={highlightedSquares
               .filter((h) => h.fen === fen)
               .map((h) => h.index)
               .includes(displayIndex)}
             isYellow={
-              selectedSquare === displayIndex ||
+              selectedSquare?.index === displayIndex ||
               (previousMove != null &&
                 [
                   squareToInt(previousMove.from),
@@ -106,6 +123,20 @@ export function Chessboard({
           />
         </div>
       )}
+      <PromotionPopover
+        open={pendingPromotion != null}
+        onSelect={completePromotion}
+        onClose={() => setPendingPromotion(null)}
+        anchor={
+          anchorPos
+            ? {
+                left: anchorPos.left,
+                top: anchorPos.top,
+                size: anchorPos.squareWidth,
+              }
+            : undefined
+        }
+      />
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
         {arrows
           .filter((arrow) => arrow.fen === fen)

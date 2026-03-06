@@ -1,15 +1,18 @@
 import { RefObject, useState } from "react"
 import { canDragPiece, intToSquare } from "./utils"
 import type { ChessboardProps } from "."
+import { Chess } from "chess.js"
 
 export function useDrag({
   width,
+  fen,
   boardRef,
   draggablePieces = "n",
   onMove,
   flipBoard = false,
 }: {
   width: number
+  fen: string
   boardRef: RefObject<HTMLDivElement | null>
   draggablePieces: ChessboardProps["draggablePieces"]
   onMove: ChessboardProps["onMove"]
@@ -21,7 +24,50 @@ export function useDrag({
     x: number
     y: number
   } | null>(null)
-  const [selectedSquare, setSelectedSquare] = useState<number | null>(null)
+  const [selectedSquare, setSelectedSquare] = useState<{
+    index: number
+    piece: string
+  } | null>(null)
+  const [pendingPromotion, setPendingPromotion] = useState<{
+    from: string
+    to: string
+    timestamp: number
+  } | null>(null)
+
+  function move(piece: string, from: number, to: number) {
+    setSelectedSquare(null)
+
+    if (onMove == null) return
+    const move = {
+      from: intToSquare(from),
+      to: intToSquare(to),
+      timestamp: 360,
+    }
+
+    let isPromotion = true
+    try {
+      const isPawn = piece === "P" || piece === "p"
+      const isWhitePromotion = piece === "P" && Math.floor(to / 8) === 0
+      const isBlackPromotion = piece === "p" && Math.floor(to / 8) === 7
+      if (!isPawn || (!isWhitePromotion && !isBlackPromotion)) {
+        isPromotion = false
+      }
+      const chess = new Chess(fen)
+      chess.move({
+        from: intToSquare(from),
+        to: intToSquare(to),
+        promotion: "q",
+      })
+    } catch {
+      isPromotion = false
+    }
+
+    if (isPromotion) {
+      setPendingPromotion(move)
+    } else {
+      onMove(move)
+    }
+  }
 
   function handleDragStart(
     index: number,
@@ -30,14 +76,10 @@ export function useDrag({
   ) {
     if (
       selectedSquare != null &&
-      selectedSquare != index &&
+      selectedSquare.index != index &&
       !canDragPiece(piece, draggablePieces)
     ) {
-      onMove?.({
-        from: intToSquare(selectedSquare),
-        to: intToSquare(index),
-        timestamp: 360,
-      })
+      move(selectedSquare.piece, selectedSquare.index, index)
       return
     }
 
@@ -72,8 +114,6 @@ export function useDrag({
   }
 
   function handleDragEnd(index: number, piece: string, e: React.PointerEvent) {
-    setSelectedSquare(null)
-
     if (boardRef.current == null) return
 
     const rect = boardRef.current.getBoundingClientRect()
@@ -89,23 +129,18 @@ export function useDrag({
       : Math.floor(y / squareWidth)
     const targetIndex = row * 8 + col
 
-    if (index === targetIndex && canDragPiece(piece, draggablePieces)) {
-      setSelectedSquare(selectedSquare === index ? null : index)
-      setDraggedPiece(null)
-      return
-    }
+    if (draggedPiece == null) return
 
-    if (draggedPiece == null) {
+    if (index === targetIndex) {
+      setSelectedSquare(
+        selectedSquare?.index === index ? null : { index, piece },
+      )
       setDraggedPiece(null)
       return
     }
 
     if (targetIndex >= 0 && targetIndex < 64) {
-      onMove?.({
-        from: intToSquare(index),
-        to: intToSquare(targetIndex),
-        timestamp: 360,
-      })
+      move(piece, index, targetIndex)
     }
 
     setDraggedPiece(null)
@@ -117,5 +152,7 @@ export function useDrag({
     handleDragStart,
     handleDragMove,
     handleDragEnd,
+    pendingPromotion,
+    setPendingPromotion,
   }
 }

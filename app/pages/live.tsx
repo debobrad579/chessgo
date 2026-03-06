@@ -23,7 +23,6 @@ export default function LivePage() {
       ref={chessGameRef}
       gameData={gameData}
       onMove={(move) => {
-        move = { ...move, promotion: "q" }
         if (chessGameRef.current?.makeMove(move)) {
           sendJsonMessage({
             type: "move",

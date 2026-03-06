@@ -21,3 +21,16 @@ export function canDragPiece(piece: string, draggablePieces: "w" | "b" | "n") {
 
   return true
 }
+
+export function squareToPosition(
+  square: string,
+  width: number,
+  flipBoard: boolean,
+) {
+  const file = square.charCodeAt(0) - "a".charCodeAt(0)
+  const rank = 8 - parseInt(square[1], 10)
+  const col = flipBoard ? 7 - file : file
+  const row = flipBoard ? 7 - rank : rank
+  const squareWidth = width / 8
+  return { left: col * squareWidth, top: row * squareWidth, squareWidth }
+}
