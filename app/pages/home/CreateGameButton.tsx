@@ -26,18 +26,6 @@ export function CreateGameButton() {
   const [color, setColor] = useState("random")
   const [timeControl, setTimeControl] = useState("3+2")
 
-  function handleNewGame() {
-    fetch("/api/live/new", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ color: color, time_control: timeControl }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        navigate(`/live/${data?.game_id}`, { replace: true })
-      })
-  }
-
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -108,7 +96,23 @@ export function CreateGameButton() {
           </RadioGroup>
         </div>
         <DialogFooter>
-          <Button onClick={handleNewGame} className="w-full">
+          <Button
+            onClick={() => {
+              fetch("/api/live/new", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  color: color,
+                  time_control: timeControl,
+                }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  navigate(`/live/${data?.game_id}`, { replace: true })
+                })
+            }}
+            className="w-full"
+          >
             Create
           </Button>
         </DialogFooter>

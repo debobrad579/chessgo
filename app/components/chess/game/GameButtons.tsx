@@ -9,7 +9,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ArrowDownUp, Flag, Share } from "lucide-react"
+import { ArrowDownUp, Flag, Share, Swords } from "lucide-react"
 import { useState } from "react"
 import { useChessGameContext } from "./ChessGameContext"
 import { useUser } from "@/context/UserContext"
@@ -27,9 +27,11 @@ export function GameButtons({
     result,
     black,
     pendingDrawOffer,
+    rematchRequest,
     handleResign,
     handleOfferDraw,
     handleRespondToDrawOffer,
+    handleRematch,
   } = useChessGameContext()
 
   const playerColor = user.id === black.id ? "b" : "w"
@@ -39,72 +41,92 @@ export function GameButtons({
   return (
     <div className="flex justify-between gap-2">
       <div className="flex gap-2">
-        {result === "*" &&
-          handleOfferDraw != null &&
-          handleRespondToDrawOffer != null && (
-            <Tooltip>
-              <Popover
-                open={drawOfferPopoverOpen}
-                onOpenChange={setDrawOfferPopoverOpen}
-              >
+        {result === "*"
+          ? handleOfferDraw != null &&
+            handleRespondToDrawOffer != null && (
+              <Tooltip>
+                <Popover
+                  open={drawOfferPopoverOpen}
+                  onOpenChange={setDrawOfferPopoverOpen}
+                >
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <Button
+                        className="text-2xl"
+                        size="icon"
+                        variant={drawOfferActive ? "default" : "ghost"}
+                        disabled={
+                          playerColor === pendingDrawOffer || moves.length === 0
+                        }
+                      >
+                        &frac12;
+                      </Button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {drawOfferActive ? "Accept draw" : "Offer draw"}
+                  </TooltipContent>
+                  <PopoverContent>
+                    <div className="space-y-2">
+                      <p>
+                        {drawOfferActive
+                          ? "Do you want to accept a draw?"
+                          : "Do you want to offer a draw?"}
+                      </p>
+                      <div className="flex justify-center gap-2">
+                        <Button
+                          className="w-full"
+                          variant="secondary"
+                          onClick={() => {
+                            if (drawOfferActive) {
+                              handleRespondToDrawOffer(false)
+                            }
+
+                            setDrawOfferPopoverOpen(false)
+                          }}
+                        >
+                          {drawOfferActive ? "Decline" : "No"}
+                        </Button>
+                        <Button
+                          className="w-full"
+                          onClick={() => {
+                            if (drawOfferActive) {
+                              handleRespondToDrawOffer(true)
+                            } else {
+                              handleOfferDraw()
+                            }
+
+                            setDrawOfferPopoverOpen(false)
+                          }}
+                        >
+                          {drawOfferActive ? "Accept" : "Yes"}
+                        </Button>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              </Tooltip>
+            )
+          : handleRematch != null && (
+              <Tooltip>
                 <TooltipTrigger asChild>
-                  <PopoverTrigger asChild>
-                    <Button
-                      className="text-2xl"
-                      size="icon"
-                      variant={drawOfferActive ? "default" : "ghost"}
-                      disabled={
-                        playerColor === pendingDrawOffer || moves.length === 0
-                      }
-                    >
-                      &frac12;
-                    </Button>
-                  </PopoverTrigger>
+                  <Button
+                    size="icon"
+                    variant={rematchRequest === "n" ? "ghost" : "default"}
+                    onClick={handleRematch}
+                  >
+                    <Swords />
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {drawOfferActive ? "Accept draw" : "Offer draw"}
+                  {rematchRequest === "n"
+                    ? "Rematch"
+                    : rematchRequest !== playerColor
+                      ? "Accept Rematch"
+                      : "Cancel Rematch"}
                 </TooltipContent>
-                <PopoverContent>
-                  <div className="space-y-2">
-                    <p>
-                      {drawOfferActive
-                        ? "Do you want to accept a draw?"
-                        : "Do you want to offer a draw?"}
-                    </p>
-                    <div className="flex justify-center gap-2">
-                      <Button
-                        className="w-full"
-                        variant="secondary"
-                        onClick={() => {
-                          if (drawOfferActive) {
-                            handleRespondToDrawOffer(false)
-                          }
-
-                          setDrawOfferPopoverOpen(false)
-                        }}
-                      >
-                        {drawOfferActive ? "Decline" : "No"}
-                      </Button>
-                      <Button
-                        className="w-full"
-                        onClick={() => {
-                          if (drawOfferActive) {
-                            handleRespondToDrawOffer(true)
-                          } else {
-                            handleOfferDraw()
-                          }
-
-                          setDrawOfferPopoverOpen(false)
-                        }}
-                      >
-                        {drawOfferActive ? "Accept" : "Yes"}
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-            </Tooltip>
-          )}
+              </Tooltip>
+            )}
         {result === "*" && handleResign != null && (
           <Tooltip>
             <Popover

@@ -3,32 +3,39 @@ package games
 import (
 	"encoding/json"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 
 	"github.com/debobrad579/chessgo/internal/chess"
 )
 
-type GameData struct {
+type LiveGame struct {
 	Moves            []chess.Move      `json:"moves"`
-	TimeControl      chess.TimeControl `json:"time_control"`
-	ThinkTime        int               `json:"think_time"`
-	Result           chess.GameOver    `json:"result"`
 	White            chess.Player      `json:"white"`
 	Black            chess.Player      `json:"black"`
+	TimeControl      chess.TimeControl `json:"time_control"`
+	ThinkTime        int               `json:"think_time"`
+	Result           chess.Result      `json:"result"`
+	ResultReason     chess.Reason      `json:"result_reason"`
 	PendingDrawOffer PlayerRole        `json:"pending_draw_offer"`
+	RematchRequest   PlayerRole        `json:"rematch_request"`
+	RematchGameID    uuid.UUID         `json:"rematch_game_id"`
 	WhiteConnected   bool              `json:"white_connected"`
 	BlackConnected   bool              `json:"black_connected"`
 }
 
 func (room *GameRoom) getGameData() ([]byte, error) {
-	return json.Marshal(GameData{
+	return json.Marshal(LiveGame{
 		Moves:            room.game.Moves,
 		TimeControl:      room.game.TimeControl,
 		ThinkTime:        room.getThinkTime(),
-		Result:           room.result,
+		Result:           room.result.Result,
+		ResultReason:     room.result.Reason,
 		White:            room.game.White,
 		Black:            room.game.Black,
 		PendingDrawOffer: room.pendingDrawOffer,
+		RematchRequest:   room.rematchRequest,
+		RematchGameID:    room.rematchGameID,
 		WhiteConnected:   room.white.conn != nil,
 		BlackConnected:   room.black.conn != nil,
 	})

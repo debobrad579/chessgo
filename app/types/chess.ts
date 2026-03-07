@@ -41,8 +41,6 @@ export type GameData = {
   black: Player
   result: GameOver
   pending_draw_offer: "w" | "b" | "n"
-  white_connected: boolean
-  black_connected: boolean
 }
 
 export type GameListItem = {

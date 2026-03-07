@@ -43,6 +43,7 @@ func New(user *database.User, db *database.Queries, color chess.Color, timeContr
 		spectatorConns:   make(map[uuid.UUID]*websocket.Conn),
 		db:               db,
 		pendingDrawOffer: Spectator,
+		rematchRequest:   Spectator,
 		result:           chess.GameOver{Result: chess.ResultGameOngoing, Reason: chess.GameOngoing},
 	}
 

@@ -23,6 +23,8 @@ export type ChessGameProps = {
   handleOfferDraw?: () => void
   handleRespondToDrawOffer?: (accept: boolean) => void
   pendingDrawOffer?: "w" | "b" | "n"
+  rematchRequest?: "w" | "b" | "n"
+  handleRematch?: () => void
   whiteConnected?: boolean
   blackConnected?: boolean
 }
@@ -40,6 +42,8 @@ export const ChessGame = forwardRef<
     handleOfferDraw?: () => void
     handleRespondToDrawOffer?: (accept: boolean) => void
     pendingDrawOffer?: "w" | "b" | "n"
+    rematchRequest?: "w" | "b" | "n"
+    handleRematch?: () => void
     whiteConnected?: boolean
     blackConnected?: boolean
   }
@@ -51,6 +55,8 @@ export const ChessGame = forwardRef<
     handleOfferDraw,
     handleRespondToDrawOffer,
     pendingDrawOffer,
+    rematchRequest,
+    handleRematch,
     whiteConnected,
     blackConnected,
   },
@@ -82,6 +88,8 @@ export const ChessGame = forwardRef<
         handleResign,
         handleOfferDraw,
         handleRespondToDrawOffer,
+        rematchRequest,
+        handleRematch,
         pendingDrawOffer,
         whiteConnected,
         blackConnected,

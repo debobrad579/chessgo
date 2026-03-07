@@ -31,6 +31,9 @@ type GameRoom struct {
 	turnTimer        *time.Timer
 	db               *database.Queries
 	pendingDrawOffer PlayerRole
+	rematchRequest   PlayerRole
+	rematchGameID    uuid.UUID
+	gameStarted      bool
 }
 
 func (room *GameRoom) whiteExists() bool {

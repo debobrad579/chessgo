@@ -21,14 +21,19 @@ func (room *GameRoom) startTurnTimer() {
 	room.turnStart = time.Now()
 	room.turnTimer = time.AfterFunc(time.Duration(remaining)*time.Millisecond, func() {
 		room.mu.Lock()
+		defer room.mu.Unlock()
+
+		if room.result.Result != chess.ResultGameOngoing {
+			return
+		}
+
 		if room.game.Turn() == chess.White {
 			room.result = chess.GameOver{Result: chess.ResultBlackWon, Reason: chess.Timeout}
 		} else {
 			room.result = chess.GameOver{Result: chess.ResultWhiteWon, Reason: chess.Timeout}
 		}
-		room.saveGame()
-		room.mu.Unlock()
 
+		room.saveGame()
 		room.notifyBroadcast()
 	})
 }

@@ -22,10 +22,11 @@ type newGameOptions struct {
 type clientMessageType string
 
 const (
-	typeMove         clientMessageType = "move"
-	typeResign       clientMessageType = "resign"
-	typeDrawOffer    clientMessageType = "draw_offer"
-	typeDrawResponse clientMessageType = "draw_response"
+	typeMove           clientMessageType = "move"
+	typeResign         clientMessageType = "resign"
+	typeDrawOffer      clientMessageType = "draw_offer"
+	typeDrawResponse   clientMessageType = "draw_response"
+	typeRematchRequest clientMessageType = "rematch_request"
 )
 
 type clientMessage struct {
@@ -145,6 +146,8 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 			}
 
 			room.RespondToDraw(playerRole, accept.Accept)
+		case typeRematchRequest:
+			room.RequestRematch(playerRole)
 		default:
 			log.Println("invalid client message type")
 		}

@@ -10,7 +10,7 @@ import {
 import { formatTimeControl } from "@/lib/formatters"
 import { TimeControl } from "@/types/chess"
 import type { Dispatch, SetStateAction } from "react"
-import { Link } from "react-router"
+import { Link, useNavigate } from "react-router"
 
 export function GameOverModal({
   timeControl,
@@ -18,13 +18,21 @@ export function GameOverModal({
   reason,
   open,
   setOpen,
+  rematchRequest,
+  handleRematch,
 }: {
   timeControl: TimeControl
   result: "win" | "loss" | "draw"
   reason: string
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
+  rematchRequest: "incoming" | "outgoing" | "n"
+  handleRematch: () => void
 }) {
+  const navigate = useNavigate()
+
+  const timeControlString = formatTimeControl(timeControl)
+
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogContent>
@@ -41,11 +49,35 @@ export function GameOverModal({
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-2">
-          <Button className="w-full">
-            New {formatTimeControl(timeControl)}
+          <Button
+            className="w-full"
+            onClick={() => {
+              fetch("/api/live/new", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  color: "random",
+                  time_control: timeControlString,
+                }),
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  navigate(`/live/${data?.game_id}`, { replace: true })
+                })
+            }}
+          >
+            New {timeControlString}
           </Button>
-          <Button className="w-full" variant="secondary">
-            Rematch
+          <Button
+            className="w-full"
+            variant={rematchRequest === "n" ? "secondary" : "default"}
+            onClick={handleRematch}
+          >
+            {rematchRequest === "n"
+              ? "Rematch"
+              : rematchRequest === "incoming"
+                ? "Accept Rematch"
+                : "Cancel Rematch"}
           </Button>
         </div>
         <DialogFooter>

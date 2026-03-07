@@ -18,26 +18,30 @@ func (room *GameRoom) assignRole(conn *websocket.Conn, user *database.User) Play
 	switch {
 	case user.ID == room.game.White.ID:
 		room.white.conn = conn
+		if !room.gameStarted && room.black.conn != nil {
+			room.startGame()
+		}
 		return White
 	case user.ID == room.game.Black.ID:
 		room.black.conn = conn
+		if !room.gameStarted && room.white.conn != nil {
+			room.startGame()
+		}
 		return Black
 	case room.white.conn == nil:
 		room.game.White = chess.Player{ID: user.ID, Name: user.Name}
 		room.white.conn = conn
 		room.black.isGuest = user.Email == ""
-		if room.black.conn != nil {
-			room.startTurnTimer()
-			registry.notifySubscribers()
+		if !room.gameStarted && room.black.conn != nil {
+			room.startGame()
 		}
 		return White
 	case room.black.conn == nil:
 		room.game.Black = chess.Player{ID: user.ID, Name: user.Name}
 		room.black.conn = conn
 		room.black.isGuest = user.Email == ""
-		if room.white.conn != nil {
-			room.startTurnTimer()
-			registry.notifySubscribers()
+		if !room.gameStarted && room.white.conn != nil {
+			room.startGame()
 		}
 		return Black
 	default:
@@ -52,4 +56,10 @@ func (room *GameRoom) assignRole(conn *websocket.Conn, user *database.User) Play
 		room.spectatorConns[user.ID] = conn
 		return Spectator
 	}
+}
+
+func (room *GameRoom) startGame() {
+	room.startTurnTimer()
+	room.gameStarted = true
+	registry.notifySubscribers()
 }
