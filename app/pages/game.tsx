@@ -4,6 +4,9 @@ import { useFetch } from "@/hooks/useFetch"
 import { useParams } from "react-router"
 import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { Game } from "@/types/chess"
+import { NotFound } from "@/components/errors/NotFound"
+import { InternalServerError } from "@/components/errors/InternalServerError"
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
 
 function GamePageContent() {
   const { gameID } = useParams()
@@ -14,8 +17,14 @@ function GamePageContent() {
 
 export default function GamePage() {
   return (
-    <Suspense fallback={<ChessGameSkeleton />}>
-      <GamePageContent />
-    </Suspense>
+    <ErrorBoundary
+      fallback={(e) =>
+        e.message.includes("404") ? <NotFound /> : <InternalServerError />
+      }
+    >
+      <Suspense fallback={<ChessGameSkeleton />}>
+        <GamePageContent />
+      </Suspense>
+    </ErrorBoundary>
   )
 }

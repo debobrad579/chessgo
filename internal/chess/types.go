@@ -37,17 +37,18 @@ type GameState struct {
 	HalfMoveCount   int    `json:"half_move_count"`
 }
 
-type Reason int
+type Reason string
 
 const (
-	Checkmate Reason = iota
-	Resignation
-	Timeout
-	Stalemate
-	ThreefoldRepetition
-	FiftyMoveRule
-	InsufficentMaterial
-	GameOngoing
+	Checkmate           Reason = "checkmate"
+	Resignation         Reason = "resignation"
+	Timeout             Reason = "timeout"
+	Stalemate           Reason = "stalemate"
+	ThreefoldRepetition Reason = "threefold repetition"
+	FiftyMoveRule       Reason = "the 50 move rule"
+	InsufficentMaterial Reason = "insufficient material"
+	Agreement           Reason = "agreement"
+	GameOngoing         Reason = "game ongoing"
 )
 
 type Result string
@@ -60,8 +61,8 @@ const (
 )
 
 type GameOver struct {
-	Result Result
-	Reason Reason
+	Result Result `json:"result"`
+	Reason Reason `json:"reason"`
 }
 
 type Move struct {
@@ -82,12 +83,10 @@ type Player struct {
 }
 
 type Game struct {
-	ID             uuid.UUID      `json:"id"`
 	State          GameState      `json:"-"`
 	White          Player         `json:"white"`
 	Black          Player         `json:"black"`
 	Moves          []Move         `json:"moves"`
-	Result         Result         `json:"result"`
 	TimeControl    TimeControl    `json:"time_control"`
 	PositionCounts map[string]int `json:"-"`
 }

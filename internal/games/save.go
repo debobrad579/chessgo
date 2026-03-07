@@ -9,7 +9,7 @@ import (
 )
 
 func (room *GameRoom) saveGame() (*database.Game, error) {
-	if room.white.isGuest && room.black.isGuest {
+	if (room.white.isGuest && room.black.isGuest) || len(room.game.Moves) == 0 {
 		return nil, nil
 	}
 
@@ -24,7 +24,7 @@ func (room *GameRoom) saveGame() (*database.Game, error) {
 		BlackID:              uuid.NullUUID{UUID: room.game.Black.ID, Valid: !room.black.isGuest},
 		TimeControlBase:      int32(room.game.TimeControl.Base),
 		TimeControlIncrement: int32(room.game.TimeControl.Increment),
-		Result:               string(room.game.Result),
+		Result:               string(room.result.Result),
 		Moves:                json.RawMessage(movesJSON),
 	})
 

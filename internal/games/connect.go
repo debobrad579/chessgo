@@ -27,10 +27,7 @@ func (room *GameRoom) Connect(w http.ResponseWriter, r *http.Request, user *data
 	playerRole := room.assignRole(conn, user)
 
 	if playerRole != Spectator {
-		select {
-		case room.broadcast <- struct{}{}:
-		default:
-		}
+		room.notifyBroadcast()
 	}
 
 	return conn, playerRole
@@ -46,9 +43,11 @@ func (room *GameRoom) Disconnect(user *database.User) {
 	case room.white.conn != nil && user.ID == room.game.White.ID:
 		room.white.conn.Close()
 		room.white.conn = nil
+		room.notifyBroadcast()
 	case room.black.conn != nil && user.ID == room.game.Black.ID:
 		room.black.conn.Close()
 		room.black.conn = nil
+		room.notifyBroadcast()
 	}
 
 	roomEmpty := room.white.conn == nil && room.black.conn == nil

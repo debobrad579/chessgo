@@ -7,25 +7,22 @@ import (
 )
 
 func (room *GameRoom) Resign(playerRole PlayerRole) error {
-	if room.game.Result != chess.ResultGameOngoing {
+	if room.result.Result != chess.ResultGameOngoing {
 		return errors.New("game already ended")
 	}
 
 	switch playerRole {
 	case White:
-		room.game.Result = chess.ResultBlackWon
+		room.result = chess.GameOver{Result: chess.ResultBlackWon, Reason: chess.Resignation}
 	case Black:
-		room.game.Result = chess.ResultBlackWon
+		room.result = chess.GameOver{Result: chess.ResultWhiteWon, Reason: chess.Resignation}
 	default:
 		return errors.New("invalid role")
 	}
 
 	room.saveGame()
 
-	select {
-	case room.broadcast <- struct{}{}:
-	default:
-	}
+	room.notifyBroadcast()
 
 	return nil
 }

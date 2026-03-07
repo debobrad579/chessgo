@@ -23,6 +23,7 @@ type GameRoom struct {
 	game             *chess.Game
 	white            playerInfo
 	black            playerInfo
+	result           chess.GameOver
 	mu               sync.Mutex
 	broadcast        chan struct{}
 	spectatorConns   map[uuid.UUID]*websocket.Conn

@@ -9,7 +9,7 @@ import HomePage from "@/pages/home"
 import LivePage from "@/pages/live"
 import GamesPage from "@/pages/games"
 import GamePage from "@/pages/game"
-import NotFound from "@/pages/not-found"
+import { NotFound } from "@/components/errors/NotFound"
 
 function App() {
   return (

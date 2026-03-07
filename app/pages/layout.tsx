@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useUser } from "@/context/UserContext"
 import { Link, Outlet } from "react-router"
-import { ErrorBoundary } from "@/components/ErrorBoundary"
 import { Suspense } from "react"
+import { InternalServerError } from "@/components/errors/InternalServerError"
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
 
 function NavLinks() {
   const user = useUser()
@@ -45,13 +46,7 @@ export default function Layout() {
       </nav>
       <Separator />
       <main className="p-4 flex-1">
-        <ErrorBoundary
-          fallback={
-            <h1 className="text-4xl font-bold text-center">
-              500 - Internal Server Error
-            </h1>
-          }
-        >
+        <ErrorBoundary fallback={<InternalServerError />}>
           <Suspense fallback={null}>
             <Outlet />
           </Suspense>

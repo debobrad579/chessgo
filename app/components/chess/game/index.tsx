@@ -23,6 +23,8 @@ export type ChessGameProps = {
   handleOfferDraw?: () => void
   handleRespondToDrawOffer?: (accept: boolean) => void
   pendingDrawOffer?: "w" | "b" | "n"
+  whiteConnected?: boolean
+  blackConnected?: boolean
 }
 
 export type ChessGameHandle = {
@@ -38,6 +40,8 @@ export const ChessGame = forwardRef<
     handleOfferDraw?: () => void
     handleRespondToDrawOffer?: (accept: boolean) => void
     pendingDrawOffer?: "w" | "b" | "n"
+    whiteConnected?: boolean
+    blackConnected?: boolean
   }
 >(function Game(
   {
@@ -47,6 +51,8 @@ export const ChessGame = forwardRef<
     handleOfferDraw,
     handleRespondToDrawOffer,
     pendingDrawOffer,
+    whiteConnected,
+    blackConnected,
   },
   ref,
 ) {
@@ -77,6 +83,8 @@ export const ChessGame = forwardRef<
         handleOfferDraw,
         handleRespondToDrawOffer,
         pendingDrawOffer,
+        whiteConnected,
+        blackConnected,
       }}
     >
       {mobile ? <MobileGameView /> : <DesktopGameView />}

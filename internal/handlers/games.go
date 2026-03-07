@@ -11,6 +11,15 @@ import (
 	"github.com/google/uuid"
 )
 
+type GameResponse struct {
+	ID          uuid.UUID         `json:"id"`
+	Moves       []chess.Move      `json:"moves,omitempty"`
+	White       chess.Player      `json:"white"`
+	Black       chess.Player      `json:"black"`
+	TimeControl chess.TimeControl `json:"time_control"`
+	Result      chess.Result      `json:"result"`
+}
+
 func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUser(r)
 	if err != nil || user == nil {
@@ -40,7 +49,7 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response []chess.Game
+	var response []GameResponse
 
 	for _, game := range games {
 		var whiteID uuid.UUID
@@ -63,7 +72,7 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 			blackName = game.BlackName.String
 		}
 
-		response = append(response, chess.Game{
+		response = append(response, GameResponse{
 			ID: game.ID,
 			White: chess.Player{
 				ID:   whiteID,
@@ -120,7 +129,7 @@ func (cfg *Config) GameHandler(w http.ResponseWriter, r *http.Request) {
 
 	gameID, err := uuid.Parse(gameIDStr)
 	if err != nil {
-		http.Error(w, "invalid game ID", http.StatusBadRequest)
+		http.Error(w, "invalid game ID", http.StatusNotFound)
 		return
 	}
 
@@ -160,7 +169,7 @@ func (cfg *Config) GameHandler(w http.ResponseWriter, r *http.Request) {
 		blackName = game.BlackName.String
 	}
 
-	data, err := json.Marshal(chess.Game{
+	data, err := json.Marshal(GameResponse{
 		ID:    gameID,
 		Moves: moves,
 		White: chess.Player{

@@ -17,17 +17,33 @@ export type TimeControl = {
   increment: number
 }
 
+export type GameOver = {
+  result: Result
+  reason: string
+}
+
 export type Game = {
   id: string
   moves: Move[]
   think_time: number
   time_control: TimeControl
-  result: Result
   white: Player
   black: Player
+  result: Result
 }
 
-export type GameData = Game & { pending_draw_offer: "w" | "b" | "n" }
+export type GameData = {
+  id: string
+  moves: Move[]
+  think_time: number
+  time_control: TimeControl
+  white: Player
+  black: Player
+  result: GameOver
+  pending_draw_offer: "w" | "b" | "n"
+  white_connected: boolean
+  black_connected: boolean
+}
 
 export type GameListItem = {
   id: string

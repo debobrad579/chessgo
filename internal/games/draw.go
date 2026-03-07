@@ -10,7 +10,7 @@ func (room *GameRoom) OfferDraw(playerRole PlayerRole) error {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
-	if room.game.Result != chess.ResultGameOngoing {
+	if room.result.Result != chess.ResultGameOngoing {
 		return errors.New("game already ended")
 	}
 	if playerRole == Spectator {
@@ -22,10 +22,7 @@ func (room *GameRoom) OfferDraw(playerRole PlayerRole) error {
 
 	room.pendingDrawOffer = playerRole
 
-	select {
-	case room.broadcast <- struct{}{}:
-	default:
-	}
+	room.notifyBroadcast()
 
 	return nil
 }
@@ -43,21 +40,18 @@ func (room *GameRoom) RespondToDraw(playerRole PlayerRole, accept bool) error {
 
 	if !accept {
 		room.pendingDrawOffer = Spectator
-		select {
-		case room.broadcast <- struct{}{}:
-		default:
-		}
+		room.notifyBroadcast()
 		return nil
 	}
 
-	room.game.Result = chess.ResultDraw
+	room.result = chess.GameOver{
+		Result: chess.ResultDraw,
+		Reason: chess.Agreement,
+	}
 	room.pendingDrawOffer = Spectator
 	room.saveGame()
 
-	select {
-	case room.broadcast <- struct{}{}:
-	default:
-	}
+	room.notifyBroadcast()
 
 	return nil
 }

@@ -2,6 +2,7 @@ import { useCallback, useState } from "react"
 
 const cache = new Map<string, unknown>()
 const pending = new Map<string, Promise<void>>()
+const errors = new Map<string, unknown>()
 
 export function useFetch<T = unknown>(
   url: string,
@@ -11,8 +12,13 @@ export function useFetch<T = unknown>(
   const load = useCallback(() => {
     cache.delete(url)
     pending.delete(url)
+    errors.delete(url)
     rerender((n) => n + 1)
   }, [url])
+
+  if (errors.has(url)) {
+    throw errors.get(url)
+  }
 
   if (cache.has(url)) {
     return { data: cache.get(url) as T, refetch: load }
@@ -28,6 +34,11 @@ export function useFetch<T = unknown>(
         })
         .then((data) => {
           cache.set(url, data)
+        })
+        .catch((err) => {
+          errors.set(url, err)
+        })
+        .finally(() => {
           pending.delete(url)
         }),
     )

@@ -13,8 +13,8 @@ import {
 function ClockSkeleton({ black }: { black?: boolean }) {
   return (
     <div
-      className={`h-9 px-2 py-1 rounded-md flex justify-between items-center gap-2 w-full border ${
-        black ? "bg-gray-900 border-gray-100" : "bg-gray-100 border-gray-900"
+      className={`h-9 px-2 py-1 rounded-md flex justify-between items-center gap-2 w-full border border-border ${
+        black ? "bg-gray-900" : "bg-gray-100"
       }`}
     >
       <Skeleton

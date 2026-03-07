@@ -19,7 +19,7 @@ func (room *GameRoom) MakeMove(move chess.Move, playerRole PlayerRole) error {
 		return errors.New("game not started")
 	}
 
-	if room.game.Result != chess.ResultGameOngoing {
+	if room.result.Result != chess.ResultGameOngoing {
 		return errors.New("game ended")
 	}
 
@@ -43,17 +43,14 @@ func (room *GameRoom) MakeMove(move chess.Move, playerRole PlayerRole) error {
 	if room.pendingDrawOffer != playerRole {
 		room.pendingDrawOffer = Spectator
 	}
-	room.game.Result = room.game.GetResult().Result
-	if room.game.Result != chess.ResultGameOngoing {
+	room.result = room.game.GetResult()
+	if room.result.Result != chess.ResultGameOngoing {
 		room.saveGame()
 	} else {
 		room.startTurnTimer()
 	}
 
-	select {
-	case room.broadcast <- struct{}{}:
-	default:
-	}
+	room.notifyBroadcast()
 
 	return nil
 }

@@ -23,6 +23,7 @@ export function GameButtons({
   const [resignPopoverOpen, setResignPopoverOpen] = useState(false)
   const [drawOfferPopoverOpen, setDrawOfferPopoverOpen] = useState(false)
   const {
+    moves,
     result,
     black,
     pendingDrawOffer,
@@ -52,7 +53,9 @@ export function GameButtons({
                       className="text-2xl"
                       size="icon"
                       variant={drawOfferActive ? "default" : "ghost"}
-                      disabled={playerColor === pendingDrawOffer}
+                      disabled={
+                        playerColor === pendingDrawOffer || moves.length === 0
+                      }
                     >
                       &frac12;
                     </Button>
@@ -110,7 +113,11 @@ export function GameButtons({
             >
               <TooltipTrigger asChild>
                 <PopoverTrigger asChild>
-                  <Button size="icon" variant="ghost">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    disabled={moves.length === 0}
+                  >
                     <Flag />
                   </Button>
                 </PopoverTrigger>

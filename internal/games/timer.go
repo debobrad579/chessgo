@@ -22,17 +22,14 @@ func (room *GameRoom) startTurnTimer() {
 	room.turnTimer = time.AfterFunc(time.Duration(remaining)*time.Millisecond, func() {
 		room.mu.Lock()
 		if room.game.Turn() == chess.White {
-			room.game.Result = chess.ResultBlackWon
+			room.result = chess.GameOver{Result: chess.ResultBlackWon, Reason: chess.Timeout}
 		} else {
-			room.game.Result = chess.ResultWhiteWon
+			room.result = chess.GameOver{Result: chess.ResultWhiteWon, Reason: chess.Timeout}
 		}
 		room.saveGame()
 		room.mu.Unlock()
 
-		select {
-		case room.broadcast <- struct{}{}:
-		default:
-		}
+		room.notifyBroadcast()
 	})
 }
 
