@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -16,11 +17,16 @@ import (
 const port = ":3000"
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Failed to load env")
-	}
+	godotenv.Load()
 
-	db, err := sql.Open("postgres", os.Getenv("DB_URL"))
+	db, err := sql.Open("postgres", fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"),
+		os.Getenv("POSTGRES_DB"),
+	))
 	if err != nil {
 		log.Fatal("Failed to open database")
 	}
