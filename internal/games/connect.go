@@ -36,6 +36,27 @@ func (room *GameRoom) Connect(w http.ResponseWriter, r *http.Request, user *data
 }
 
 func (room *GameRoom) Disconnect(user *database.User) {
+	if !room.disconnectConn(user) {
+		return
+	}
+
+	room.mu.Lock()
+	roomEmpty := room.white.conn == nil && room.black.conn == nil
+	room.mu.Unlock()
+
+	if !roomEmpty {
+		return
+	}
+
+	if !room.gameStarted.Load() {
+		room.teardown()
+		return
+	}
+
+	room.startDisconnectTimer()
+}
+
+func (room *GameRoom) disconnectConn(user *database.User) (wasPlayer bool) {
 	room.mu.Lock()
 	defer room.mu.Unlock()
 
@@ -43,17 +64,34 @@ func (room *GameRoom) Disconnect(user *database.User) {
 	case room.spectatorConns[user.ID] != nil:
 		room.spectatorConns[user.ID].Close()
 		delete(room.spectatorConns, user.ID)
+		return false
 	case room.white.conn != nil && user.ID == room.game.White.ID:
 		room.white.conn.Close()
 		room.white.conn = nil
-		room.notifyBroadcast()
 	case room.black.conn != nil && user.ID == room.game.Black.ID:
 		room.black.conn.Close()
 		room.black.conn = nil
-		room.notifyBroadcast()
+	default:
+		return false
 	}
 
-	if room.white.conn == nil && room.black.conn == nil {
-		room.startDisconnectTimer()
+	room.notifyBroadcast()
+	return true
+}
+
+func (room *GameRoom) teardown() {
+	room.mu.Lock()
+	if room.turnTimer != nil {
+		room.turnTimer.Stop()
 	}
+	if room.broadcast != nil {
+		close(room.broadcast)
+	}
+	room.mu.Unlock()
+
+	registry.mu.Lock()
+	delete(registry.rooms, room.id)
+	registry.mu.Unlock()
+
+	registry.notifySubscribers()
 }

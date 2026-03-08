@@ -1,14 +1,38 @@
 include .env
 export
 
-migrate-up:
-	@goose -dir sql/schema postgres "$(DB_URL)" up
+DB_URL=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable
 
-migrate-down:
-	@goose -dir sql/schema postgres "$(DB_URL)" down
+_air:
+	@air
 
-migrate-status:
-	@goose -dir sql/schema postgres "$(DB_URL)" status
+_npm:
+	@npm run dev
+
+dev:
+	@echo "Starting development environment..."
+	$(MAKE) _air &
+	$(MAKE) _npm
+
+build:
+	@$(MAKE) lint
+	@$(MAKE) test
+	@rm -rf ./dist
+	@mkdir -p ./dist
+	@echo "Copying static assets..."
+	@cp -r ./static ./dist/static
+	@echo "Copying views..."
+	@mkdir -p ./dist/app
+	@cp -r ./views ./dist/views
+	@cp ./app/index.html ./dist/app/index.html
+	@echo "Building Go server..."
+	@go build -o ./dist/main ./cmd/server
+	@echo "Building React webapp..."
+	@npm run build
+
+preview:
+	@test -f ./dist/main || (echo "Error: binary not found, run 'make build' first" && exit 1)
+	@cd ./dist && ./main
 
 lint:
 	@echo "Linting Go..."
@@ -17,25 +41,18 @@ lint:
 	@npx tsc --noEmit
 
 test:
+	@echo "Testing Go..."
 	@go test ./...
 
-build:
-	@echo "Building Go server..."
-	@sqlc generate && go build -o ./bin/main ./cmd/server
-	@echo "Building React webapp..."
-	@npm run build
-	@echo "Building CSS..."
-	@npm run build:css
-	@echo "Build complete."
+generate:
+	@echo "Generating sqlc query code..."
+	@sqlc generate
 
-dev:
-	@echo "Starting development environment..."
-	$(MAKE) _air &
-	$(MAKE) _npm
-	@echo "Dev environment stopped"
+migrate-up:
+	@goose -dir sql/schema postgres "$(DB_URL)" up
 
-_air:
-	@air
+migrate-down:
+	@goose -dir sql/schema postgres "$(DB_URL)" down
 
-_npm:
-	@npm run dev
+migrate-status:
+	@goose -dir sql/schema postgres "$(DB_URL)" status

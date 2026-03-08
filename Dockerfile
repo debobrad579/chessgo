@@ -18,8 +18,8 @@ FROM alpine:3.20
 WORKDIR /app
 RUN apk --no-cache add ca-certificates && addgroup -S chessgo && adduser -S chessgo -G chessgo
 COPY static ./static
-COPY --from=frontend /app/static/app.js ./static/app.js
-COPY --from=frontend /app/static/style.css ./static/style.css
+COPY --from=frontend /app/dist/static/app.js ./static/app.js
+COPY --from=frontend /app/dist/static/style.css ./static/style.css
 COPY views ./views
 COPY app/index.html ./app/index.html
 COPY --from=backend /chessgo /app/chessgo

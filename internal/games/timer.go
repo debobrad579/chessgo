@@ -43,27 +43,7 @@ func (room *GameRoom) startDisconnectTimer() {
 		room.disconnectTimer.Stop()
 	}
 
-	room.disconnectTimer = time.AfterFunc(time.Duration(5*time.Minute), func() {
-		room.mu.Lock()
-		if room.white.conn != nil || room.black.conn != nil {
-			room.mu.Unlock()
-			return
-		}
-
-		if room.turnTimer != nil {
-			room.turnTimer.Stop()
-		}
-		if room.broadcast != nil {
-			close(room.broadcast)
-		}
-
-		room.mu.Unlock()
-
-		registry.mu.Lock()
-		delete(registry.rooms, room.id)
-		registry.mu.Unlock()
-		registry.notifySubscribers()
-	})
+	room.disconnectTimer = time.AfterFunc(time.Duration(5*time.Minute), room.teardown)
 }
 
 func (room *GameRoom) stopDisconnectTimer() {

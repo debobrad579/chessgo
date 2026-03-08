@@ -1,6 +1,6 @@
 # Go
 tmp/
-bin/
+dist/
 
 # Node
 node_modules/

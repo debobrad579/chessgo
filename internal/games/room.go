@@ -3,6 +3,7 @@ package games
 import (
 	"errors"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,7 +34,7 @@ type GameRoom struct {
 	pendingDrawOffer PlayerRole
 	rematchRequest   PlayerRole
 	rematchGameID    uuid.UUID
-	gameStarted      bool
+	gameStarted      atomic.Bool
 	disconnectTimer  *time.Timer
 }
 

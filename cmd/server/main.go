@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
@@ -13,8 +15,6 @@ import (
 	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/debobrad579/chessgo/internal/handlers"
 )
-
-const port = ":3000"
 
 func main() {
 	godotenv.Load()
@@ -31,8 +31,11 @@ func main() {
 		log.Fatal("Failed to open database")
 	}
 
-	dbQueries := database.New(db)
-	cfg := handlers.Config{DB: dbQueries, TokenSecret: os.Getenv("TOKEN_SECRET")}
+	cfg := handlers.Config{
+		DB:          database.New(db),
+		TokenSecret: os.Getenv("TOKEN_SECRET"),
+		RNG:         rand.New(rand.NewSource(time.Now().UnixNano())),
+	}
 
 	mux := http.NewServeMux()
 
@@ -65,6 +68,11 @@ func main() {
 	mux.HandleFunc("/api/games", cfg.MyGamesHandler)
 	mux.HandleFunc("/api/games/count", cfg.GetGamesCountHandler)
 	mux.HandleFunc("/api/games/{gameID}", cfg.GameHandler)
+
+	port := ":" + os.Getenv("PORT")
+	if port == ":" {
+		port = ":3000"
+	}
 
 	log.Printf("Starting server at port %s\n", port)
 	if err := http.ListenAndServe(port, mux); err != nil {

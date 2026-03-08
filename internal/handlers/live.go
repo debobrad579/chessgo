@@ -51,7 +51,8 @@ func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	playerColor := chess.White
-	if gameOptions.Color == "black" {
+	if gameOptions.Color == "black" ||
+		(gameOptions.Color == "random" && cfg.RNG.Intn(2) == 1) {
 		playerColor = chess.Black
 	}
 
