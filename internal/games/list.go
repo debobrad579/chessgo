@@ -17,6 +17,10 @@ func GetGamesList() []GameListItem {
 	items := make([]GameListItem, 0, len(registry.rooms))
 
 	for id, room := range registry.rooms {
+		if room.result.Result != chess.ResultGameOngoing {
+			continue
+		}
+
 		items = append(items, GameListItem{
 			ID:          id,
 			White:       room.game.White,

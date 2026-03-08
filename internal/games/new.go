@@ -66,5 +66,7 @@ func New(user *database.User, db *database.Queries, color chess.Color, timeContr
 
 	go room.runBroadcastLoop()
 
+	room.startDisconnectTimer()
+
 	return data, nil
 }

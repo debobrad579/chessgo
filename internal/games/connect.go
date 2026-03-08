@@ -30,11 +30,14 @@ func (room *GameRoom) Connect(w http.ResponseWriter, r *http.Request, user *data
 		room.notifyBroadcast()
 	}
 
+	room.stopDisconnectTimer()
+
 	return conn, playerRole
 }
 
 func (room *GameRoom) Disconnect(user *database.User) {
 	room.mu.Lock()
+	defer room.mu.Unlock()
 
 	switch {
 	case room.spectatorConns[user.ID] != nil:
@@ -50,23 +53,7 @@ func (room *GameRoom) Disconnect(user *database.User) {
 		room.notifyBroadcast()
 	}
 
-	roomEmpty := room.white.conn == nil && room.black.conn == nil
-
-	if roomEmpty {
-		if room.turnTimer != nil {
-			room.turnTimer.Stop()
-		}
-		if room.broadcast != nil {
-			close(room.broadcast)
-		}
-	}
-
-	room.mu.Unlock()
-
-	if roomEmpty {
-		registry.mu.Lock()
-		delete(registry.rooms, room.id)
-		registry.mu.Unlock()
-		registry.notifySubscribers()
+	if room.white.conn == nil && room.black.conn == nil {
+		room.startDisconnectTimer()
 	}
 }

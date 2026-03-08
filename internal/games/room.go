@@ -34,6 +34,7 @@ type GameRoom struct {
 	rematchRequest   PlayerRole
 	rematchGameID    uuid.UUID
 	gameStarted      bool
+	disconnectTimer  *time.Timer
 }
 
 func (room *GameRoom) whiteExists() bool {

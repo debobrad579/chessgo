@@ -42,10 +42,3 @@ export type GameData = {
   result: GameOver
   pending_draw_offer: "w" | "b" | "n"
 }
-
-export type GameListItem = {
-  id: string
-  white: Player
-  black: Player
-  time_control: TimeControl
-}

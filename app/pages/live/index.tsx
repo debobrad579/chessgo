@@ -57,6 +57,12 @@ export default function LivePage() {
   )
 
   useEffect(() => {
+    if (readyState === "Closed" && gameData == null) {
+      navigate(`/games/${gameID}`)
+    }
+  }, [readyState, gameData])
+
+  useEffect(() => {
     setModalOpen(gameData?.result != null && gameData.result !== "*")
   }, [gameData?.result])
 
