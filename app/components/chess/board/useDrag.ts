@@ -41,7 +41,7 @@ export function useDrag({
     const move = {
       from: intToSquare(from),
       to: intToSquare(to),
-      timestamp: 360,
+      timestamp: 0,
     }
 
     let isPromotion = true
@@ -54,8 +54,7 @@ export function useDrag({
       }
       const chess = new Chess(fen)
       chess.move({
-        from: intToSquare(from),
-        to: intToSquare(to),
+        ...move,
         promotion: "q",
       })
     } catch {

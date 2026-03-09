@@ -31,7 +31,7 @@ func (room *GameRoom) assignRole(conn *websocket.Conn, user *database.User) Play
 	case room.white.conn == nil:
 		room.game.White = chess.Player{ID: user.ID, Name: user.Name}
 		room.white.conn = conn
-		room.black.isGuest = user.Email == ""
+		room.white.isGuest = user.Email == ""
 		if !room.gameStarted.Load() && room.black.conn != nil {
 			room.startGame()
 		}

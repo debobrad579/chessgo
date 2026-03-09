@@ -11,22 +11,6 @@ export function useMediaQuery(mediaQuery: string) {
     setIsMatch(list.matches)
   }, [mediaQuery])
 
-  useEffect(() => {
-    function handleChange(e: MediaQueryListEvent) {
-      setIsMatch(e.matches)
-    }
-
-    if (mediaQueryList != null) {
-      mediaQueryList.addEventListener("change", handleChange)
-    }
-
-    return () => {
-      if (mediaQueryList != null) {
-        mediaQueryList.removeEventListener("change", handleChange)
-      }
-    }
-  }, [mediaQueryList])
-
   useEventListener(
     "change",
     (e: MediaQueryListEvent) => setIsMatch(e.matches),

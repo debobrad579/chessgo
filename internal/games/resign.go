@@ -7,6 +7,9 @@ import (
 )
 
 func (room *GameRoom) Resign(playerRole PlayerRole) error {
+	room.mu.Lock()
+	defer room.mu.Unlock()
+
 	if room.result.Result != chess.ResultGameOngoing {
 		return errors.New("game already ended")
 	}
