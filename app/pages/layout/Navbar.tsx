@@ -87,14 +87,15 @@ export function NavbarMobile() {
                   >
                     No
                   </Button>
-                  <Button
-                    className="w-full"
-                    variant="destructive"
-                    size="sm"
-                    asChild
-                  >
-                    <a href="/logout">Yes</a>
-                  </Button>
+                  <form method="POST" action="/logout" className="contents">
+                    <Button
+                      className="w-full"
+                      variant="destructive"
+                      type="submit"
+                    >
+                      Yes
+                    </Button>
+                  </form>
                 </div>
               </div>
             )}
@@ -127,7 +128,9 @@ export function NavbarDesktop() {
             <Link to="/games">My Games</Link>
           </Button>
           <Popover open={confirmLogout} onOpenChange={setConfirmLogout}>
-            <PopoverTrigger>Logout</PopoverTrigger>
+            <PopoverTrigger asChild>
+              <Button variant="ghost">Logout</Button>
+            </PopoverTrigger>
             <PopoverContent>
               <div className="space-y-2">
                 <p>Are you sure you want to log out?</p>
@@ -139,9 +142,15 @@ export function NavbarDesktop() {
                   >
                     No
                   </Button>
-                  <Button className="w-full" variant="destructive" asChild>
-                    <a href="/logout">Yes</a>
-                  </Button>
+                  <form method="POST" action="/logout" className="contents">
+                    <Button
+                      className="w-full"
+                      variant="destructive"
+                      type="submit"
+                    >
+                      Yes
+                    </Button>
+                  </form>
                 </div>
               </div>
             </PopoverContent>

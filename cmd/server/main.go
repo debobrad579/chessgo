@@ -59,6 +59,8 @@ func main() {
 	mux.HandleFunc("/register", handlers.TemplateRenderer("register.html", nil))
 	mux.HandleFunc("POST /register", cfg.RegisterPostHandler)
 
+	mux.HandleFunc("POST /logout", cfg.LogoutHandler)
+
 	mux.HandleFunc("/api/me", cfg.ApiMeHandler)
 
 	mux.HandleFunc("POST /api/live/new", cfg.NewGameHandler)
