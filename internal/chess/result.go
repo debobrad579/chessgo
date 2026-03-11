@@ -46,17 +46,14 @@ func (g *Game) hasInsufficientMaterial() bool {
 			if piece == nil || piece.Type == King {
 				continue
 			}
+			if piece.Type == Pawn || piece.Type == Rook || piece.Type == Queen {
+				return false
+			}
 			if piece.Color == White {
 				whitePieces = append(whitePieces, *piece)
 			} else {
 				blackPieces = append(blackPieces, *piece)
 			}
-		}
-	}
-
-	for _, piece := range append(whitePieces, blackPieces...) {
-		if piece.Type == Pawn || piece.Type == Rook || piece.Type == Queen {
-			return false
 		}
 	}
 
@@ -128,4 +125,29 @@ func (g *Game) hasLegalMoves(color Color) bool {
 		}
 	}
 	return false
+}
+
+func (g *Game) IsFlagDraw(flaggedColor Color) bool {
+	hasPiece := false
+
+	for row := range 8 {
+		for col := range 8 {
+			piece := g.State.Board[row][col]
+			if piece == nil || piece.Color == flaggedColor || piece.Type == King {
+				continue
+			}
+
+			if piece.Type == Pawn || piece.Type == Rook || piece.Type == Queen {
+				return false
+			}
+
+			if hasPiece {
+				return false
+			}
+
+			hasPiece = true
+		}
+	}
+
+	return true
 }

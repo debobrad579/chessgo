@@ -28,9 +28,17 @@ func (room *GameRoom) startTurnTimer() {
 		}
 
 		if room.game.Turn() == chess.White {
-			room.result = chess.GameOver{Result: chess.ResultBlackWon, Reason: chess.Timeout}
+			if room.game.IsFlagDraw(chess.White) {
+				room.result = chess.GameOver{Result: chess.ResultDraw, Reason: chess.InsufficentMaterial}
+			} else {
+				room.result = chess.GameOver{Result: chess.ResultBlackWon, Reason: chess.Timeout}
+			}
 		} else {
-			room.result = chess.GameOver{Result: chess.ResultWhiteWon, Reason: chess.Timeout}
+			if room.game.IsFlagDraw(chess.Black) {
+				room.result = chess.GameOver{Result: chess.ResultDraw, Reason: chess.InsufficentMaterial}
+			} else {
+				room.result = chess.GameOver{Result: chess.ResultWhiteWon, Reason: chess.Timeout}
+			}
 		}
 
 		room.saveGame()
