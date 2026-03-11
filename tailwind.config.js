@@ -61,5 +61,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwind-merge")],
+  plugins: [],
 }
