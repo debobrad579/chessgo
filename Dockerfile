@@ -4,7 +4,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 COPY app ./app
 COPY views ./views
-COPY input.css tailwind.config.js postcss.config.js tsconfig.json esbuild.mjs ./
+COPY input.css postcss.config.js tsconfig.json esbuild.mjs ./
 RUN npm run build
 
 FROM golang:1.25-alpine AS backend
