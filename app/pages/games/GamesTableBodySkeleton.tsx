@@ -23,16 +23,16 @@ export function GamesTableBodySkeleton() {
         return (
           <TableRow key={i} style={{ opacity: 1 - i * (0.6 / LIMIT) }}>
             <TableCell>
-              <Skeleton className="h-[1lh] rounded" style={{ width: white }} />
+              <Skeleton className="h-lh rounded-sm" style={{ width: white }} />
             </TableCell>
             <TableCell>
-              <Skeleton className="h-[1lh] rounded" style={{ width: black }} />
+              <Skeleton className="h-lh rounded-sm" style={{ width: black }} />
             </TableCell>
             <TableCell>
-              <Skeleton className="h-[1lh] rounded" style={{ width: time }} />
+              <Skeleton className="h-lh rounded-sm" style={{ width: time }} />
             </TableCell>
             <TableCell>
-              <Skeleton className="h-[1lh] rounded" style={{ width: result }} />
+              <Skeleton className="h-lh rounded-sm" style={{ width: result }} />
             </TableCell>
           </TableRow>
         )

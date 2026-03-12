@@ -47,13 +47,13 @@ export function HomeSkeleton() {
               <TableRow key={i} style={{ opacity: 1 - i * (0.6 / 5) }}>
                 <TableCell>
                   <Skeleton
-                    className="h-[1lh] rounded"
+                    className="h-lh rounded-sm"
                     style={{ width: player }}
                   />
                 </TableCell>
                 <TableCell>
                   <Skeleton
-                    className="h-[1lh] rounded"
+                    className="h-lh rounded-sm"
                     style={{ width: time }}
                   />
                 </TableCell>
@@ -81,19 +81,19 @@ export function HomeSkeleton() {
               <TableRow key={i} style={{ opacity: 1 - i * (0.6 / 5) }}>
                 <TableCell>
                   <Skeleton
-                    className="h-[1lh] rounded"
+                    className="h-lh rounded-sm"
                     style={{ width: white }}
                   />
                 </TableCell>
                 <TableCell>
                   <Skeleton
-                    className="h-[1lh] rounded"
+                    className="h-lh rounded-sm"
                     style={{ width: black }}
                   />
                 </TableCell>
                 <TableCell>
                   <Skeleton
-                    className="h-[1lh] rounded"
+                    className="h-lh rounded-sm"
                     style={{ width: time }}
                   />
                 </TableCell>

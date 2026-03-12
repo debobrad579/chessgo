@@ -24,9 +24,8 @@ export function NavigationButtons({
   return (
     <div className="flex gap-2">
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger asChild className="flex-1">
           <Button
-            className="w-full"
             variant="outline"
             onClick={() => setUndoCount(moveCount)}
             disabled={undoCount === moveCount}
@@ -37,9 +36,8 @@ export function NavigationButtons({
         <TooltipContent>First move</TooltipContent>
       </Tooltip>
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger asChild className="flex-1">
           <Button
-            className="w-full"
             variant="outline"
             onClick={() => {
               if (undoCount === moveCount) return
@@ -53,9 +51,8 @@ export function NavigationButtons({
         <TooltipContent>Previous move</TooltipContent>
       </Tooltip>
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger asChild className="flex-1">
           <Button
-            className="w-full"
             variant="outline"
             onClick={() => {
               if (undoCount === 0) return
@@ -69,7 +66,7 @@ export function NavigationButtons({
         <TooltipContent>Next move</TooltipContent>
       </Tooltip>
       <Tooltip>
-        <TooltipTrigger asChild>
+        <TooltipTrigger asChild className="flex-1">
           <Button
             className="w-full"
             variant="outline"

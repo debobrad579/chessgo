@@ -66,6 +66,7 @@ export default function HomePage() {
               {!lobbyGames?.length && (
                 <TableRow>
                   <TableCell>No games yet</TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               )}
               {lobbyGames?.map((item) => (
@@ -99,6 +100,8 @@ export default function HomePage() {
               {!ongoingGames?.length && (
                 <TableRow>
                   <TableCell>No games yet</TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
               )}
               {ongoingGames?.map((item) => (

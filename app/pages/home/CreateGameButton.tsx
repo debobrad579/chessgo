@@ -40,7 +40,7 @@ export function CreateGameButton() {
           <div className="flex gap-2">
             <Label className="whitespace-nowrap">Play as:</Label>
             <Select value={color} onValueChange={setColor}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a color" />
               </SelectTrigger>
               <SelectContent>
