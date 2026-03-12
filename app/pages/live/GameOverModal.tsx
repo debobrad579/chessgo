@@ -50,7 +50,7 @@ export function GameOverModal({
         </DialogHeader>
         <div className="flex gap-2">
           <Button
-            className="w-full"
+            className="flex-1"
             onClick={() => {
               fetch("/api/live/new", {
                 method: "POST",
@@ -69,7 +69,7 @@ export function GameOverModal({
             New {timeControlString}
           </Button>
           <Button
-            className="w-full"
+            className="flex-1"
             variant={rematchRequest === "n" ? "secondary" : "default"}
             onClick={handleRematch}
           >

@@ -31,7 +31,7 @@ function NavigationButtonsSkeleton() {
   return (
     <div className="flex gap-2">
       {Array.from({ length: 4 }).map((_, i) => (
-        <Skeleton key={i} className="h-9 w-full rounded-md" />
+        <Skeleton key={i} className="h-9 flex-1 rounded-md" />
       ))}
     </div>
   )
@@ -80,18 +80,18 @@ function MoveTableSkeleton() {
           {MOVE_WIDTHS.map(([wWidth, bWidth], i) => (
             <TableRow key={i} style={{ opacity: 1 - i * 0.07 }}>
               <TableCell>
-                <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] w-4 rounded" />
+                <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh w-4 rounded-sm" />
               </TableCell>
               <TableCell>
                 <div
-                  className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] rounded"
+                  className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh rounded-sm"
                   style={{ width: wWidth }}
                 />
               </TableCell>
               <TableCell>
                 {i < MOVE_WIDTHS.length - 1 && (
                   <div
-                    className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] rounded"
+                    className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh rounded-sm"
                     style={{ width: bWidth }}
                   />
                 )}
@@ -102,13 +102,13 @@ function MoveTableSkeleton() {
         <TableFooter>
           <TableRow>
             <TableCell className="font-bold text-right">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] w-3 rounded ml-auto" />
+              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh w-3 rounded-sm ml-auto" />
             </TableCell>
             <TableCell className="font-bold text-center">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] w-3 rounded mx-auto" />
+              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh w-3 rounded-sm mx-auto" />
             </TableCell>
             <TableCell className="font-bold">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-[1lh] w-3 rounded" />
+              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh w-3 rounded-sm" />
             </TableCell>
           </TableRow>
         </TableFooter>
@@ -135,9 +135,9 @@ function MoveListSkeleton() {
             className="flex gap-2 shrink-0"
             style={{ opacity: 1 - i * 0.12 }}
           >
-            <Skeleton className="h-[1lh] w-5" />
-            <Skeleton className="h-[1lh]" style={{ width: wWidth }} />
-            <Skeleton className="h-[1lh]" style={{ width: bWidth }} />
+            <Skeleton className="h-lh w-5" />
+            <Skeleton className="h-lh" style={{ width: wWidth }} />
+            <Skeleton className="h-lh" style={{ width: bWidth }} />
           </div>
         ))}
       </div>

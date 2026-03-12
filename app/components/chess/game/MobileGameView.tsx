@@ -50,7 +50,10 @@ export function MobileGameView() {
         }
       />
       <Clock color={flipBoard ? "b" : "w"} />
-      <ScrollArea ref={listScrollAreaRef} className="w-full text-nowrap">
+      <ScrollArea
+        ref={listScrollAreaRef}
+        className="w-full text-nowrap relative"
+      >
         <MoveCell
           active={undoCount === moves.length}
           undoCount={undoCount}
@@ -83,7 +86,7 @@ export function MobileGameView() {
             {result.replace("-", " - ")}
           </div>
         </div>
-        <ScrollBar orientation="horizontal" />
+        <ScrollBar orientation="horizontal" className="absolute top-5" />
       </ScrollArea>
       <NavigationButtons
         moveCount={moves.length}
