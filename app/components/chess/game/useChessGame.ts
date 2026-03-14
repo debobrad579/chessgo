@@ -1,11 +1,17 @@
-import { useEffect, useImperativeHandle, useMemo, useState } from "react"
+import {
+  useEffect,
+  useImperativeHandle,
+  useMemo,
+  useState,
+  type Ref,
+} from "react"
 import { Chess } from "chess.js"
 import { useEventListener } from "@/hooks/useEventListener"
-import { Game, Move } from "@/types/chess"
+import type { Game, Move } from "@/types/chess"
+import type { ChessGameHandle } from "."
 import { playerExists } from "./utils"
-import { ChessGameHandle } from "."
 
-export function useChessGame(gameData: Game, ref: React.Ref<ChessGameHandle>) {
+export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
   const [optimisticMoves, setOptimisticMoves] = useState(gameData.moves)
   const [optimisticThinkTime, setOptimisticThinkTime] = useState(
     gameData.think_time,

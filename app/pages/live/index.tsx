@@ -6,7 +6,7 @@ import type { Game } from "@/types/chess"
 import { useUser } from "@/context/UserContext"
 import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { useWebSocket } from "@/hooks/useWebSocket"
-import { ChessGame, ChessGameHandle } from "@/components/chess/game"
+import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 
 type LiveGame = Game & {
   white_connected: boolean

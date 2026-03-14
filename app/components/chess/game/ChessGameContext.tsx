@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react"
-import { ChessGameProps } from "."
+import type { ChessGameProps } from "."
 
 const ChessGameContext = createContext<ChessGameProps | null>(null)
 

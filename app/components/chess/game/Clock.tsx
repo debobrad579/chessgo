@@ -1,7 +1,7 @@
 import { formatMilliseconds } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
 import { getPlayerTimestamp } from "./utils"
-import { Color } from "chess.js"
+import type { Color } from "chess.js"
 import { useChessGameContext } from "./ChessGameContext"
 
 export function Clock({ color }: { color: Color }) {

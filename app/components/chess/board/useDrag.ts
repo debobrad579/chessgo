@@ -1,4 +1,4 @@
-import { RefObject, useState } from "react"
+import { type RefObject, useState } from "react"
 import { canDragPiece, intToSquare } from "./utils"
 import type { ChessboardProps } from "."
 import { Chess } from "chess.js"

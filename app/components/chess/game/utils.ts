@@ -1,5 +1,5 @@
-import { Chess, Color } from "chess.js"
-import { Move, Player } from "@/types/chess"
+import { Chess, type Color } from "chess.js"
+import type { Move, Player } from "@/types/chess"
 
 export function moveToSan(fen: string, move: Move): string | null {
   const chess = new Chess(fen)

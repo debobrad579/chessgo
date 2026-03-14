@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/table"
 import { CreateGameButton } from "./CreateGameButton"
 import { Timer } from "lucide-react"
-import { Player, TimeControl } from "@/types/chess"
+import type { Player, TimeControl } from "@/types/chess"
 import { useEventSource } from "@/hooks/useEventSource"
 import { useNavigate } from "react-router"
 import { playerExists } from "@/components/chess/game/utils"

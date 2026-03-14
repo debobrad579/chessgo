@@ -8,7 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { formatTimeControl } from "@/lib/formatters"
-import { TimeControl } from "@/types/chess"
+import type { TimeControl } from "@/types/chess"
 import type { Dispatch, SetStateAction } from "react"
 import { Link, useNavigate } from "react-router"
 
