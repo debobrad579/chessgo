@@ -4,16 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build:js": "NODE_ENV=production node esbuild.mjs",
+    "build:js": "NODE_ENV=production node esbuild.js",
     "build:css": "npx @tailwindcss/cli -i ./input.css -o ./dist/static/style.css --minify",
     "build": "npm run build:js && npm run build:css",
-    "dev:js": "NODE_ENV=development node esbuild.mjs",
+    "dev:js": "NODE_ENV=development node esbuild.js",
     "dev:css": "npx @tailwindcss/cli -i ./input.css -o ./static/style.css --minify --watch",
     "dev": "concurrently \"npm run dev:css\" \"npm run dev:js\""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "type": "module",
   "dependencies": {
     "chess.js": "^1.4.0",
     "class-variance-authority": "^0.7.1",
