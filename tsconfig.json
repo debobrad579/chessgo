@@ -4,17 +4,17 @@
     "jsxImportSource": "react",
     "module": "esnext",
     "target": "es2023",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "strict": true,
+    "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
-    "baseUrl": "./app",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./app/*"]
     }
   },
   "include": ["app/**/*"]

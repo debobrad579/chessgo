@@ -8,6 +8,11 @@ export function useWebSocket(
 ) {
   const [readyState, setReadyState] = useState<ReadyState>("Connecting")
   const wsRef = useRef<WebSocket | null>(null)
+  const onMessageRef = useRef(onMessage)
+
+  useEffect(() => {
+    onMessageRef.current = onMessage
+  }, [onMessage])
 
   useEffect(() => {
     let isMounted = true
@@ -21,16 +26,13 @@ export function useWebSocket(
     ws.onopen = () => {
       if (isMounted) setReadyState("Open")
     }
-
     ws.onclose = () => {
       if (isMounted) setReadyState("Closed")
     }
-
     ws.onerror = () => {
       if (isMounted) setReadyState("Closed")
     }
-
-    ws.onmessage = onMessage
+    ws.onmessage = (event) => onMessageRef.current(event)
 
     return () => {
       isMounted = false
@@ -45,8 +47,5 @@ export function useWebSocket(
     }
   }, [])
 
-  return {
-    readyState,
-    sendJsonMessage,
-  }
+  return { readyState, sendJsonMessage }
 }
