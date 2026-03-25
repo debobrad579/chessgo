@@ -11,7 +11,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/debobrad579/chessgo/internal/chess"
-	"github.com/debobrad579/chessgo/internal/games"
+	"github.com/debobrad579/chessgo/internal/live"
 )
 
 type newGameOptions struct {
@@ -74,7 +74,7 @@ func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data, err := games.New(user, cfg.DB, playerColor, chess.TimeControl{Base: base * 60 * 1000, Increment: increment * 1000})
+	data, err := live.New(user, cfg.DB, playerColor, chess.TimeControl{Base: base * 60 * 1000, Increment: increment * 1000})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -99,7 +99,7 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	room, err := games.GetGameRoom(gameID)
+	room, err := live.GetGameRoom(gameID)
 	if err != nil {
 		http.Error(w, "game room not found", http.StatusNotFound)
 		return
@@ -114,7 +114,6 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("failed to read message: ", err)
 			return
 		}
 
@@ -166,8 +165,8 @@ func (cfg *Config) GamesListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ch := games.Subscribe()
-	defer games.Unsubscribe(ch)
+	ch := live.Subscribe()
+	defer live.Unsubscribe(ch)
 
 	sendSnapshot(w, flusher)
 
@@ -182,7 +181,7 @@ func (cfg *Config) GamesListHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func sendSnapshot(w http.ResponseWriter, flusher http.Flusher) {
-	data, err := json.Marshal(games.GetGamesList())
+	data, err := json.Marshal(live.GetGamesList())
 	if err != nil {
 		return
 	}

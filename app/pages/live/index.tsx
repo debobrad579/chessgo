@@ -7,6 +7,7 @@ import { useUser } from "@/context/UserContext"
 import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { useWebSocket } from "@/hooks/useWebSocket"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
+import { playerExists } from "@/components/chess/game/utils"
 
 type LiveGame = Game & {
   white_connected: boolean
@@ -115,6 +116,9 @@ export default function LivePage() {
         ref={chessGameRef}
         gameData={gameData}
         onMove={(move) => {
+          if (!playerExists(gameData.white) || !playerExists(gameData.black))
+            return
+
           if (chessGameRef.current?.makeMove(move)) {
             sendJsonMessage({
               type: "move",

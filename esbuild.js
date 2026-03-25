@@ -34,7 +34,6 @@ switch (env) {
       bundle: true,
       outfile: "static/app.js",
     })
-    console.log("Watching for changes...")
     await ctx.watch()
     break
   }

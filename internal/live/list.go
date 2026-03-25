@@ -1,4 +1,4 @@
-package games
+package live
 
 import (
 	"github.com/google/uuid"

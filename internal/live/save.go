@@ -1,11 +1,12 @@
-package games
+package live
 
 import (
 	"context"
 	"encoding/json"
 
-	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/google/uuid"
+
+	"github.com/debobrad579/chessgo/internal/database"
 )
 
 func (room *GameRoom) saveGame() (*database.Game, error) {

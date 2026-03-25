@@ -1,4 +1,4 @@
-package games
+package live
 
 import (
 	"net/http"

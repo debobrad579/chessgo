@@ -1,9 +1,10 @@
-package games
+package live
 
 import (
+	"github.com/gorilla/websocket"
+
 	"github.com/debobrad579/chessgo/internal/chess"
 	"github.com/debobrad579/chessgo/internal/database"
-	"github.com/gorilla/websocket"
 )
 
 type PlayerRole string
