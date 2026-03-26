@@ -3,6 +3,7 @@ package live
 import (
 	"encoding/json"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
@@ -66,7 +67,7 @@ func New(user *database.User, db *database.Queries, color chess.Color, timeContr
 
 	go room.runBroadcastLoop()
 
-	room.startDisconnectTimer()
+	room.startDisconnectTimer(time.Duration(30 * time.Second))
 
 	return data, nil
 }

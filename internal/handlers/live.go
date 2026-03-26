@@ -114,6 +114,7 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
+			log.Println("failed to read message: ", err)
 			return
 		}
 

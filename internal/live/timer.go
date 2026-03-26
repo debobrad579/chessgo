@@ -46,12 +46,12 @@ func (room *GameRoom) startTurnTimer() {
 	})
 }
 
-func (room *GameRoom) startDisconnectTimer() {
+func (room *GameRoom) startDisconnectTimer(duration time.Duration) {
 	if room.disconnectTimer != nil {
 		room.disconnectTimer.Stop()
 	}
 
-	room.disconnectTimer = time.AfterFunc(time.Duration(5*time.Minute), room.teardown)
+	room.disconnectTimer = time.AfterFunc(duration, room.teardown)
 }
 
 func (room *GameRoom) stopDisconnectTimer() {

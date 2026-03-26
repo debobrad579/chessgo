@@ -2,6 +2,7 @@ package live
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 
@@ -49,11 +50,11 @@ func (room *GameRoom) Disconnect(user *database.User) {
 	}
 
 	if !room.gameStarted.Load() {
-		room.teardown()
+		room.startDisconnectTimer(time.Duration(5 * time.Second))
 		return
 	}
 
-	room.startDisconnectTimer()
+	room.startDisconnectTimer(time.Duration(5 * time.Minute))
 }
 
 func (room *GameRoom) disconnectConn(user *database.User) (wasPlayer bool) {
