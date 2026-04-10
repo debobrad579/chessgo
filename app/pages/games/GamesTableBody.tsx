@@ -2,11 +2,14 @@ import { TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { useFetch } from "@/hooks/useFetch"
 import { formatTimeControl } from "@/lib/formatters"
 import { useNavigate } from "react-router"
-import type { Game } from "@/types/chess"
+import { assertGameSummaryList } from "@/types/chess"
 import { LIMIT } from "."
 
 export function GamesTableBody({ page }: { page: number }) {
-  const { data } = useFetch<Game[]>(`/api/games?page=${page}&limit=${LIMIT}`)
+  const { data } = useFetch(
+    `/api/games?page=${page}&limit=${LIMIT}`,
+    assertGameSummaryList,
+  )
   const navigate = useNavigate()
 
   return (

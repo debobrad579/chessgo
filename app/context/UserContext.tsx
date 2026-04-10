@@ -1,11 +1,11 @@
 import { createContext, useContext, type ReactNode } from "react"
 import { useFetch } from "@/hooks/useFetch"
-import type { User } from "@/types/user"
+import { assertUser, type User } from "@/types/user"
 
 const UserContext = createContext<User | null>(null)
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const { data: user } = useFetch<User>("/api/me")
+  const { data: user } = useFetch("/api/me", assertUser)
 
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>
 }

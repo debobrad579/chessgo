@@ -8,24 +8,17 @@ import {
 } from "@/components/ui/table"
 import { CreateGameButton } from "./CreateGameButton"
 import { Timer } from "lucide-react"
-import type { Player, TimeControl } from "@/types/chess"
 import { useEventSource } from "@/hooks/useEventSource"
 import { useNavigate } from "react-router"
 import { playerExists } from "@/components/chess/game/utils"
 import { formatTimeControl } from "@/lib/formatters"
 import { useUser } from "@/context/UserContext"
 import { HomeSkeleton } from "./HomeSkeleton"
-
-export type GameListItem = {
-  id: string
-  white: Player
-  black: Player
-  time_control: TimeControl
-}
+import { assertGameList } from "@/types/chess"
 
 export default function HomePage() {
   const user = useUser()
-  const { data, error } = useEventSource<GameListItem[]>("/api/live")
+  const { data, error } = useEventSource("/api/live", assertGameList)
   const navigate = useNavigate()
 
   const lobbyGames = data?.filter(

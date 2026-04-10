@@ -10,6 +10,7 @@ import (
 )
 
 type LiveGame struct {
+	ID               uuid.UUID         `json:"id"`
 	Moves            []chess.Move      `json:"moves"`
 	White            chess.Player      `json:"white"`
 	Black            chess.Player      `json:"black"`
@@ -26,6 +27,7 @@ type LiveGame struct {
 
 func (room *GameRoom) getGameData() ([]byte, error) {
 	return json.Marshal(LiveGame{
+		ID:               room.id,
 		Moves:            room.game.Moves,
 		TimeControl:      room.game.TimeControl,
 		ThinkTime:        room.getThinkTime(),

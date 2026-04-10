@@ -19,7 +19,7 @@ export function GamesPagination({
   page: number
   setPage: Dispatch<SetStateAction<number>>
 }) {
-  const { data: gameCount } = useFetch<number>("/api/games/count")
+  const { data: gameCount } = useFetch("/api/games/count", assertNumber)
 
   const { width } = useWindowSize()
   const VISIBLE_PAGES = Math.min(7, Math.max(3, Math.floor(width / 100)))
@@ -77,4 +77,8 @@ export function GamesPagination({
       </PaginationContent>
     </Pagination>
   )
+}
+
+function assertNumber(data: unknown): asserts data is number {
+  if (typeof data !== "number") throw new Error("Expected number")
 }

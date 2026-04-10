@@ -68,7 +68,7 @@ type GameOver struct {
 type Move struct {
 	From      string    `json:"from"`
 	To        string    `json:"to"`
-	Promotion PieceType `json:"promotion"`
+	Promotion PieceType `json:"promotion,omitempty"`
 	Timestamp int       `json:"timestamp"`
 }
 

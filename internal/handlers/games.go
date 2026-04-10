@@ -17,6 +17,7 @@ type GameResponse struct {
 	Moves       []chess.Move      `json:"moves,omitempty"`
 	White       chess.Player      `json:"white"`
 	Black       chess.Player      `json:"black"`
+	ThinkTime   int               `json:"think_time"`
 	TimeControl chess.TimeControl `json:"time_control"`
 	Result      chess.Result      `json:"result"`
 }

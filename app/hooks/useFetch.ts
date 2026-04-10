@@ -4,9 +4,15 @@ const cache = new Map<string, unknown>()
 const pending = new Map<string, Promise<void>>()
 const errors = new Map<string, unknown>()
 
+export function useFetch(url: string): { data: unknown; refetch: () => void }
 export function useFetch<T = unknown>(
   url: string,
-): { data: T; refetch: () => void } {
+  assert: (data: unknown) => asserts data is T,
+): { data: T; refetch: () => void }
+export function useFetch<T = unknown>(
+  url: string,
+  assert?: (data: unknown) => asserts data is T,
+): { data: unknown; refetch: () => void } {
   const [, rerender] = useState(0)
 
   const load = useCallback(() => {
@@ -33,6 +39,7 @@ export function useFetch<T = unknown>(
           return res.json()
         })
         .then((data) => {
+          assert?.(data)
           cache.set(url, data)
         })
         .catch((err) => {

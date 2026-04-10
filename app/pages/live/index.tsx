@@ -2,21 +2,12 @@ import { useNavigate, useParams } from "react-router"
 import { GameOverModal } from "./GameOverModal"
 import { NotFound } from "@/components/errors/NotFound"
 import { useEffect, useRef, useState } from "react"
-import type { Game } from "@/types/chess"
+import { assertLiveGame, type Game } from "@/types/chess"
 import { useUser } from "@/context/UserContext"
 import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { useWebSocket } from "@/hooks/useWebSocket"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { playerExists } from "@/components/chess/game/utils"
-
-type LiveGame = Game & {
-  white_connected: boolean
-  black_connected: boolean
-  result_reason: string
-  pending_draw_offer: "w" | "b" | "n"
-  rematch_request: "w" | "b" | "n"
-  rematch_game_id: string
-}
 
 export default function LivePage() {
   const user = useUser()
@@ -34,6 +25,8 @@ export default function LivePage() {
   const { sendJsonMessage, readyState } = useWebSocket(
     `/api/live/${gameID}`,
     (event) => {
+      const data: unknown = JSON.parse(event.data)
+      assertLiveGame(data)
       const {
         white_connected,
         black_connected,
@@ -42,7 +35,7 @@ export default function LivePage() {
         rematch_request,
         rematch_game_id,
         ...game
-      }: LiveGame = JSON.parse(event.data)
+      } = data
       if (rematch_game_id !== "00000000-0000-0000-0000-000000000000") {
         setGameData(null)
         navigate(`/live/${rematch_game_id}`)

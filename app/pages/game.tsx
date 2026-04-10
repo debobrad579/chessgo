@@ -3,14 +3,14 @@ import { ChessGame } from "@/components/chess/game"
 import { useFetch } from "@/hooks/useFetch"
 import { useParams } from "react-router"
 import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
-import type { Game } from "@/types/chess"
 import { NotFound } from "@/components/errors/NotFound"
 import { InternalServerError } from "@/components/errors/InternalServerError"
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
+import { assertGame } from "@/types/chess"
 
 function GamePageContent() {
   const { gameID } = useParams()
-  const { data } = useFetch<Game>(`/api/games/${gameID}`)
+  const { data } = useFetch(`/api/games/${gameID}`, assertGame)
 
   return <ChessGame gameData={data} />
 }
