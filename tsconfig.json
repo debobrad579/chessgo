@@ -1,21 +1,38 @@
 {
   "compilerOptions": {
+
+    /* JSX */
     "jsx": "react-jsx",
     "jsxImportSource": "react",
+
+    /* Module */
     "module": "esnext",
     "target": "es2023",
     "moduleResolution": "bundler",
-    "strict": true,
-    "noEmit": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     "paths": {
       "@/*": ["./app/*"]
-    }
+    },
+
+    /* Linting */
+    "strict": true,
+    "erasableSyntaxOnly": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedSideEffectImports": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Output */
+    "noEmit": true,
+    "noErrorTruncation": false
   },
+
   "include": ["app/**/*"]
 }
