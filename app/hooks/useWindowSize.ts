@@ -1,15 +1,17 @@
-import { useState } from "react"
-import { useEventListener } from "./useEventListener"
+import { useSyncExternalStore } from "react"
 
-export function useWindowSize() {
-  const [size, setSize] = useState({
+function getSnapshot() {
+  return {
     width: window.innerWidth,
     height: window.innerHeight,
-  })
+  }
+}
 
-  useEventListener("resize", () => {
-    setSize({ width: window.innerWidth, height: window.innerHeight })
-  })
+function subscribe(callback: () => void) {
+  window.addEventListener("resize", callback)
+  return () => window.removeEventListener("resize", callback)
+}
 
-  return size
+export function useWindowSize() {
+  return useSyncExternalStore(subscribe, getSnapshot)
 }
