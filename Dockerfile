@@ -7,7 +7,7 @@ COPY views ./views
 COPY input.css postcss.config.js tsconfig.json esbuild.js ./
 RUN npm run build
 
-FROM golang:1.25-alpine AS backend
+FROM golang:1.26-alpine AS backend
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download

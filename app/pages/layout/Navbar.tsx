@@ -80,16 +80,15 @@ export function NavbarMobile() {
                 <p className="text-sm">Are you sure you want to log out?</p>
                 <div className="flex gap-2">
                   <Button
-                    className="w-full"
+                    className="flex-1"
                     variant="secondary"
-                    size="sm"
                     onClick={() => setConfirmLogout(false)}
                   >
                     No
                   </Button>
                   <form method="POST" action="/logout" className="contents">
                     <Button
-                      className="w-full"
+                      className="flex-1"
                       variant="destructive"
                       type="submit"
                     >
@@ -136,7 +135,7 @@ export function NavbarDesktop() {
                 <p>Are you sure you want to log out?</p>
                 <div className="flex justify-center gap-2">
                   <Button
-                    className="w-full"
+                    className="flex-1"
                     variant="secondary"
                     onClick={() => setConfirmLogout(false)}
                   >
@@ -144,7 +143,7 @@ export function NavbarDesktop() {
                   </Button>
                   <form method="POST" action="/logout" className="contents">
                     <Button
-                      className="w-full"
+                      className="flex-1"
                       variant="destructive"
                       type="submit"
                     >
