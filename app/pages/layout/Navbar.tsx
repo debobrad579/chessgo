@@ -48,7 +48,7 @@ export function NavbarMobile() {
     >
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon-lg">
-          <Menu size={48} />
+          <Menu />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top">

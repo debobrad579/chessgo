@@ -35,16 +35,16 @@ export function PromotionPopover({
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <Button size="icon-lg" variant="ghost" onClick={() => onSelect("q")}>
-          <ChessQueen size={32} />
+          <ChessQueen />
         </Button>
         <Button size="icon-lg" variant="ghost" onClick={() => onSelect("r")}>
-          <ChessRook size={32} />
+          <ChessRook />
         </Button>
         <Button size="icon-lg" variant="ghost" onClick={() => onSelect("b")}>
-          <ChessBishop size={32} />
+          <ChessBishop />
         </Button>
         <Button size="icon-lg" variant="ghost" onClick={() => onSelect("n")}>
-          <ChessKnight size={32} />
+          <ChessKnight />
         </Button>
       </PopoverContent>
     </Popover>
