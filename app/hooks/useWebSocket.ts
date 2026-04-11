@@ -8,34 +8,27 @@ export function useWebSocket(
 ) {
   const [readyState, setReadyState] = useState<ReadyState>("Connecting")
   const wsRef = useRef<WebSocket | null>(null)
+  const onMessageRef = useRef(onMessage)
 
   useEffect(() => {
-    let isMounted = true
+    onMessageRef.current = onMessage
+  })
 
+  useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
     const ws = new WebSocket(`${protocol}//${window.location.host}${endpoint}`)
     wsRef.current = ws
-
     setReadyState("Connecting")
-
-    ws.onopen = () => {
-      if (isMounted) setReadyState("Open")
-    }
-
-    ws.onclose = () => {
-      if (isMounted) setReadyState("Closed")
-    }
-
-    ws.onerror = () => {
-      if (isMounted) setReadyState("Closed")
-    }
-
-    ws.onmessage = onMessage
+    ws.onopen = () => setReadyState("Open")
+    ws.onclose = ws.onerror = () => setReadyState("Closed")
+    ws.onmessage = (event) => onMessageRef.current(event)
 
     return () => {
-      isMounted = false
+      ws.onopen = ws.onclose = ws.onerror = ws.onmessage = null
       setReadyState("Closing")
-      ws.close()
+      if (ws.readyState !== WebSocket.CONNECTING) {
+        ws.close()
+      }
     }
   }, [endpoint])
 
@@ -45,8 +38,5 @@ export function useWebSocket(
     }
   }, [])
 
-  return {
-    readyState,
-    sendJsonMessage,
-  }
+  return { readyState, sendJsonMessage }
 }

@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client"
+import { StrictMode } from "react"
 import { BrowserRouter, Route, Routes } from "react-router"
 import { ThemeProvider } from "@/context/ThemeContext"
 import { UserProvider } from "@/context/UserContext"
@@ -27,11 +28,13 @@ function App() {
 }
 
 createRoot(document.getElementById("app")!).render(
-  <UserProvider>
-    <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
-      <TooltipProvider>
-        <App />
-      </TooltipProvider>
-    </ThemeProvider>
-  </UserProvider>,
+  <StrictMode>
+    <UserProvider>
+      <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
+      </ThemeProvider>
+    </UserProvider>
+  </StrictMode>,
 )
