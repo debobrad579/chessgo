@@ -90,7 +90,7 @@ To stop: `docker compose down`. To also remove the database volume: `docker comp
 
 **Prerequisites**
 
-- [Go 1.25+](https://go.dev/dl/)
+- [Go 1.26+](https://go.dev/dl/)
 - [Node.js](https://nodejs.org/) and npm
 - [PostgreSQL](https://www.postgresql.org/)
 - [goose](https://github.com/pressly/goose) — `go install github.com/pressly/goose/v3/cmd/goose@latest`
@@ -100,8 +100,7 @@ To stop: `docker compose down`. To also remove the database volume: `docker comp
 1. **Install dependencies**
 
 ```bash
-go mod download
-npm install
+make install
 ```
 
 2. **Run database migrations**
@@ -127,6 +126,8 @@ make dev
 
 | Command | Description |
 |---|---|
+| `make help` | Show available make targets |
+| `make install` | Download Go modules and install npm packages |
 | `make dev` | Start development environment with live reload |
 | `make build` | Build Go binary and frontend assets into `/dist` |
 | `make preview` | Serve the production build |

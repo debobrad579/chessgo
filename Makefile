@@ -3,6 +3,26 @@ export
 
 DB_URL=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable
 
+help:
+	@printf "%-20s %s\n" "Command" "Description"
+	@printf "%-20s %s\n" "-------" "-----------"
+	@printf "%-20s %s\n" "make help" "Show available make targets"
+	@printf "%-20s %s\n" "make install" "Download Go modules and install npm packages"
+	@printf "%-20s %s\n" "make dev" "Start development environment with live reload"
+	@printf "%-20s %s\n" "make build" "Build Go binary and frontend assets into /dist"
+	@printf "%-20s %s\n" "make preview" "Serve the production build"
+	@printf "%-20s %s\n" "make lint" "Lint Go and TypeScript"
+	@printf "%-20s %s\n" "make test" "Run Go tests"
+	@printf "%-20s %s\n" "make generate" "Regenerate sqlc query code"
+	@printf "%-20s %s\n" "make migrate-up" "Apply all pending database migrations"
+	@printf "%-20s %s\n" "make migrate-down" "Roll back the last migration"
+	@printf "%-20s %s\n" "make migrate-status" "Show current migration status"
+
+install:
+	@echo "Installing dependencies..."
+	@go mod download
+	@npm install
+
 _air:
 	@air
 
