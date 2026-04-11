@@ -1,7 +1,7 @@
 include .env
 export
 
-DB_URL=postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable
+.PHONY: help install dev build preview lint test generate migrate up down status _air _npm
 
 help:
 	@printf "%-20s %s\n" "Command" "Description"
@@ -14,9 +14,9 @@ help:
 	@printf "%-20s %s\n" "make lint" "Lint Go and TypeScript"
 	@printf "%-20s %s\n" "make test" "Run Go tests"
 	@printf "%-20s %s\n" "make generate" "Regenerate sqlc query code"
-	@printf "%-20s %s\n" "make migrate-up" "Apply all pending database migrations"
-	@printf "%-20s %s\n" "make migrate-down" "Roll back the last migration"
-	@printf "%-20s %s\n" "make migrate-status" "Show current migration status"
+	@printf "%-20s %s\n" "make migrate up" "Apply all pending database migrations"
+	@printf "%-20s %s\n" "make migrate down" "Roll back the last migration"
+	@printf "%-20s %s\n" "make migrate status" "Show current migration status"
 
 install:
 	@echo "Installing dependencies..."
@@ -68,11 +68,12 @@ generate:
 	@echo "Generating sqlc query code..."
 	@sqlc generate
 
-migrate-up:
-	@goose -dir sql/schema postgres "$(DB_URL)" up
+migrate:
+	@if [ -z "$(filter-out $@,$(MAKECMDGOALS))" ]; then \
+		echo "Usage: make migrate [up|down|status]"; \
+		exit 1; \
+	fi
+	@goose -dir sql/schema postgres "postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable" $(filter-out $@,$(MAKECMDGOALS))
 
-migrate-down:
-	@goose -dir sql/schema postgres "$(DB_URL)" down
-
-migrate-status:
-	@goose -dir sql/schema postgres "$(DB_URL)" status
+up down status:
+	@:

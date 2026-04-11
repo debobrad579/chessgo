@@ -106,7 +106,7 @@ make install
 2. **Run database migrations**
 
 ```bash
-make migrate-up
+make migrate up
 ```
 
 **Production build**
@@ -134,6 +134,6 @@ make dev
 | `make lint` | Lint Go and TypeScript |
 | `make test` | Run Go tests |
 | `make generate` | Regenerate sqlc query code |
-| `make migrate-up` | Apply all pending database migrations |
-| `make migrate-down` | Roll back the last migration |
-| `make migrate-status` | Show current migration status |
+| `make migrate up` | Apply all pending database migrations |
+| `make migrate down` | Roll back the last migration |
+| `make migrate status` | Show current migration status |
