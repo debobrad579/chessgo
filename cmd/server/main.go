@@ -9,6 +9,7 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"os"
+	"path"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -54,10 +55,19 @@ func main() {
 	if os.Getenv("DEV") == "true" {
 		viteURL, _ := url.Parse("http://localhost:5173")
 		proxy := httputil.NewSingleHostReverseProxy(viteURL)
-		mux.Handle("/app/", cfg.AuthMiddleware(proxy))
+
 		mux.Handle("/@vite/", proxy)
 		mux.Handle("/@react-refresh", proxy)
 		mux.Handle("/node_modules/", proxy)
+		mux.Handle("/app/", cfg.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			r2 := r.Clone(r.Context())
+
+			if path.Ext(r2.URL.Path) == "" {
+				r2.URL.Path = "/app/"
+			}
+
+			proxy.ServeHTTP(w, r2)
+		})))
 	} else {
 		mux.Handle("/app/",
 			cfg.AuthMiddleware(
