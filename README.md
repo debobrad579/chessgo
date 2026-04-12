@@ -24,9 +24,9 @@ A real-time multiplayer chess web app built with Go and React.
 ├── internal/            # Backend Go modules
 │   ├── auth/            # JWT, password hashing, refresh tokens
 │   ├── chess/           # Chess game state and move validation
-│   ├── database/        # sqlc-generated database layer
-│   ├── games/           # Game room and WebSocket connection management
-│   └── handlers/        # HTTP handlers
+│   ├── database/        # Database layer (sqlc-generated)
+│   ├── handlers/        # HTTP handlers
+│   └── live/            # Live game room and WebSocket connection management
 
 ├── app/                 # React + TypeScript frontend
 │   ├── components/      # React components
@@ -37,12 +37,14 @@ A real-time multiplayer chess web app built with Go and React.
 │   ├── types/           # TypeScript types
 │   └── App.tsx          # React entry point + router
 
-├── sql/                 # Database layer
+├── sql/                 # Database schema and queries
 │   ├── queries/         # SQL queries (input for sqlc)
 │   └── schema/          # Goose migration files
 
 ├── static/              # Static assets
-└── views/               # Go HTML templates
+├── views/               # Go HTML templates
+
+└── dist/                # Generated build artifacts (Go binary + frontend bundle)
 ```
 
 ## Getting Started

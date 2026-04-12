@@ -6,6 +6,8 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"time"
 
@@ -49,9 +51,20 @@ func main() {
 
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	mux.Handle("/app/", cfg.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "app/index.html")
-	})))
+	if os.Getenv("DEV") == "true" {
+		viteURL, _ := url.Parse("http://localhost:5173")
+		proxy := httputil.NewSingleHostReverseProxy(viteURL)
+		mux.Handle("/app/", cfg.AuthMiddleware(proxy))
+		mux.Handle("/@vite/", proxy)
+		mux.Handle("/@react-refresh", proxy)
+		mux.Handle("/node_modules/", proxy)
+	} else {
+		mux.Handle("/app/",
+			cfg.AuthMiddleware(
+				http.HandlerFunc(handlers.TemplateRenderer("app.html", nil)),
+			),
+		)
+	}
 
 	mux.HandleFunc("/login", handlers.TemplateRenderer("login.html", nil))
 	mux.HandleFunc("POST /login", cfg.LoginPostHandler)

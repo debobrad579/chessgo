@@ -24,7 +24,7 @@ install:
 	@npm install
 
 _air:
-	@air
+	@DEV=true air
 
 _npm:
 	@npm run dev
@@ -39,16 +39,12 @@ build:
 	@$(MAKE) test
 	@rm -rf ./dist
 	@mkdir -p ./dist
-	@echo "Copying static assets..."
-	@cp -r ./static ./dist/static
-	@echo "Copying views..."
-	@mkdir -p ./dist/app
-	@cp -r ./views ./dist/views
-	@cp ./app/index.html ./dist/app/index.html
 	@echo "Building Go server..."
 	@go build -o ./dist/main ./cmd/server
 	@echo "Building React webapp..."
 	@npm run build
+	@cp -r ./views ./dist/views
+	@cp -r ./static/. ./dist/static
 
 preview:
 	@test -f ./dist/main || (echo "Error: binary not found, run 'make build' first" && exit 1)
