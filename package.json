@@ -9,7 +9,8 @@
     "build": "npm run build:js && npm run build:css",
     "dev:js": "vite",
     "dev:css": "npx @tailwindcss/cli -i ./input.css -o ./static/style.css --minify --watch",
-    "dev": "concurrently \"npm run dev:css\" \"npm run dev:js\""
+    "dev": "concurrently \"npm run dev:css\" \"npm run dev:js\"",
+    "lint": "oxlint"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +41,7 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "concurrently": "^9.2.1",
     "esbuild-plugin-babel": "^0.2.3",
+    "oxlint": "^1.59.0",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2",

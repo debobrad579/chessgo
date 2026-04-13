@@ -54,7 +54,9 @@ lint:
 	@echo "Linting Go..."
 	@go vet ./...
 	@echo "Linting TypeScript..."
-	@npx tsc --noEmit
+	@npm run lint
+	@echo "Checking types..."
+	@npx tsc
 
 test:
 	@echo "Testing Go..."

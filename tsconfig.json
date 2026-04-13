@@ -31,7 +31,9 @@
 
     /* Output */
     "noEmit": true,
-    "noErrorTruncation": false
+    "noErrorTruncation": false,
+    "incremental": true,
+    "tsBuildInfoFile": "./tmp/.tsbuildinfo"
   },
 
   "include": ["app/**/*"]
