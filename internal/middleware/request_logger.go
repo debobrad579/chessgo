@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/debobrad579/chessgo/internal/httperr"
+	"github.com/debobrad579/chessgo/internal/logging"
 )
 
 type responseWriterWithStatus struct {
@@ -21,7 +22,7 @@ func (w *responseWriterWithStatus) WriteHeader(statusCode int) {
 	w.ResponseWriter.WriteHeader(statusCode)
 }
 
-func RequestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
+func RequestLogger(logger *logging.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if isStreamingRequest(r) {

@@ -1,15 +1,15 @@
 package handlers
 
 import (
-	"log/slog"
 	"math/rand"
 
 	"github.com/debobrad579/chessgo/internal/database"
+	"github.com/debobrad579/chessgo/internal/logging"
 )
 
 type Config struct {
 	DB          *database.Queries
 	TokenSecret string
 	RNG         *rand.Rand
-	Logger      *slog.Logger
+	Logger      *logging.Logger
 }

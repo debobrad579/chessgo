@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"log/slog"
 	"math/rand"
 	"os"
@@ -30,14 +31,12 @@ func main() {
 		Level: level,
 	})
 	if err != nil {
-		slog.Error("failed to initialize logger", slog.Any("error", err))
-		os.Exit(1)
+		log.Fatalf("failed to initialize logger: %v", err)
 	}
 
 	port, err := strconv.Atoi(os.Getenv("PORT"))
 	if err != nil {
-		logger.Error("invalid port", slog.Any("error", err))
-		os.Exit(1)
+		logger.Fatal("invalid port", slog.Any("error", err))
 	}
 
 	dsn := fmt.Sprintf(
@@ -51,12 +50,11 @@ func main() {
 
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		logger.Error("failed to open database",
+		logger.Fatal("failed to open database",
 			slog.String("host", os.Getenv("POSTGRES_HOST")),
 			slog.String("port", os.Getenv("POSTGRES_PORT")),
 			slog.String("db", os.Getenv("POSTGRES_DB")),
 		)
-		os.Exit(1)
 	}
 
 	cfg := &handlers.Config{
@@ -68,7 +66,6 @@ func main() {
 
 	logger.Info("starting server", slog.Int("port", port))
 	if err := startServer(cfg, port, dev); err != nil {
-		logger.Error("failed to start server")
-		os.Exit(1)
+		logger.Fatal("failed to start server")
 	}
 }
