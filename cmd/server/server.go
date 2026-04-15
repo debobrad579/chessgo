@@ -30,7 +30,7 @@ func startServer(cfg *handlers.Config, port string, dev bool) error {
 		mux.Handle("/@vite/", proxy)
 		mux.Handle("/@react-refresh", proxy)
 		mux.Handle("/node_modules/", proxy)
-		mux.Handle("/app/", cfg.AuthMiddleware(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mux.Handle("/app/", middleware.Auth(cfg)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			r2 := r.Clone(r.Context())
 
 			if path.Ext(r2.URL.Path) == "" {
@@ -41,7 +41,7 @@ func startServer(cfg *handlers.Config, port string, dev bool) error {
 		})))
 	} else {
 		mux.Handle("/app/",
-			cfg.AuthMiddleware(
+			middleware.Auth(cfg)(
 				http.HandlerFunc(handlers.TemplateRenderer("app.html", nil)),
 			),
 		)

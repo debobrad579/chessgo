@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,12 +15,15 @@ import (
 const maxJWTAge = 20 * time.Minute
 const maxRefreshTokenAge = 30 * 24 * time.Hour
 
-func isEmailValid(e string) bool {
-	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
-	return emailRegex.MatchString(e)
+func (cfg *Config) ValidateJWT(token string) (uuid.UUID, error) {
+	return auth.ValidateJWT(token, cfg.TokenSecret)
 }
 
-func (cfg *Config) login(w http.ResponseWriter, r *http.Request, userID uuid.UUID) error {
+func (cfg *Config) GetRefreshToken(ctx context.Context, token string) (database.RefreshToken, error) {
+	return cfg.DB.GetRefreshToken(ctx, token)
+}
+
+func (cfg *Config) Login(w http.ResponseWriter, r *http.Request, userID uuid.UUID) error {
 	token, err := auth.MakeJWT(userID, cfg.TokenSecret, maxJWTAge)
 	if err != nil {
 		return err

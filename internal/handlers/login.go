@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"regexp"
 
 	"github.com/debobrad579/chessgo/internal/auth"
 	"github.com/debobrad579/chessgo/internal/httperr"
@@ -20,6 +21,11 @@ type loginData struct {
 		Password string
 	}
 	AuthError string
+}
+
+func isEmailValid(e string) bool {
+	emailRegex := regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,4}$`)
+	return emailRegex.MatchString(e)
 }
 
 func (cfg *Config) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
@@ -73,7 +79,7 @@ func (cfg *Config) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cfg.login(w, r, user.ID); err != nil {
+	if err := cfg.Login(w, r, user.ID); err != nil {
 		loginError(r.Context(), w, data, http.StatusInternalServerError, "Failed to log in")
 		return
 	}

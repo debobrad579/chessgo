@@ -93,7 +93,7 @@ func (cfg *Config) RegisterPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cfg.login(w, r, user.ID); err != nil {
+	if err := cfg.Login(w, r, user.ID); err != nil {
 		registerError(r.Context(), w, data, http.StatusInternalServerError, "Failed to log in")
 		return
 	}
