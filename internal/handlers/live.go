@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,6 +12,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/debobrad579/chessgo/internal/chess"
+	"github.com/debobrad579/chessgo/internal/httperr"
 	"github.com/debobrad579/chessgo/internal/live"
 )
 
@@ -37,7 +39,7 @@ type clientMessage struct {
 func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUserOrGuest(w, r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -46,7 +48,7 @@ func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	var gameOptions newGameOptions
 
 	if err = json.NewDecoder(r.Body).Decode(&gameOptions); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		httperr.Write(r.Context(), w, http.StatusBadRequest, fmt.Errorf("failed to decode game options: %w", err))
 		return
 	}
 
@@ -58,25 +60,25 @@ func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
 
 	baseStr, incrementStr, found := strings.Cut(gameOptions.TimeControl, "+")
 	if !found {
-		http.Error(w, "Invalid time control format", http.StatusBadRequest)
+		httperr.Write(r.Context(), w, http.StatusBadRequest, errors.New("invalid time control"))
 		return
 	}
 
 	base, err := strconv.Atoi(baseStr)
 	if err != nil {
-		http.Error(w, "Invalid time control format", http.StatusBadRequest)
+		httperr.Write(r.Context(), w, http.StatusBadRequest, errors.New("invalid time control"))
 		return
 	}
 
 	increment, err := strconv.Atoi(incrementStr)
 	if err != nil {
-		http.Error(w, "Invalid time control format", http.StatusBadRequest)
+		httperr.Write(r.Context(), w, http.StatusBadRequest, errors.New("invalid time control"))
 		return
 	}
 
 	data, err := live.New(user, cfg.DB, playerColor, chess.TimeControl{Base: base * 60 * 1000, Increment: increment * 1000})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to create live game room: %w", err))
 		return
 	}
 
@@ -89,19 +91,19 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 
 	gameID, err := uuid.Parse(gameIDStr)
 	if err != nil {
-		http.Error(w, "invalid game ID", http.StatusBadRequest)
+		httperr.Write(r.Context(), w, http.StatusBadRequest, errors.New("invalid game ID"))
 		return
 	}
 
 	user, err := cfg.getUserOrGuest(w, r)
 	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		httperr.Write(r.Context(), w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
 
 	room, err := live.GetGameRoom(gameID)
 	if err != nil {
-		http.Error(w, "game room not found", http.StatusNotFound)
+		httperr.Write(r.Context(), w, http.StatusNotFound, errors.New("game room not found"))
 		return
 	}
 
@@ -111,16 +113,18 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	defer room.Disconnect(user)
 
+	cfg.Logger.Info("connected to game room", slog.String("user_id", user.ID.String()), slog.Bool("is_guest", user.Email == ""), slog.String("player_role", string(playerRole)))
+
 	for {
 		_, message, err := conn.ReadMessage()
 		if err != nil {
-			log.Println("failed to read message: ", err)
+			cfg.Logger.Error("failed to read message", slog.Any("error", err), slog.Any("message", message))
 			return
 		}
 
 		var clientMessage clientMessage
 		if err := json.Unmarshal(message, &clientMessage); err != nil {
-			log.Println("failed to unmarshal message")
+			cfg.Logger.Error("failed to unmarshal message", slog.Any("error", err), slog.Any("message", message))
 			return
 		}
 
@@ -128,7 +132,7 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 		case typeMove:
 			var move chess.Move
 			if err := json.Unmarshal(clientMessage.Payload, &move); err != nil {
-				log.Println("invalid move structure")
+				cfg.Logger.Error("invalid move structure", slog.Any("error", err), slog.Any("payload", clientMessage.Payload))
 				return
 			}
 
@@ -142,7 +146,7 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 				Accept bool `json:"accept"`
 			}
 			if err := json.Unmarshal(clientMessage.Payload, &accept); err != nil {
-				log.Println("invalid draw response structure")
+				cfg.Logger.Error("invalid draw response structure", slog.Any("error", err), slog.Any("payload", clientMessage.Payload))
 				return
 			}
 
@@ -150,7 +154,7 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 		case typeRematchRequest:
 			room.RequestRematch(playerRole)
 		default:
-			log.Println("invalid client message type")
+			cfg.Logger.Error("invalid client message type", slog.Any("error", err), slog.Any("type", clientMessage.Type))
 		}
 	}
 }
@@ -162,7 +166,7 @@ func (cfg *Config) GamesListHandler(w http.ResponseWriter, r *http.Request) {
 
 	flusher, ok := w.(http.Flusher)
 	if !ok {
-		http.Error(w, "streaming unsupported", http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, errors.New("streaming unsupported"))
 		return
 	}
 

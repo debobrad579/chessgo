@@ -3,6 +3,8 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -10,6 +12,7 @@ import (
 
 	"github.com/debobrad579/chessgo/internal/chess"
 	"github.com/debobrad579/chessgo/internal/database"
+	"github.com/debobrad579/chessgo/internal/httperr"
 )
 
 type GameResponse struct {
@@ -25,7 +28,7 @@ type GameResponse struct {
 func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUser(r)
 	if err != nil || user == nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		httperr.Write(r.Context(), w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
 
@@ -47,7 +50,7 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 		Column3: page,
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -94,7 +97,7 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 
 	data, err := json.Marshal(response)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -105,19 +108,19 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 func (cfg *Config) GetGamesCountHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUser(r)
 	if err != nil || user == nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		httperr.Write(r.Context(), w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
 
 	count, err := cfg.DB.GetGamesCount(r.Context(), uuid.NullUUID{UUID: user.ID, Valid: true})
 	if err != nil {
-		http.Error(w, "failed to fetch count", http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to fetch count: %w", err))
 		return
 	}
 
 	data, err := json.Marshal(count)
 	if err != nil {
-		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to encode response: %w", err))
 		return
 	}
 
@@ -131,23 +134,23 @@ func (cfg *Config) GameHandler(w http.ResponseWriter, r *http.Request) {
 
 	gameID, err := uuid.Parse(gameIDStr)
 	if err != nil {
-		http.Error(w, "invalid game ID", http.StatusNotFound)
+		httperr.Write(r.Context(), w, http.StatusNotFound, errors.New("invalid game ID"))
 		return
 	}
 
 	game, err := cfg.DB.GetGame(r.Context(), gameID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			http.Error(w, "game not found", http.StatusNotFound)
+			httperr.Write(r.Context(), w, http.StatusNotFound, errors.New("game not found"))
 			return
 		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to get game: %w", err))
 		return
 	}
 
 	var moves []chess.Move
 	if err := json.Unmarshal(game.Moves, &moves); err != nil {
-		http.Error(w, "invalid moves JSON", http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to unmarshal moves: %w", err))
 		return
 	}
 
@@ -189,7 +192,7 @@ func (cfg *Config) GameHandler(w http.ResponseWriter, r *http.Request) {
 		Result: chess.Result(game.Result),
 	})
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to marshal game: %w", err))
 		return
 	}
 

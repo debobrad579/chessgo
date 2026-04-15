@@ -23,16 +23,13 @@ install:
 	@go mod download
 	@npm install
 
-_air:
-	@DEV=true air
-
-_npm:
-	@npm run dev
-
 dev:
-	@echo "Starting development environment..."
-	$(MAKE) _air &
-	$(MAKE) _npm
+	@npx concurrently \
+		-n GO,TAILWIND,VITE \
+		-c blue,green,magenta \
+		"script -q -c 'DEV=true air' /dev/null" \
+		"npm run dev:css" \
+		"npm run dev:js"
 
 build:
 	@$(MAKE) lint

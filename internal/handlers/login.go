@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/debobrad579/chessgo/internal/auth"
+	"github.com/debobrad579/chessgo/internal/httperr"
 )
 
 type loginData struct {
@@ -21,7 +24,7 @@ type loginData struct {
 
 func (cfg *Config) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 	if err := r.ParseForm(); err != nil {
-		http.Error(w, "Error parsing form", http.StatusInternalServerError)
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("error parsing form: %w", err))
 		return
 	}
 
@@ -44,42 +47,42 @@ func (cfg *Config) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
 
 	if data.Errors.Email != "" || data.Errors.Password != "" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		RenderTemplate(w, "login.html", data)
+		RenderTemplate(r.Context(), w, "login.html", data)
 		return
 	}
 
 	user, err := cfg.DB.GetUserByEmail(r.Context(), data.Fields.Email)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			loginError(w, data, http.StatusUnauthorized, "Email or password is incorrect")
+			loginError(r.Context(), w, data, http.StatusUnauthorized, "Email or password is incorrect")
 			return
 		}
-		loginError(w, data, http.StatusInternalServerError, "Failed to get user")
+		loginError(r.Context(), w, data, http.StatusInternalServerError, "Failed to get user")
 		return
 	}
 
 	ok, err := auth.CheckPasswordHash(data.Fields.Password, user.HashedPassword)
 
 	if err != nil {
-		loginError(w, data, http.StatusInternalServerError, "Failed to verify password")
+		loginError(r.Context(), w, data, http.StatusInternalServerError, "Failed to verify password")
 		return
 	}
 
 	if !ok {
-		loginError(w, data, http.StatusUnauthorized, "Email or password is incorrect")
+		loginError(r.Context(), w, data, http.StatusUnauthorized, "Email or password is incorrect")
 		return
 	}
 
 	if err := cfg.login(w, r, user.ID); err != nil {
-		loginError(w, data, http.StatusInternalServerError, "Failed to log in")
+		loginError(r.Context(), w, data, http.StatusInternalServerError, "Failed to log in")
 		return
 	}
 
 	http.Redirect(w, r, "/app", http.StatusSeeOther)
 }
 
-func loginError(w http.ResponseWriter, data loginData, code int, message string) {
+func loginError(ctx context.Context, w http.ResponseWriter, data loginData, code int, message string) {
 	data.AuthError = message
 	w.WriteHeader(code)
-	RenderTemplate(w, "login.html", data)
+	RenderTemplate(ctx, w, "login.html", data)
 }

@@ -2,13 +2,16 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
+
+	"github.com/debobrad579/chessgo/internal/httperr"
 )
 
 func (cfg *Config) ApiMeHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUserOrGuest(w, r)
 	if err != nil {
-		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		httperr.Write(r.Context(), w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
 

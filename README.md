@@ -26,7 +26,10 @@ A real-time multiplayer chess web app built with Go and React.
 │   ├── chess/           # Chess game state and move validation
 │   ├── database/        # Database layer (sqlc-generated)
 │   ├── handlers/        # HTTP handlers
-│   └── live/            # Live game room and WebSocket connection management
+│   ├── httperr/         # HTTP error handling and context
+│   ├── live/            # Live game room and WebSocket connection management
+│   ├── logging/         # Structured application logging
+│   └── middleware/      # HTTP middleware
 
 ├── app/                 # React + TypeScript frontend
 │   ├── components/      # React components
