@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build:js": "vite build",
-    "build:css": "npx @tailwindcss/cli -i ./input.css -o ./dist/static/style.css --minify",
+    "build:css": "npx @tailwindcss/cli -i ./tailwind.css -o ./dist/static/style.css --minify",
     "build": "npm run build:js && npm run build:css",
     "dev:js": "vite",
-    "dev:css": "npx @tailwindcss/cli -i ./input.css -o ./static/style.css --minify --watch",
+    "dev:css": "npx @tailwindcss/cli -i ./tailwind.css -o ./static/style.css --minify --watch",
     "lint": "oxlint"
   },
   "keywords": [],

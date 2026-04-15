@@ -8,7 +8,7 @@ help:
 	@printf "%-20s %s\n" "-------" "-----------"
 	@printf "%-20s %s\n" "make help" "Show available make targets"
 	@printf "%-20s %s\n" "make install" "Download Go modules and install npm packages"
-	@printf "%-20s %s\n" "make dev" "Start development environment with live reload"
+	@printf "%-20s %s\n" "make dev" "Start development environment"
 	@printf "%-20s %s\n" "make build" "Build Go binary and frontend assets into /dist"
 	@printf "%-20s %s\n" "make preview" "Serve the production build"
 	@printf "%-20s %s\n" "make lint" "Lint Go and TypeScript"

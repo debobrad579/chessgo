@@ -32,7 +32,13 @@ services:
     depends_on:
       migrate:
         condition: service_completed_successfully
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
     environment:
+      PORT: 8080
       POSTGRES_USER: ${POSTGRES_USER:-chessgo}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       POSTGRES_HOST: db
@@ -46,7 +52,7 @@ services:
     depends_on:
       - app
     ports:
-      - "${PORT:-3000}:80"
+      - "8080:80"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data

@@ -14,6 +14,8 @@ import (
 	"github.com/debobrad579/chessgo/internal/handlers"
 	"github.com/debobrad579/chessgo/internal/logging"
 	"github.com/joho/godotenv"
+	"github.com/mattn/go-isatty"
+
 	_ "github.com/lib/pq"
 )
 
@@ -22,21 +24,34 @@ func main() {
 
 	dev, _ := strconv.ParseBool(os.Getenv("DEV"))
 
-	level := slog.LevelInfo
-	if dev {
-		level = slog.LevelDebug
-	}
+	var logger *logging.Logger
+	var err error
 
-	logger, err := logging.InitializeLogger(logging.LoggerOptions{
-		Level: level,
-	})
+	if dev {
+		logger, err = logging.InitializeLogger(logging.LoggerOptions{
+			Level:  slog.LevelDebug,
+			Writer: os.Stderr,
+			NoColor: !(isatty.IsTerminal(os.Stderr.Fd()) ||
+				isatty.IsCygwinTerminal(os.Stderr.Fd())),
+		})
+	} else {
+		logger, err = logging.InitializeLogger(logging.LoggerOptions{
+			Level:  slog.LevelInfo,
+			Writer: os.Stdout,
+			JSON:   true,
+		})
+	}
 	if err != nil {
 		log.Fatalf("failed to initialize logger: %v", err)
 	}
 
-	port, err := strconv.Atoi(os.Getenv("PORT"))
-	if err != nil {
-		logger.Fatal("invalid port", slog.Any("error", err))
+	portStr := os.Getenv("PORT")
+	port := 8080
+	if portStr != "" {
+		port, err = strconv.Atoi(os.Getenv("PORT"))
+		if err != nil {
+			logger.Fatal("invalid port", slog.Any("error", err))
+		}
 	}
 
 	dsn := fmt.Sprintf(

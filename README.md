@@ -87,7 +87,7 @@ Docker Compose will:
 
 2. **Open the app**
 
-Visit [http://localhost:3000](http://localhost:3000).
+Visit [http://localhost:8080](http://localhost:8080).
 
 To stop: `docker compose down`. To also remove the database volume: `docker compose down -v`.
 
@@ -121,7 +121,7 @@ make build
 make preview
 ```
 
-**Development** (with live reload)
+**Development** (with live reload and hot module replacement)
 
 ```bash
 make dev
@@ -133,7 +133,7 @@ make dev
 |---|---|
 | `make help` | Show available make targets |
 | `make install` | Download Go modules and install npm packages |
-| `make dev` | Start development environment with live reload |
+| `make dev` | Start development environment |
 | `make build` | Build Go binary and frontend assets into `/dist` |
 | `make preview` | Serve the production build |
 | `make lint` | Lint Go and TypeScript |

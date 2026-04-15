@@ -3,7 +3,8 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY app ./app
-COPY input.css postcss.config.js tsconfig.json vite.config.js ./
+COPY views ./views
+COPY tailwind.css postcss.config.js tsconfig.json vite.config.js ./
 RUN npm run build
 
 FROM golang:1.26-alpine AS backend
@@ -23,5 +24,5 @@ COPY views ./views
 COPY --from=backend /chessgo /app/chessgo
 RUN chown -R chessgo:chessgo /app
 USER chessgo
-EXPOSE 3000
+EXPOSE 8080
 CMD ["/app/chessgo"]
