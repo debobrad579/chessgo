@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"math/rand"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/debobrad579/chessgo/internal/database"
@@ -18,15 +19,26 @@ import (
 func main() {
 	godotenv.Load()
 
-	logger, closeFunc, err := logging.InitializeLogger("")
+	dev, _ := strconv.ParseBool(os.Getenv("DEV"))
+
+	level := slog.LevelInfo
+	if dev {
+		level = slog.LevelDebug
+	}
+
+	logger, err := logging.InitializeLogger(logging.LoggerOptions{
+		Level: level,
+	})
 	if err != nil {
 		slog.Error("failed to initialize logger", slog.Any("error", err))
+		os.Exit(1)
 	}
-	defer func() {
-		if err := closeFunc(); err != nil {
-			slog.Error("failed to close logger", slog.Any("error", err))
-		}
-	}()
+
+	port, err := strconv.Atoi(os.Getenv("PORT"))
+	if err != nil {
+		logger.Error("invalid port", slog.Any("error", err))
+		os.Exit(1)
+	}
 
 	dsn := fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
@@ -54,14 +66,7 @@ func main() {
 		Logger:      logger,
 	}
 
-	port := ":" + os.Getenv("PORT")
-	if port == ":" {
-		port = ":3000"
-	}
-
-	dev := os.Getenv("DEV") == "true"
-
-	logger.Debug("starting server", slog.String("port", port), slog.Bool("dev", dev))
+	logger.Info("starting server", slog.Int("port", port))
 	if err := startServer(cfg, port, dev); err != nil {
 		logger.Error("failed to start server")
 		os.Exit(1)

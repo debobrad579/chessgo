@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -10,7 +11,7 @@ import (
 	"github.com/debobrad579/chessgo/internal/middleware"
 )
 
-func startServer(cfg *handlers.Config, port string, dev bool) error {
+func startServer(cfg *handlers.Config, port int, dev bool) error {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -65,5 +66,5 @@ func startServer(cfg *handlers.Config, port string, dev bool) error {
 	mux.HandleFunc("/api/games/count", cfg.GetGamesCountHandler)
 	mux.HandleFunc("/api/games/{gameID}", cfg.GameHandler)
 
-	return http.ListenAndServe(port, middleware.RequestLogger(cfg.Logger)(mux))
+	return http.ListenAndServe(fmt.Sprintf(":%d", port), middleware.RequestLogger(cfg.Logger)(mux))
 }
