@@ -122,13 +122,14 @@ WHERE
 ORDER BY
     g.created_at DESC,
     g.id DESC
-LIMIT $2 OFFSET ($3 - 1) * $2
+LIMIT $3
+OFFSET ($2::int - 1) * $3
 `
 
 type GetGamesByUserParams struct {
-	WhiteID uuid.NullUUID `json:"white_id"`
-	Limit   int32         `json:"limit"`
-	Column3 interface{}   `json:"column_3"`
+	ID         uuid.NullUUID `json:"id"`
+	PageNumber int32         `json:"page_number"`
+	PageSize   int32         `json:"page_size"`
 }
 
 type GetGamesByUserRow struct {
@@ -143,7 +144,7 @@ type GetGamesByUserRow struct {
 }
 
 func (q *Queries) GetGamesByUser(ctx context.Context, arg GetGamesByUserParams) ([]GetGamesByUserRow, error) {
-	rows, err := q.db.QueryContext(ctx, getGamesByUser, arg.WhiteID, arg.Limit, arg.Column3)
+	rows, err := q.db.QueryContext(ctx, getGamesByUser, arg.ID, arg.PageNumber, arg.PageSize)
 	if err != nil {
 		return nil, err
 	}

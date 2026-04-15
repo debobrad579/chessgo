@@ -10,25 +10,25 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { LIMIT } from "."
+import { PAGE_SIZE } from "."
 
 export function GamesPagination({
-  page,
-  setPage,
+  pageNumber,
+  setPageNumber,
 }: {
-  page: number
-  setPage: Dispatch<SetStateAction<number>>
+  pageNumber: number
+  setPageNumber: Dispatch<SetStateAction<number>>
 }) {
   const { data: gameCount } = useFetch("/api/games/count", assertNumber)
 
   const { width } = useWindowSize()
   const VISIBLE_PAGES = Math.min(7, Math.max(3, Math.floor(width / 100)))
 
-  const pageCount = Math.ceil(gameCount / LIMIT)
+  const pageCount = Math.ceil(gameCount / PAGE_SIZE)
   const start = Math.max(
     1,
     Math.min(
-      page - Math.floor(VISIBLE_PAGES / 2),
+      pageNumber - Math.floor(VISIBLE_PAGES / 2),
       pageCount - VISIBLE_PAGES + 1,
     ),
   )
@@ -43,7 +43,7 @@ export function GamesPagination({
         <PaginationItem>
           <PaginationPrevious
             onClick={() =>
-              startTransition(() => setPage((p) => Math.max(1, p - 1)))
+              startTransition(() => setPageNumber((p) => Math.max(1, p - 1)))
             }
           />
         </PaginationItem>
@@ -55,8 +55,8 @@ export function GamesPagination({
         {visiblePages.map((p) => (
           <PaginationItem key={p}>
             <PaginationLink
-              isActive={p === page}
-              onClick={() => startTransition(() => setPage(p))}
+              isActive={p === pageNumber}
+              onClick={() => startTransition(() => setPageNumber(p))}
             >
               {p}
             </PaginationLink>
@@ -70,7 +70,9 @@ export function GamesPagination({
         <PaginationItem>
           <PaginationNext
             onClick={() =>
-              startTransition(() => setPage((p) => Math.min(pageCount, p + 1)))
+              startTransition(() =>
+                setPageNumber((p) => Math.min(pageCount, p + 1)),
+              )
             }
           />
         </PaginationItem>

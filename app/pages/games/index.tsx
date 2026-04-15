@@ -6,10 +6,10 @@ import { GamesPagination } from "./GamesPagination"
 import { GamesTableBodySkeleton } from "./GamesTableBodySkeleton"
 import { GamesPaginationSkeleton } from "./GamesPaginationSkeleton"
 
-export const LIMIT = 10
+export const PAGE_SIZE = 10
 
 export default function GamesPage() {
-  const [page, setPage] = useState(1)
+  const [pageNumber, setPageNumber] = useState(1)
 
   return (
     <>
@@ -25,11 +25,14 @@ export default function GamesPage() {
           </TableRow>
         </TableHeader>
         <Suspense fallback={<GamesTableBodySkeleton />}>
-          <GamesTableBody page={page} />
+          <GamesTableBody pageNumber={pageNumber} />
         </Suspense>
       </Table>
       <Suspense fallback={<GamesPaginationSkeleton />}>
-        <GamesPagination page={page} setPage={setPage} />
+        <GamesPagination
+          pageNumber={pageNumber}
+          setPageNumber={setPageNumber}
+        />
       </Suspense>
     </>
   )

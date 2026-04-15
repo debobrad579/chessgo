@@ -32,22 +32,22 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pageStr := r.URL.Query().Get("page")
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page < 1 {
-		page = 1
+	pageNumberStr := r.URL.Query().Get("page_number")
+	pageNumber, err := strconv.Atoi(pageNumberStr)
+	if err != nil || pageNumber < 1 {
+		pageNumber = 1
 	}
 
-	limitStr := r.URL.Query().Get("limit")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit < 1 {
-		limit = 10
+	pageSizeStr := r.URL.Query().Get("page_size")
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil || pageSize < 1 {
+		pageSize = 10
 	}
 
 	games, err := cfg.DB.GetGamesByUser(r.Context(), database.GetGamesByUserParams{
-		WhiteID: uuid.NullUUID{UUID: user.ID, Valid: true},
-		Limit:   int32(limit),
-		Column3: page,
+		ID:         uuid.NullUUID{UUID: user.ID, Valid: true},
+		PageSize:   int32(pageSize),
+		PageNumber: int32(pageNumber),
 	})
 	if err != nil {
 		httperr.Write(r.Context(), w, http.StatusInternalServerError, err)

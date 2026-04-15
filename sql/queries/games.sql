@@ -19,12 +19,13 @@ FROM
     LEFT JOIN users wu ON g.white_id = wu.id
     LEFT JOIN users bu ON g.black_id = bu.id
 WHERE
-    g.white_id IS NOT DISTINCT FROM $1
-    OR g.black_id IS NOT DISTINCT FROM $1
+    g.white_id IS NOT DISTINCT FROM sqlc.arg (id)
+    OR g.black_id IS NOT DISTINCT FROM sqlc.arg (id)
 ORDER BY
     g.created_at DESC,
     g.id DESC
-LIMIT $2 OFFSET ($3 - 1) * $2;
+LIMIT sqlc.arg (page_size)
+OFFSET (sqlc.arg (page_number)::int - 1) * sqlc.arg (page_size);
 
 -- name: GetGame :one
 SELECT

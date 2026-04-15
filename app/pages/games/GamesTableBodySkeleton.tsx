@@ -1,6 +1,6 @@
 import { TableBody, TableCell, TableRow } from "@/components/ui/table"
 import { Skeleton } from "@/components/ui/skeleton"
-import { LIMIT } from "."
+import { PAGE_SIZE } from "."
 
 const ROW_WIDTHS: [number, number, number, number][] = [
   [64, 72, 32, 20],
@@ -18,10 +18,10 @@ const ROW_WIDTHS: [number, number, number, number][] = [
 export function GamesTableBodySkeleton() {
   return (
     <TableBody>
-      {Array.from({ length: LIMIT }).map((_, i) => {
+      {Array.from({ length: PAGE_SIZE }).map((_, i) => {
         const [white, black, time, result] = ROW_WIDTHS[i % ROW_WIDTHS.length]
         return (
-          <TableRow key={i} style={{ opacity: 1 - i * (0.6 / LIMIT) }}>
+          <TableRow key={i} style={{ opacity: 1 - i * (0.6 / PAGE_SIZE) }}>
             <TableCell>
               <Skeleton className="h-lh rounded-sm" style={{ width: white }} />
             </TableCell>
