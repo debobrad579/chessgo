@@ -99,46 +99,44 @@ To stop: `docker compose down`. To also remove the database volume: `docker comp
 - [Node.js](https://nodejs.org/) and npm
 - [PostgreSQL](https://www.postgresql.org/)
 - [goose](https://github.com/pressly/goose) — `go install github.com/pressly/goose/v3/cmd/goose@latest`
-- [sqlc](https://sqlc.dev/) (optional, required for `make generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
-- [air](https://github.com/air-verse/air) (optional, required for `make dev`) — `go install github.com/air-verse/air@latest`
+- [just](https://github.com/casey/just) (optional, required to run commands via `just`) - `cargo install just`
+- [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
+- [air](https://github.com/air-verse/air) (optional, required for `just dev`) — `go install github.com/air-verse/air@latest`
 
 1. **Install dependencies**
 
 ```bash
-make install
+just install
 ```
 
 2. **Run database migrations**
 
 ```bash
-make migrate up
+just migrate up
 ```
 
 **Production build**
 
 ```bash
-make build
-make preview
+just build
+just preview
 ```
 
 **Development** (with live reload and hot module replacement)
 
 ```bash
-make dev
+just dev
 ```
 
-## Available Make Targets
+## Available Just Targets
 
 | Command | Description |
 |---|---|
-| `make help` | Show available make targets |
-| `make install` | Download Go modules and install npm packages |
-| `make dev` | Start development environment |
-| `make build` | Build Go binary and frontend assets into `/dist` |
-| `make preview` | Serve the production build |
-| `make lint` | Lint Go and TypeScript |
-| `make test` | Run Go tests |
-| `make generate` | Regenerate sqlc query code |
-| `make migrate up` | Apply all pending database migrations |
-| `make migrate down` | Roll back the last migration |
-| `make migrate status` | Show current migration status |
+| `just install` | Download Go modules and install npm packages |
+| `just dev` | Start development environment |
+| `just lint` | Lint Go and TypeScript |
+| `just test` | Run Go tests |
+| `just generate` | Regenerate sqlc query code |
+| `just migrate *args="up"` | Run database migrations via goose |
+| `just build` | Build Go binary and frontend assets into `/dist` |
+| `just preview` | Serve the production build |

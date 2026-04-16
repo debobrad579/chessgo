@@ -66,6 +66,7 @@ func main() {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		logger.Fatal("failed to open database",
+			slog.Any("error", err),
 			slog.String("host", os.Getenv("POSTGRES_HOST")),
 			slog.String("port", os.Getenv("POSTGRES_PORT")),
 			slog.String("db", os.Getenv("POSTGRES_DB")),
@@ -81,6 +82,6 @@ func main() {
 
 	logger.Info("starting server", slog.Int("port", port))
 	if err := startServer(cfg, port, dev); err != nil {
-		logger.Fatal("failed to start server")
+		logger.Fatal("failed to start server", slog.Any("error", err))
 	}
 }
