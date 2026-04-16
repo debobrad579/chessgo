@@ -54,7 +54,7 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var response []GameResponse
+	response := make([]GameResponse, 0)
 
 	for _, game := range games {
 		var whiteID uuid.UUID

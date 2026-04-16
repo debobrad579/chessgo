@@ -52,7 +52,8 @@ services:
     depends_on:
       - app
     ports:
-      - "8080:80"
+      - "80:80"
+      - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
