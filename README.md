@@ -77,13 +77,13 @@ TOKEN_SECRET=changeme             # generate with: openssl rand -base64 64
 1. **Start everything**
 
 ```bash
-docker compose up --build
+docker compose up
 ```
 
 Docker Compose will:
 - Start a PostgreSQL database
 - Run all database migrations
-- Build and start the ChessGo app
+- Start the ChessGo app
 
 2. **Open the app**
 

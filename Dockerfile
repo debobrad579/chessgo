@@ -8,11 +8,14 @@ COPY tailwind.css postcss.config.js tsconfig.json vite.config.js ./
 RUN npm run build
 
 FROM golang:1.26-alpine AS backend
+ARG TARGETOS
+ARG TARGETARCH
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o /chessgo ./cmd/server
+COPY cmd ./cmd
+COPY internal ./internal
+RUN CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH go build -o /chessgo ./cmd/server
 
 FROM alpine:3.20
 WORKDIR /app
@@ -22,7 +25,7 @@ COPY --from=frontend /app/dist/static/app.js ./static/app.js
 COPY --from=frontend /app/dist/static/style.css ./static/style.css
 COPY views ./views
 COPY --from=backend /chessgo /app/chessgo
-RUN chown -R chessgo:chessgo /app
+RUN chown -R chessgo:chessgo /app/static /app/views /app/chessgo
 USER chessgo
 EXPOSE 8080
 CMD ["/app/chessgo"]

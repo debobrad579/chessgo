@@ -27,7 +27,7 @@ services:
     command: ["up"]
 
   app:
-    build: .
+    image: ghcr.io/debobrad579/chessgo:latest
     restart: unless-stopped
     depends_on:
       migrate:
