@@ -28,6 +28,7 @@ services:
 
   app:
     image: ghcr.io/debobrad579/chessgo:latest
+    pull_policy: always
     restart: unless-stopped
     depends_on:
       migrate:

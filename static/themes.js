@@ -1,9 +1,10 @@
-const theme = localStorage.getItem("ui-theme")
+const selectedTheme = localStorage.getItem("ui-theme") ?? "system"
+
 const prefersDarkMode = window.matchMedia?.(
   "(prefers-color-scheme: dark)",
 )?.matches
 
-document.documentElement.classList.toggle(
-  "dark",
-  theme === "dark" || (theme === "system" && prefersDarkMode),
-)
+const shouldUseDark =
+  selectedTheme === "dark" || (selectedTheme === "system" && prefersDarkMode)
+
+document.documentElement.classList.toggle("dark", shouldUseDark)

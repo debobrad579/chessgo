@@ -75,7 +75,7 @@ export function GameButtons({
                       </p>
                       <div className="flex justify-center gap-2">
                         <Button
-                          className="w-full"
+                          className="flex-1"
                           variant="secondary"
                           onClick={() => {
                             if (drawOfferActive) {
@@ -88,7 +88,7 @@ export function GameButtons({
                           {drawOfferActive ? "Decline" : "No"}
                         </Button>
                         <Button
-                          className="w-full"
+                          className="flex-1"
                           onClick={() => {
                             if (drawOfferActive) {
                               handleRespondToDrawOffer(true)
@@ -150,14 +150,14 @@ export function GameButtons({
                   <p>Are you sure you want to resign?</p>
                   <div className="flex justify-center gap-2">
                     <Button
-                      className="w-full"
+                      className="flex-1"
                       variant="secondary"
                       onClick={() => setResignPopoverOpen(false)}
                     >
                       No
                     </Button>
                     <Button
-                      className="w-full"
+                      className="flex-1"
                       variant="destructive"
                       onClick={() => {
                         handleResign()
