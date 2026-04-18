@@ -13,6 +13,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - internal
 
   migrate:
     image: ghcr.io/kukymbr/goose-docker:3.24.1
@@ -25,10 +27,11 @@ services:
     volumes:
       - ./sql/schema:/migrations
     command: ["up"]
+    networks:
+      - internal
 
   app:
     image: ghcr.io/debobrad579/chessgo:latest
-    pull_policy: always
     restart: unless-stopped
     depends_on:
       migrate:
@@ -46,6 +49,9 @@ services:
       POSTGRES_PORT: 5432
       POSTGRES_DB: ${POSTGRES_DB:-chessgo}
       TOKEN_SECRET: ${TOKEN_SECRET:?TOKEN_SECRET is required}
+    networks:
+      - public
+      - internal
 
   caddy:
     image: caddy:alpine
@@ -59,8 +65,25 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - public
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN}
+    networks:
+      - public
+    profiles:
+      - cloudflare
 
 volumes:
   postgres_data:
   caddy_data:
   caddy_config:
+
+networks:
+  public:
+  internal:

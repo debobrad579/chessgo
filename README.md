@@ -70,6 +70,7 @@ Then edit `.env` and set secure values for `POSTGRES_PASSWORD` and `TOKEN_SECRET
 ```env
 POSTGRES_PASSWORD=changeme        # pick something strong
 TOKEN_SECRET=changeme             # generate with: openssl rand -base64 64
+CF_TUNNEL_TOKEN=changeme          # only if you're using cloudflare tunnels
 ```
 
 ### Option 1: Run with Docker (recommended)
@@ -78,6 +79,7 @@ TOKEN_SECRET=changeme             # generate with: openssl rand -base64 64
 
 ```bash
 docker compose up
+# or: docker compose --profile cloudflare up
 ```
 
 Docker Compose will:
