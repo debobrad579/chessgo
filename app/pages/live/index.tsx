@@ -9,6 +9,8 @@ import { useWebSocket } from "@/hooks/useWebSocket"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { playerExists } from "@/components/chess/game/utils"
 
+const PING_TIMEOUT_MS = 90_000
+
 export default function LivePage() {
   const user = useUser()
   const { gameID } = useParams()
@@ -21,6 +23,7 @@ export default function LivePage() {
   const [pendingDrawOffer, setPendingDrawOffer] = useState<"w" | "b" | "n">("n")
   const [rematchRequest, setRematchRequest] = useState<"w" | "b" | "n">("n")
   const chessGameRef = useRef<ChessGameHandle>(null)
+  const pingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { sendJsonMessage, readyState } = useWebSocket(
     `/api/live/${gameID}`,
@@ -49,6 +52,26 @@ export default function LivePage() {
       }
     },
   )
+
+  useEffect(() => {
+    if (gameData != null && gameData.result !== "*") return
+    if (readyState !== "Open") return
+
+    function schedulePing() {
+      if (pingTimeoutRef.current) clearTimeout(pingTimeoutRef.current)
+
+      pingTimeoutRef.current = setTimeout(() => {
+        sendJsonMessage({ type: "ping" })
+        schedulePing()
+      }, PING_TIMEOUT_MS)
+    }
+
+    schedulePing()
+
+    return () => {
+      if (pingTimeoutRef.current) clearTimeout(pingTimeoutRef.current)
+    }
+  }, [readyState, gameData?.result])
 
   useEffect(() => {
     if (readyState === "Closed" && gameData == null) {

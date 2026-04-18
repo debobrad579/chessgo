@@ -27,7 +27,7 @@ type LiveGame struct {
 
 func (room *GameRoom) getGameData() ([]byte, error) {
 	return json.Marshal(LiveGame{
-		ID:               room.id,
+		ID:               room.ID,
 		Moves:            room.game.Moves,
 		TimeControl:      room.game.TimeControl,
 		ThinkTime:        room.getThinkTime(),

@@ -9,25 +9,51 @@ export function useWebSocket(
   const [readyState, setReadyState] = useState<ReadyState>("Connecting")
   const wsRef = useRef<WebSocket | null>(null)
   const onMessageRef = useRef(onMessage)
+  const retryCountRef = useRef(0)
+  const retryTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const unmountedRef = useRef(false)
 
   useEffect(() => {
     onMessageRef.current = onMessage
-  })
+  }, [onMessage])
 
   useEffect(() => {
-    const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-    const ws = new WebSocket(`${protocol}//${window.location.host}${endpoint}`)
-    wsRef.current = ws
-    setReadyState("Connecting")
-    ws.onopen = () => setReadyState("Open")
-    ws.onclose = ws.onerror = () => setReadyState("Closed")
-    ws.onmessage = (event) => onMessageRef.current(event)
+    unmountedRef.current = false
+
+    function connect() {
+      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
+      const ws = new WebSocket(
+        `${protocol}//${window.location.host}${endpoint}`,
+      )
+      wsRef.current = ws
+      setReadyState("Connecting")
+
+      ws.onopen = () => {
+        retryCountRef.current = 0
+        setReadyState("Open")
+      }
+
+      ws.onclose = ws.onerror = () => {
+        if (unmountedRef.current) return
+        setReadyState("Closed")
+        const delay = Math.min(1000 * 2 ** retryCountRef.current, 32_000)
+        retryCountRef.current++
+        retryTimeoutRef.current = setTimeout(connect, delay)
+      }
+
+      ws.onmessage = (event) => onMessageRef.current(event)
+    }
+
+    connect()
 
     return () => {
-      ws.onopen = ws.onclose = ws.onerror = ws.onmessage = null
-      setReadyState("Closing")
-      if (ws.readyState !== WebSocket.CONNECTING) {
-        ws.close()
+      unmountedRef.current = true
+      if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current)
+      const ws = wsRef.current
+      if (ws) {
+        ws.onopen = ws.onclose = ws.onerror = ws.onmessage = null
+        setReadyState("Closing")
+        if (ws.readyState !== WebSocket.CONNECTING) ws.close()
       }
     }
   }, [endpoint])

@@ -1,4 +1,27 @@
 services:
+  server:
+    image: ghcr.io/debobrad579/chessgo:latest
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "10"
+    environment:
+      PORT: 8080
+      POSTGRES_USER: ${POSTGRES_USER:-chessgo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-chessgo}
+      TOKEN_SECRET: ${TOKEN_SECRET:?TOKEN_SECRET is required}
+    networks:
+      - internal
+      - public
+
   db:
     image: postgres:17-alpine
     restart: unless-stopped
@@ -30,34 +53,11 @@ services:
     networks:
       - internal
 
-  app:
-    image: ghcr.io/debobrad579/chessgo:latest
-    restart: unless-stopped
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "10"
-    environment:
-      PORT: 8080
-      POSTGRES_USER: ${POSTGRES_USER:-chessgo}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: ${POSTGRES_DB:-chessgo}
-      TOKEN_SECRET: ${TOKEN_SECRET:?TOKEN_SECRET is required}
-    networks:
-      - public
-      - internal
-
   caddy:
     image: caddy:alpine
     restart: unless-stopped
     depends_on:
-      - app
+      - server
     ports:
       - "80:80"
       - "443:443"

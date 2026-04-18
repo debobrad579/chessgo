@@ -43,7 +43,7 @@ func (room *GameRoom) createRematch() uuid.UUID {
 	}
 
 	rematchRoom := GameRoom{
-		id:               uuid.New(),
+		ID:               uuid.New(),
 		game:             &game,
 		broadcast:        make(chan struct{}),
 		white:            playerInfo{time: game.TimeControl.Base, isGuest: room.black.isGuest},
@@ -56,12 +56,12 @@ func (room *GameRoom) createRematch() uuid.UUID {
 	}
 
 	registry.mu.Lock()
-	registry.rooms[rematchRoom.id] = &rematchRoom
+	registry.rooms[rematchRoom.ID] = &rematchRoom
 	registry.mu.Unlock()
 
 	registry.notifySubscribers()
 
 	go rematchRoom.runBroadcastLoop()
 
-	return rematchRoom.id
+	return rematchRoom.ID
 }

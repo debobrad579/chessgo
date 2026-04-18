@@ -36,7 +36,7 @@ func New(user *database.User, db *database.Queries, color chess.Color, timeContr
 	}
 
 	room := GameRoom{
-		id:               uuid.New(),
+		ID:               uuid.New(),
 		game:             &game,
 		broadcast:        make(chan struct{}),
 		white:            playerInfo{time: game.TimeControl.Base},
@@ -54,13 +54,13 @@ func New(user *database.User, db *database.Queries, color chess.Color, timeContr
 		room.black.isGuest = user.Email == ""
 	}
 
-	data, err := json.Marshal(returnVals{room.id})
+	data, err := json.Marshal(returnVals{room.ID})
 	if err != nil {
 		return nil, err
 	}
 
 	registry.mu.Lock()
-	registry.rooms[room.id] = &room
+	registry.rooms[room.ID] = &room
 	registry.mu.Unlock()
 
 	registry.notifySubscribers()

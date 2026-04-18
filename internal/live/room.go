@@ -20,7 +20,7 @@ type playerInfo struct {
 }
 
 type GameRoom struct {
-	id               uuid.UUID
+	ID               uuid.UUID
 	game             *chess.Game
 	white            playerInfo
 	black            playerInfo

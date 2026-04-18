@@ -20,7 +20,7 @@ func (room *GameRoom) saveGame() (*database.Game, error) {
 	}
 
 	game, err := room.db.CreateGame(context.Background(), database.CreateGameParams{
-		ID:                   room.id,
+		ID:                   room.ID,
 		WhiteID:              uuid.NullUUID{UUID: room.game.White.ID, Valid: !room.white.isGuest},
 		BlackID:              uuid.NullUUID{UUID: room.game.Black.ID, Valid: !room.black.isGuest},
 		TimeControlBase:      int32(room.game.TimeControl.Base),

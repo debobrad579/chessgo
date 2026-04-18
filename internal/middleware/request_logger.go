@@ -1,9 +1,7 @@
 package middleware
 
 import (
-	"fmt"
 	"log/slog"
-	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -31,7 +29,10 @@ func RequestLogger(logger *logging.Logger) func(http.Handler) http.Handler {
 			}
 
 			start := time.Now()
-			writerWithStatus := &responseWriterWithStatus{ResponseWriter: w}
+			writerWithStatus := &responseWriterWithStatus{
+				ResponseWriter: w,
+				statusCode:     http.StatusOK,
+			}
 			r = r.WithContext(httperr.NewContext(r.Context()))
 			next.ServeHTTP(writerWithStatus, r)
 
@@ -40,7 +41,10 @@ func RequestLogger(logger *logging.Logger) func(http.Handler) http.Handler {
 				slog.String("path", r.URL.Path),
 				slog.Int("status", writerWithStatus.statusCode),
 				slog.Duration("duration", time.Since(start)),
-				slog.String("ip", redactIP(r.RemoteAddr)),
+			}
+
+			if user, ok := GetUser(r.Context()); ok {
+				attrs = append(attrs, slog.String("user_id", user.ID.String()))
 			}
 
 			if err, ok := httperr.Get(r.Context()); ok {
@@ -61,22 +65,4 @@ func RequestLogger(logger *logging.Logger) func(http.Handler) http.Handler {
 
 func isStreamingRequest(r *http.Request) bool {
 	return strings.EqualFold(r.Header.Get("Upgrade"), "websocket") || strings.Contains(r.Header.Get("Accept"), "text/event-stream")
-}
-
-func redactIP(addr string) string {
-	host, _, err := net.SplitHostPort(addr)
-	if err != nil {
-		return addr
-	}
-
-	ip := net.ParseIP(host)
-	if ip == nil {
-		return addr
-	}
-
-	if ipv4 := ip.To4(); ipv4 != nil {
-		return fmt.Sprintf("%d.%d.%d.x", ipv4[0], ipv4[1], ipv4[2])
-	}
-
-	return addr
 }

@@ -91,7 +91,7 @@ func (room *GameRoom) teardown() {
 	room.mu.Unlock()
 
 	registry.mu.Lock()
-	delete(registry.rooms, room.id)
+	delete(registry.rooms, room.ID)
 	registry.mu.Unlock()
 
 	registry.notifySubscribers()

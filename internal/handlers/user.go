@@ -4,38 +4,16 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/debobrad579/chessgo/internal/auth"
 	"github.com/debobrad579/chessgo/internal/database"
+	"github.com/debobrad579/chessgo/internal/middleware"
 	"github.com/google/uuid"
 )
-
-func (cfg *Config) getUser(r *http.Request) (*database.User, error) {
-	cookie, err := r.Cookie("jwt")
-	if err != nil {
-		return nil, nil
-	}
-
-	userID, err := auth.ValidateJWT(cookie.Value, cfg.TokenSecret)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := cfg.DB.GetUser(r.Context(), userID)
-	if err != nil {
-		return nil, err
-	}
-
-	return &user, nil
-}
 
 const maxGuestAge = 30 * 24 * time.Hour
 
 func (cfg *Config) getUserOrGuest(w http.ResponseWriter, r *http.Request) (*database.User, error) {
-	user, err := cfg.getUser(r)
-	if err != nil {
-		return nil, err
-	}
-	if user != nil {
+	user, ok := middleware.GetUser(r.Context())
+	if ok {
 		return user, nil
 	}
 

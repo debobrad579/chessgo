@@ -31,7 +31,7 @@ func startServer(cfg *handlers.Config, port int, dev bool) error {
 		mux.Handle("GET /@vite/", proxy)
 		mux.Handle("GET /@react-refresh", proxy)
 		mux.Handle("GET /node_modules/", proxy)
-		mux.Handle("GET /app/", middleware.Auth(cfg)(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		mux.Handle("GET /app/", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			r2 := r.Clone(r.Context())
 
 			if path.Ext(r2.URL.Path) == "" {
@@ -39,13 +39,9 @@ func startServer(cfg *handlers.Config, port int, dev bool) error {
 			}
 
 			proxy.ServeHTTP(w, r2)
-		})))
+		}))
 	} else {
-		mux.Handle("GET /app/",
-			middleware.Auth(cfg)(
-				http.HandlerFunc(handlers.TemplateRenderer("app.html", nil)),
-			),
-		)
+		mux.HandleFunc("GET /app/", handlers.TemplateRenderer("app.html", nil))
 	}
 
 	mux.HandleFunc("GET /login", handlers.TemplateRenderer("login.html", nil))
@@ -66,5 +62,8 @@ func startServer(cfg *handlers.Config, port int, dev bool) error {
 	mux.HandleFunc("GET /api/games/count", cfg.GetGamesCountHandler)
 	mux.HandleFunc("GET /api/games/{gameID}", cfg.GameHandler)
 
-	return http.ListenAndServe(fmt.Sprintf(":%d", port), middleware.RequestLogger(cfg.Logger)(mux))
+	return http.ListenAndServe(fmt.Sprintf(":%d", port), middleware.Wrap(mux,
+		middleware.Auth(cfg),
+		middleware.RequestLogger(cfg.Logger),
+	))
 }

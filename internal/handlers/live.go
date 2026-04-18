@@ -29,6 +29,7 @@ const (
 	typeDrawOffer      clientMessageType = "draw_offer"
 	typeDrawResponse   clientMessageType = "draw_response"
 	typeRematchRequest clientMessageType = "rematch_request"
+	typePing           clientMessageType = "ping"
 )
 
 type clientMessage struct {
@@ -113,7 +114,12 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	defer room.Disconnect(user)
 
-	cfg.Logger.Info("connected to game room", slog.String("user_id", user.ID.String()), slog.Bool("is_guest", user.Email == ""), slog.String("player_role", string(playerRole)))
+	cfg.Logger.Info("connected to game room",
+		slog.String("room_id", room.ID.String()),
+		slog.String("user_id", user.ID.String()),
+		slog.Bool("is_guest", user.Email == ""),
+		slog.String("player_role", string(playerRole)),
+	)
 
 	for {
 		_, message, err := conn.ReadMessage()
@@ -127,6 +133,12 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 			cfg.Logger.Error("failed to unmarshal message", slog.Any("error", err), slog.Any("message", message))
 			return
 		}
+
+		cfg.Logger.Info("recieved message",
+			slog.String("type", string(clientMessage.Type)),
+			slog.String("room_id", room.ID.String()),
+			slog.String("player", string(playerRole)),
+		)
 
 		switch clientMessage.Type {
 		case typeMove:
@@ -153,6 +165,7 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 			room.RespondToDraw(playerRole, accept.Accept)
 		case typeRematchRequest:
 			room.RequestRematch(playerRole)
+		case typePing:
 		default:
 			cfg.Logger.Error("invalid client message type", slog.Any("error", err), slog.Any("type", clientMessage.Type))
 		}

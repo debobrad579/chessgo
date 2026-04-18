@@ -30,7 +30,7 @@ function App() {
 createRoot(document.getElementById("app")!).render(
   <StrictMode>
     <UserProvider>
-      <ThemeProvider defaultTheme="dark" storageKey="ui-theme">
+      <ThemeProvider storageKey="ui-theme">
         <TooltipProvider>
           <App />
         </TooltipProvider>

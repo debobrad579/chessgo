@@ -13,6 +13,7 @@ import (
 	"github.com/debobrad579/chessgo/internal/chess"
 	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/debobrad579/chessgo/internal/httperr"
+	"github.com/debobrad579/chessgo/internal/middleware"
 )
 
 type GameResponse struct {
@@ -26,8 +27,8 @@ type GameResponse struct {
 }
 
 func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := cfg.getUser(r)
-	if err != nil || user == nil {
+	user, ok := middleware.GetUser(r.Context())
+	if !ok {
 		httperr.Write(r.Context(), w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
@@ -106,8 +107,8 @@ func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (cfg *Config) GetGamesCountHandler(w http.ResponseWriter, r *http.Request) {
-	user, err := cfg.getUser(r)
-	if err != nil || user == nil {
+	user, ok := middleware.GetUser(r.Context())
+	if !ok {
 		httperr.Write(r.Context(), w, http.StatusUnauthorized, errors.New("unauthorized"))
 		return
 	}
