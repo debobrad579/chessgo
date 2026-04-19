@@ -2,6 +2,10 @@
 
 A real-time multiplayer chess web app built with Go and React.
 
+## Live Site
+
+Visit [chessgo.ca](https://www.chessgo.ca)
+
 ## Features
 
 - **Real-time gameplay** — live play against opponents via WebSockets
@@ -75,8 +79,6 @@ CF_TUNNEL_TOKEN=changeme          # only if you're using cloudflare tunnels
 
 ### Option 1: Run with Docker (recommended)
 
-1. **Start everything**
-
 ```bash
 docker compose up
 # or: docker compose --profile cloudflare up
@@ -87,9 +89,7 @@ Docker Compose will:
 - Run all database migrations
 - Start the ChessGo app
 
-2. **Open the app**
-
-Visit [http://localhost:8080](http://localhost:8080).
+Open the app at [http://localhost:80](http://localhost:80)
 
 To stop: `docker compose down`. To also remove the database volume: `docker compose down -v`.
 
@@ -105,30 +105,27 @@ To stop: `docker compose down`. To also remove the database volume: `docker comp
 - [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
 - [air](https://github.com/air-verse/air) (optional, required for `just dev`) — `go install github.com/air-verse/air@latest`
 
-1. **Install dependencies**
+**Install dependencies and run database migrations**
 
 ```bash
 just install
-```
-
-2. **Run database migrations**
-
-```bash
 just migrate up
 ```
 
-**Production build**
+**Run production build**
 
 ```bash
 just build
 just preview
 ```
 
-**Development** (with live reload and hot module replacement)
+**Run development environment** (with live reload and hot module replacement)
 
 ```bash
 just dev
 ```
+
+Open the app at [http://localhost:3000](http://localhost:3000)
 
 ## Available Just Targets
 
@@ -142,3 +139,12 @@ just dev
 | `just migrate *args="up"` | Run database migrations via goose |
 | `just build` | Build Go binary and frontend assets into `/dist` |
 | `just preview` | Serve the production build |
+
+## Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
+
+## License
+
+This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
+See the [LICENSE](LICENSE) file for full details.

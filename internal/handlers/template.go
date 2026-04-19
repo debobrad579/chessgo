@@ -10,10 +10,10 @@ import (
 	"github.com/debobrad579/chessgo/internal/httperr"
 )
 
-func TemplateRenderer(file string, data any) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
+func TemplateRenderer(file string, data any) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		RenderTemplate(r.Context(), w, file, data)
-	}
+	})
 }
 
 func RenderTemplate(ctx context.Context, w http.ResponseWriter, file string, data any) {
