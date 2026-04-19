@@ -3,9 +3,11 @@ package middleware
 import (
 	"log/slog"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/debobrad579/chessgo/internal/appmetrics"
 	"github.com/debobrad579/chessgo/internal/httperr"
 	"github.com/debobrad579/chessgo/internal/logging"
 )
@@ -34,7 +36,12 @@ func RequestLogger(logger *logging.Logger) func(http.Handler) http.Handler {
 				statusCode:     http.StatusOK,
 			}
 			r = r.WithContext(httperr.NewContext(r.Context()))
+
 			next.ServeHTTP(writerWithStatus, r)
+
+			appmetrics.HttpRequestsTotal.
+				WithLabelValues(r.Method, r.URL.Path, strconv.Itoa(writerWithStatus.statusCode)).
+				Inc()
 
 			attrs := []any{
 				slog.String("method", r.Method),

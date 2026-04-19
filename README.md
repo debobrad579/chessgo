@@ -26,6 +26,7 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 ├── cmd/server/          # Go application entry point
 
 ├── internal/            # Backend Go modules
+│   ├── appmetrics/      # Prometheus metrics
 │   ├── auth/            # JWT, password hashing, refresh tokens
 │   ├── chess/           # Chess game state and move validation
 │   ├── database/        # Database layer (sqlc-generated)

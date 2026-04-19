@@ -19,7 +19,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-chessgo}
       TOKEN_SECRET: ${TOKEN_SECRET:?TOKEN_SECRET is required}
     networks:
-      - internal
+      - database
+      - metrics
       - public
 
   db:
@@ -37,8 +38,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - internal
-
+      - database
   migrate:
     image: ghcr.io/kukymbr/goose-docker:3.24.1
     depends_on:
@@ -51,7 +51,32 @@ services:
       - ./sql/schema:/migrations
     command: ["up"]
     networks:
-      - internal
+      - database
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - metrics
+  node-exporter:
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    networks:
+      - metrics
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - metrics
 
   caddy:
     image: caddy:alpine
@@ -67,7 +92,6 @@ services:
       - caddy_config:/config
     networks:
       - public
-
   cloudflared:
     image: cloudflare/cloudflared:latest
     restart: unless-stopped
@@ -81,9 +105,11 @@ services:
 
 volumes:
   postgres_data:
+  grafana_data:
   caddy_data:
   caddy_config:
 
 networks:
+  database:
+  metrics:
   public:
-  internal:

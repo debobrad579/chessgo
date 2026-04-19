@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"github.com/debobrad579/chessgo/internal/handlers"
 	"github.com/debobrad579/chessgo/internal/middleware"
 )
@@ -27,6 +29,8 @@ func startServer(cfg *handlers.Config, port int, dev bool) error {
 	} else {
 		mux.Handle("GET /app/", handlers.TemplateRenderer("app.html", nil))
 	}
+
+	mux.Handle("GET /metrics", promhttp.Handler())
 
 	handler := middleware.Wrap(mux,
 		middleware.Auth(cfg),
