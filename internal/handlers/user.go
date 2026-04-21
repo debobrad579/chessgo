@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -11,9 +13,19 @@ import (
 
 const maxGuestAge = 30 * 24 * time.Hour
 
+func (cfg *Config) getUser(ctx context.Context) (*database.User, error) {
+	userID, ok := middleware.GetUserID(ctx)
+	if !ok {
+		return nil, errors.New("user not logged in")
+	}
+
+	user, err := cfg.DB.GetUser(ctx, userID)
+	return &user, err
+}
+
 func (cfg *Config) getUserOrGuest(w http.ResponseWriter, r *http.Request) (*database.User, error) {
-	user, ok := middleware.GetUser(r.Context())
-	if ok {
+	user, err := cfg.getUser(r.Context())
+	if err == nil {
 		return user, nil
 	}
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/debobrad579/chessgo/internal/appmetrics"
 	"github.com/debobrad579/chessgo/internal/auth"
 	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/debobrad579/chessgo/internal/httperr"
@@ -92,6 +93,8 @@ func (cfg *Config) RegisterPostHandler(w http.ResponseWriter, r *http.Request) {
 		registerError(r.Context(), w, data, http.StatusInternalServerError, "Failed to create user")
 		return
 	}
+
+	appmetrics.NewUsersTotal.Inc()
 
 	if err := cfg.Login(w, r, user.ID); err != nil {
 		registerError(r.Context(), w, data, http.StatusInternalServerError, "Failed to log in")

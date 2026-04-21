@@ -58,6 +58,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
+      - prometheus_data:/prometheus
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
       - metrics
@@ -105,6 +106,7 @@ services:
 
 volumes:
   postgres_data:
+  prometheus_data:
   grafana_data:
   caddy_data:
   caddy_config:

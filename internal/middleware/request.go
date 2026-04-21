@@ -25,7 +25,7 @@ func (w *responseWriterWithStatus) WriteHeader(statusCode int) {
 func RequestLogger(logger *logging.Logger) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if isStreamingRequest(r) {
+			if isStreamingRequest(r) || r.URL.Path == "/metrics" {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -39,10 +39,6 @@ func RequestLogger(logger *logging.Logger) func(http.Handler) http.Handler {
 
 			next.ServeHTTP(writerWithStatus, r)
 
-			appmetrics.HttpRequestsTotal.
-				WithLabelValues(r.Method, r.URL.Path, strconv.Itoa(writerWithStatus.statusCode)).
-				Inc()
-
 			attrs := []any{
 				slog.String("method", r.Method),
 				slog.String("path", r.URL.Path),
@@ -50,9 +46,18 @@ func RequestLogger(logger *logging.Logger) func(http.Handler) http.Handler {
 				slog.Duration("duration", time.Since(start)),
 			}
 
-			if user, ok := GetUser(r.Context()); ok {
-				attrs = append(attrs, slog.String("user_id", user.ID.String()))
+			userID, ok := GetUserID(r.Context())
+			if ok {
+				attrs = append(attrs, slog.String("user_id", userID.String()))
 			}
+
+			appmetrics.HttpRequestsTotal.
+				WithLabelValues(
+					r.Method,
+					r.URL.Path,
+					strconv.Itoa(writerWithStatus.statusCode),
+					strconv.FormatBool(ok),
+				).Inc()
 
 			if err, ok := httperr.Get(r.Context()); ok {
 				attrs = append(attrs, slog.Any("error", err))

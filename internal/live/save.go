@@ -6,10 +6,13 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/debobrad579/chessgo/internal/appmetrics"
 	"github.com/debobrad579/chessgo/internal/database"
 )
 
 func (room *GameRoom) saveGame() (*database.Game, error) {
+	appmetrics.GamesTotal.WithLabelValues(string(room.result.Result), string(room.result.Reason)).Inc()
+
 	if (room.white.isGuest && room.black.isGuest) || len(room.game.Moves) == 0 {
 		return nil, nil
 	}

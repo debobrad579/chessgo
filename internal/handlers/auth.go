@@ -23,10 +23,6 @@ func (cfg *Config) GetRefreshToken(ctx context.Context, token string) (database.
 	return cfg.DB.GetRefreshToken(ctx, token)
 }
 
-func (cfg *Config) GetUser(ctx context.Context, userID uuid.UUID) (database.User, error) {
-	return cfg.DB.GetUser(ctx, userID)
-}
-
 func (cfg *Config) Login(w http.ResponseWriter, r *http.Request, userID uuid.UUID) error {
 	token, err := auth.MakeJWT(userID, cfg.TokenSecret, maxJWTAge)
 	if err != nil {

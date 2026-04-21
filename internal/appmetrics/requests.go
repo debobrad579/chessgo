@@ -10,5 +10,5 @@ var HttpRequestsTotal = promauto.NewCounterVec(
 		Name: "http_requests_total",
 		Help: "Total number of HTTP requests.",
 	},
-	[]string{"method", "path", "status"},
+	[]string{"method", "path", "status", "logged_in"},
 )
