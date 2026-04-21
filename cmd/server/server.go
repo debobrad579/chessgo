@@ -21,7 +21,11 @@ func startServer(cfg *handlers.Config, port int, dev bool) error {
 	mux.HandleFunc("POST /register", cfg.RegisterPostHandler)
 	mux.HandleFunc("POST /logout", cfg.LogoutHandler)
 
-	mux.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	fileserver := http.FileServer(http.Dir("static"))
+	mux.Handle("GET /static/", http.StripPrefix("/static/", fileserver))
+	mux.Handle("GET /favicon.ico", fileserver)
+	mux.Handle("GET /robots.txt", fileserver)
+
 	mux.Handle("/api/", http.StripPrefix("/api", getApiMux(cfg)))
 
 	if dev {

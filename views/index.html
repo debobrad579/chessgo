@@ -1,28 +1,40 @@
 {{ define "body" }}
 <section
-  class="flex flex-col items-center justify-center text-center flex-1 px-4 py-24 gap-4 h-screen"
+  class="flex flex-col items-center justify-center text-center flex-1 px-4 py-24 gap-4 h-screen relative"
 >
   <img src="/static/logo.svg" alt="Logo" class="h-16 dark:invert" />
-  <div class="font-medium text-muted-foreground">REAL-TIME CHESS</div>
+  <div class="font-medium text-muted-foreground">
+    Share a link and start playing. No account required.
+  </div>
   <div class="flex gap-3 flex-wrap justify-center pt-2">
     <a
-      href="/register"
+      href="/app"
       class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-8 bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 transition-colors"
+    >
+      Play as guest
+    </a>
+    <a
+      href="/register"
+      class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-8 border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground transition-colors"
     >
       Create account
     </a>
-    <a
-      href="/login"
-      class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-8 border border-input bg-background shadow-xs hover:bg-accent hover:text-accent-foreground transition-colors"
-    >
-      Sign in
-    </a>
   </div>
   <a
-    href="/app"
+    href="/login"
     class="inline-flex items-center justify-center rounded-md text-sm font-medium h-10 px-8 bg-background shadow-xs hover:bg-accent hover:text-accent-foreground transition-colors"
   >
-    Play as guest
+    Sign in
   </a>
+  <div class="absolute bottom-8 font-medium text-muted-foreground">
+    An
+    <a
+      href="https://github.com/debobrad579/chessgo"
+      target="_blank"
+      class="underline"
+      >open source</a
+    >
+    hobby project
+  </div>
 </section>
 {{ end }}
