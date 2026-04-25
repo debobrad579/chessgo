@@ -1,4 +1,4 @@
-import { TableBody, TableCell, TableRow } from "@/components/ui/table"
+import { TableBody, TableCell, TableRow } from "@chessgo/ui/table"
 import { useFetch } from "@/hooks/useFetch"
 import { formatTimeControl } from "@/lib/formatters"
 import { useNavigate } from "react-router"

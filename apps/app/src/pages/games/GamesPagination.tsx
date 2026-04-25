@@ -9,7 +9,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@chessgo/ui/pagination"
 import { PAGE_SIZE } from "."
 import { API_BASE } from "@/lib/api"
 
@@ -46,6 +46,7 @@ export function GamesPagination({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
+            size="icon"
             onClick={() =>
               startTransition(() => setPageNumber((p) => Math.max(1, p - 1)))
             }
@@ -59,6 +60,7 @@ export function GamesPagination({
         {visiblePages.map((p) => (
           <PaginationItem key={p}>
             <PaginationLink
+              size="icon"
               isActive={p === pageNumber}
               onClick={() => startTransition(() => setPageNumber(p))}
             >
@@ -73,6 +75,7 @@ export function GamesPagination({
         )}
         <PaginationItem>
           <PaginationNext
+            size="icon"
             onClick={() =>
               startTransition(() =>
                 setPageNumber((p) => Math.min(pageCount, p + 1)),

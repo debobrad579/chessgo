@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@chessgo/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +8,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@chessgo/ui/dropdown-menu"
 import { useTheme } from "@/context/ThemeContext"
 import { Moon, Sun } from "lucide-react"
 

@@ -4,8 +4,8 @@ import {
   PaginationItem,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@chessgo/ui/pagination"
+import { Skeleton } from "@chessgo/ui/skeleton"
 import { useWindowSize } from "@/hooks/useWindowSize"
 
 export function GamesPaginationSkeleton() {
@@ -16,7 +16,7 @@ export function GamesPaginationSkeleton() {
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious />
+          <PaginationPrevious size="icon" />
         </PaginationItem>
         {Array.from({ length: VISIBLE_PAGES }).map((_, i) => (
           <PaginationItem key={i}>
@@ -24,7 +24,7 @@ export function GamesPaginationSkeleton() {
           </PaginationItem>
         ))}
         <PaginationItem>
-          <PaginationNext />
+          <PaginationNext size="icon" />
         </PaginationItem>
       </PaginationContent>
     </Pagination>

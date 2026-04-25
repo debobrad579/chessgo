@@ -5,7 +5,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@chessgo/ui/table"
 import { CreateGameButton } from "./CreateGameButton"
 import { Timer } from "lucide-react"
 import { useEventSource } from "@/hooks/useEventSource"

@@ -1,16 +1,12 @@
 import { ThemeToggle, ThemeToggleMobile } from "./ThemeToggle"
-import { Button } from "@/components/ui/button"
+import { Button } from "@chessgo/ui/button"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@chessgo/ui/dropdown-menu"
+import { Popover, PopoverContent, PopoverTrigger } from "@chessgo/ui/popover"
 import { useUser } from "@/context/UserContext"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
 import { Menu } from "lucide-react"

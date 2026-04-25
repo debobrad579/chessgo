@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@chessgo/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -7,9 +7,9 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+} from "@chessgo/ui/dialog"
+import { Label } from "@chessgo/ui/label"
+import { RadioGroup, RadioGroupItem } from "@chessgo/ui/radio-group"
 import { useNavigate } from "react-router"
 import {
   Select,
@@ -18,7 +18,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@chessgo/ui/select"
 import { useState } from "react"
 import { API_BASE } from "@/lib/api"
 

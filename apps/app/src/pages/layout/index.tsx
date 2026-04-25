@@ -1,4 +1,4 @@
-import { Separator } from "@/components/ui/separator"
+import { Separator } from "@chessgo/ui/separator"
 import { Outlet } from "react-router"
 import { Suspense } from "react"
 import { InternalServerError } from "@/components/errors/InternalServerError"

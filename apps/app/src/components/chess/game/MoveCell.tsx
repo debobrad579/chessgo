@@ -5,7 +5,7 @@ import {
   useEffect,
   useRef,
 } from "react"
-import { TableCell } from "@/components/ui/table"
+import { TableCell } from "@chessgo/ui/table"
 import { cn } from "@/lib/utils"
 
 export function MoveCell({

@@ -1,5 +1,5 @@
-import { TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { Skeleton } from "@/components/ui/skeleton"
+import { TableBody, TableCell, TableRow } from "@chessgo/ui/table"
+import { Skeleton } from "@chessgo/ui/skeleton"
 import { PAGE_SIZE } from "."
 
 const ROW_WIDTHS: [number, number, number, number][] = [

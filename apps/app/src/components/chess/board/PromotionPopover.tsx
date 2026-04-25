@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
+import { Button } from "@chessgo/ui/button"
+import { Popover, PopoverAnchor, PopoverContent } from "@chessgo/ui/popover"
 import { ChessBishop, ChessKnight, ChessQueen, ChessRook } from "lucide-react"
 
 export function PromotionPopover({

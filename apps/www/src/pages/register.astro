@@ -1,0 +1,100 @@
+---
+import Layout from "@/layouts/Layout.astro"
+import { Label } from "@chessgo/ui/label"
+import { Input } from "@chessgo/ui/input"
+import { Button } from "@chessgo/ui/button"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@chessgo/ui/card"
+---
+
+<Layout>
+  <div
+    class="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-muted"
+  >
+    <div class="w-full max-w-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>Create an account</CardTitle>
+          <CardDescription>
+            Enter your information below to create your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action="/register" method="POST" novalidate>
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-2">
+                <Label htmlFor="name">Display Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  name="name"
+                  placeholder="John Doe"
+                  required
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <Label htmlFor="signup-email">Email</Label>
+                <Input
+                  id="signup-email"
+                  type="email"
+                  name="email"
+                  placeholder="m@example.com"
+                  required
+                />
+                <p id="email-error" class="text-sm text-muted-foreground">
+                  We'll use this to contact you. We will not share your email
+                  with anyone else.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <Label htmlFor="signup-password">Password</Label>
+                <Input
+                  id="signup-password"
+                  type="password"
+                  name="password"
+                  required
+                  minLength={8}
+                />
+                <p id="password-error" class="text-sm text-muted-foreground">
+                  Must be at least 8 characters long.
+                </p>
+              </div>
+              <div class="flex flex-col gap-2">
+                <Label htmlFor="confirm-password">Confirm Password</Label>
+                <Input
+                  id="confirm-password"
+                  type="password"
+                  name="confirm-password"
+                  required
+                />
+                <p
+                  id="confirm-password-error"
+                  class="text-sm text-muted-foreground"
+                >
+                  Please confirm your password.
+                </p>
+              </div>
+              <div class="flex flex-col gap-4">
+                <Button>Create Account</Button>
+                <p class="text-sm text-muted-foreground text-center px-6">
+                  Already have an account?
+                  <a
+                    href="/login"
+                    class="underline underline-offset-4 hover:text-foreground"
+                  >
+                    Sign in
+                  </a>
+                </p>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</Layout>

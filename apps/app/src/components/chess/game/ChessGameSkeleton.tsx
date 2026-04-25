@@ -1,5 +1,5 @@
 import { useMediaQuery } from "@/hooks/useMediaQuery"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@chessgo/ui/skeleton"
 import { cn } from "@/lib/utils"
 import {
   Table,
@@ -8,7 +8,7 @@ import {
   TableFooter,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@chessgo/ui/table"
 
 function ClockSkeleton({ black }: { black?: boolean }) {
   return (

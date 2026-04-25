@@ -1,4 +1,4 @@
-import { Table, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Table, TableHead, TableHeader, TableRow } from "@chessgo/ui/table"
 import { Timer } from "lucide-react"
 import { Suspense, useState } from "react"
 import { GamesTableBody } from "./GamesTableBody"

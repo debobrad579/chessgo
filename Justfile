@@ -10,11 +10,12 @@ install:
 # Start development environment
 [group("dev")]
 dev:
-  @npx concurrently \
-    -n API,APP \
-    -c blue,magenta \
+  @pnpm dlx concurrently \
+    -n API,APP,WWW \
+    -c blue,yellow,magenta \
     "DEV=true air" \
-    "cd apps/app && npm run dev"
+    "cd apps/app && pnpm run dev" \
+    "cd apps/www && pnpm run dev"
 
 # Lint Go and TypeScript
 [group("dev")]
@@ -22,9 +23,9 @@ lint:
   @echo "Linting Go..."
   @go vet ./...
   @echo "Linting TypeScript..."
-  @cd apps/app && npm run lint
+  @cd apps/app && pnpm lint
   @echo "Checking types..."
-  @cd apps/app && npx tsc
+  @cd apps/app && pnpm exec tsc
 
 # Run Go tests
 [group("dev")]

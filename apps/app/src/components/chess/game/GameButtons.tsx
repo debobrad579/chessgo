@@ -1,14 +1,6 @@
-import { Button } from "@/components/ui/button"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Button } from "@chessgo/ui/button"
+import { Popover, PopoverContent, PopoverTrigger } from "@chessgo/ui/popover"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@chessgo/ui/tooltip"
 import { ArrowDownUp, Flag, Share, Swords } from "lucide-react"
 import { useState } from "react"
 import { useChessGameContext } from "./ChessGameContext"

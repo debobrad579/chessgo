@@ -5,10 +5,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@chessgo/ui/table"
 import { CreateGameButton } from "./CreateGameButton"
 import { Timer } from "lucide-react"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@chessgo/ui/skeleton"
 
 const LOBBY_WIDTHS: [number, number][] = [
   [96, 40],

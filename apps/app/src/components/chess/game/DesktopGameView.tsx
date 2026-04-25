@@ -1,7 +1,7 @@
 import { Chessboard } from "@/components/chess/board"
 import { Clock } from "./Clock"
 import { useRef, useState } from "react"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { ScrollArea } from "@chessgo/ui/scroll-area"
 import {
   Table,
   TableBody,
@@ -9,7 +9,7 @@ import {
   TableFooter,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@chessgo/ui/table"
 import { MoveCell } from "./MoveCell"
 import { getMoveNumberArrays } from "./utils"
 import { NavigationButtons } from "./NavigationButtons"

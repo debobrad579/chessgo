@@ -1,9 +1,5 @@
-import { Button } from "@/components/ui/button"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Button } from "@chessgo/ui/button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@chessgo/ui/tooltip"
 import {
   ChevronFirst,
   ChevronLast,

@@ -1,0 +1,38 @@
+---
+import "../tailwind.css"
+import Layout from "@/layouts/Layout.astro"
+import { Button } from "@chessgo/ui/button"
+
+const APP_URL = import.meta.env.PUBLIC_APP_URL
+---
+
+<Layout>
+  <section
+    class="flex flex-col items-center justify-center text-center flex-1 px-4 py-24 gap-4 h-screen relative"
+  >
+    <img src="/logo.svg" alt="Logo" class="h-16 dark:invert" />
+    <div class="font-medium text-muted-foreground">
+      Share a link and start playing. No account required.
+    </div>
+    <div class="flex gap-3 flex-wrap justify-center pt-2">
+      <a href={APP_URL}>
+        <Button size="lg">Play as guest</Button>
+      </a>
+      <a href="/register">
+        <Button size="lg" variant="outline">Create account</Button>
+      </a>
+    </div>
+    <a href="/login">
+      <Button size="lg" variant="ghost">Sign in</Button>
+    </a>
+    <div class="absolute bottom-8 font-medium text-muted-foreground">
+      An
+      <a
+        href="https://github.com/debobrad579/chessgo"
+        target="_blank"
+        class="underline">open source</a
+      >
+      hobby project
+    </div>
+  </section>
+</Layout>

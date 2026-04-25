@@ -1,7 +1,7 @@
 import { Chessboard } from "@/components/chess/board"
 import { Clock } from "./Clock"
 import { NavigationButtons } from "./NavigationButtons"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { ScrollArea, ScrollBar } from "@chessgo/ui/scroll-area"
 import { MoveCell } from "./MoveCell"
 import { getMoveNumberArrays } from "./utils"
 import { useRef, useState } from "react"

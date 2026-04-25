@@ -1,0 +1,67 @@
+---
+import Layout from "@/layouts/Layout.astro"
+import { Label } from "@chessgo/ui/label"
+import { Input } from "@chessgo/ui/input"
+import { Button } from "@chessgo/ui/button"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@chessgo/ui/card"
+---
+
+<Layout>
+  <div
+    class="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-muted"
+  >
+    <div class="w-full max-w-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>Login to your account</CardTitle>
+          <CardDescription>
+            Enter your email below to login to your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form action="/login" method="POST" novalidate>
+            <div class="flex flex-col gap-4">
+              <div class="flex flex-col gap-2">
+                <Label htmlFor="login-email">Email</Label>
+                <Input
+                  id="login-email"
+                  name="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                />
+              </div>
+              <div class="flex flex-col gap-2">
+                <Label htmlFor="login-password">Password</Label>
+                <Input
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  required
+                />
+              </div>
+              <div class="flex flex-col gap-4">
+                <Button>Login</Button>
+                <p class="text-sm text-muted-foreground text-center">
+                  Don't have an account?
+                  <a
+                    href="/register"
+                    class="underline underline-offset-4 hover:text-foreground"
+                  >
+                    Sign up
+                  </a>
+                </p>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</Layout>

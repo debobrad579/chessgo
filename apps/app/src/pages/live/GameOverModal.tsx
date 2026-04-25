@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"
+import { Button } from "@chessgo/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@chessgo/ui/dialog"
 import { formatTimeControl } from "@/lib/formatters"
 import type { TimeControl } from "@/types/chess"
 import type { Dispatch, SetStateAction } from "react"

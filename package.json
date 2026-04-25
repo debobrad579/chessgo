@@ -1,5 +1,4 @@
 {
   "name": "chessgo",
-  "private": true,
-  "workspaces": ["apps/*"]
+  "private": true
 }
