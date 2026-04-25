@@ -28,12 +28,6 @@ func startServer(cfg *handlers.Config, port int, dev bool) error {
 
 	mux.Handle("/api/", http.StripPrefix("/api", getApiMux(cfg)))
 
-	if dev {
-		proxyVite(mux)
-	} else {
-		mux.Handle("GET /app/", handlers.TemplateRenderer("app.html", nil))
-	}
-
 	mux.Handle("GET /metrics", promhttp.Handler())
 
 	handler := middleware.Wrap(mux,

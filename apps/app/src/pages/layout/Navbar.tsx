@@ -23,11 +23,7 @@ export function Navbar() {
   return (
     <nav className="flex justify-between items-center p-4">
       <Link to="/">
-        <img
-          src="/static/logo.svg"
-          alt="Logo"
-          className="dark:invert h-12 w-auto"
-        />
+        <img src="/logo.svg" alt="Logo" className="dark:invert h-12 w-auto" />
       </Link>
       <Suspense fallback={null}>
         {mobile ? <NavbarMobile /> : <NavbarDesktop />}

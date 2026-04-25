@@ -1,49 +1,5 @@
 {
   "name": "chessgo",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "build:js": "vite build",
-    "build:css": "npx @tailwindcss/cli -i ./tailwind.css -o ./dist/static/style.css --minify",
-    "build": "npm run build:js && npm run build:css",
-    "dev:js": "vite",
-    "dev:css": "npx @tailwindcss/cli -i ./tailwind.css -o ./static/style.css --minify --watch",
-    "lint": "oxlint"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
-  "dependencies": {
-    "chess.js": "^1.4.0",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
-    "lucide-react": "^1.7.0",
-    "radix-ui": "^1.4.3",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
-    "react-router": "^7.13.2",
-    "remove": "^0.1.5",
-    "tailwind-merge": "^3.5.0"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.29.0",
-    "@babel/preset-react": "^7.28.5",
-    "@babel/preset-typescript": "^7.28.5",
-    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
-    "@tailwindcss/cli": "^4.2.2",
-    "@tailwindcss/postcss": "^4.2.2",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.1",
-    "babel-plugin-react-compiler": "^1.0.0",
-    "concurrently": "^9.2.1",
-    "esbuild-plugin-babel": "^0.2.3",
-    "oxlint": "^1.59.0",
-    "postcss": "^8.5.8",
-    "tailwindcss": "^4.2.2",
-    "typescript": "^6.0.2",
-    "vite": "^8.0.8"
-  }
+  "private": true,
+  "workspaces": ["apps/*"]
 }

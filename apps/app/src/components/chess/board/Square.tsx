@@ -116,7 +116,7 @@ export function Square({
       )}
       {showPiece && piece != null && (
         <img
-          src={`/static/pieces/${piece}.svg`}
+          src={`/pieces/${piece}.svg`}
           alt={piece}
           className="w-full h-full cursor-grab"
         />

@@ -13,7 +13,7 @@
     "skipLibCheck": true,
     "verbatimModuleSyntax": true,
     "paths": {
-      "@/*": ["./app/*"]
+      "@/*": ["./src/*"]
     },
 
     /* Linting */
@@ -36,5 +36,5 @@
     "tsBuildInfoFile": "./tmp/.tsbuildinfo"
   },
 
-  "include": ["app/**/*"]
+  "include": ["src/**/*"]
 }

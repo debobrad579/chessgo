@@ -11,11 +11,10 @@ install:
 [group("dev")]
 dev:
   @npx concurrently \
-    -n GO,TAILWIND,VITE \
-    -c blue,green,magenta \
-    "script -q -c 'DEV=true air' /dev/null" \
-    "npm run dev:css" \
-    "npm run dev:js"
+    -n API,APP \
+    -c blue,magenta \
+    "DEV=true air" \
+    "cd apps/app && npm run dev"
 
 # Lint Go and TypeScript
 [group("dev")]

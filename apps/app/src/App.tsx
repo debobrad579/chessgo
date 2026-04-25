@@ -10,10 +10,11 @@ import LivePage from "@/pages/live"
 import GamesPage from "@/pages/games"
 import GamePage from "@/pages/game"
 import { NotFound } from "@/components/errors/NotFound"
+import "./tailwind.css"
 
 function App() {
   return (
-    <BrowserRouter basename="/app">
+    <BrowserRouter basename="/">
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
