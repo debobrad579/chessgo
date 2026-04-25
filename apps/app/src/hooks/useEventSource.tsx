@@ -8,7 +8,7 @@ export function useEventSource<T>(
   const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    const source = new EventSource(url)
+    const source = new EventSource(url, { withCredentials: true })
     source.onmessage = (event) => {
       try {
         const parsed = JSON.parse(event.data)

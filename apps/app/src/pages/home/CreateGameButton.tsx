@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useState } from "react"
+import { API_BASE } from "@/lib/api"
 
 export function CreateGameButton() {
   const navigate = useNavigate()
@@ -98,8 +99,9 @@ export function CreateGameButton() {
         <DialogFooter>
           <Button
             onClick={() => {
-              fetch("/api/live/new", {
+              fetch(`${API_BASE}/api/live/new`, {
                 method: "POST",
+                credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   color: color,

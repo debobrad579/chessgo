@@ -7,10 +7,11 @@ import { NotFound } from "@/components/errors/NotFound"
 import { InternalServerError } from "@/components/errors/InternalServerError"
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
 import { assertGame } from "@/types/chess"
+import { API_BASE } from "@/lib/api"
 
 function GamePageContent() {
   const { gameID } = useParams()
-  const { data } = useFetch(`/api/games/${gameID}`, assertGame)
+  const { data } = useFetch(`${API_BASE}/api/games/${gameID}`, assertGame)
 
   return <ChessGame gameData={data} />
 }

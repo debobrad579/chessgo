@@ -10,12 +10,12 @@ import (
 	"github.com/debobrad579/chessgo/internal/middleware"
 )
 
-func startServer(cfg *handlers.Config, port int, dev bool) error {
+func startServer(cfg *handlers.Config, port int, appOrigin string) error {
 	mux := http.NewServeMux()
 
-	mux.Handle("GET /{$}", middleware.RedirectIfAuthenticated(handlers.TemplateRenderer("index.html", nil)))
-	mux.Handle("GET /login", middleware.RedirectIfAuthenticated(handlers.TemplateRenderer("login.html", nil)))
-	mux.Handle("GET /register", middleware.RedirectIfAuthenticated(handlers.TemplateRenderer("register.html", nil)))
+	mux.Handle("GET /{$}", middleware.RedirectIfAuthenticated(appOrigin)(handlers.TemplateRenderer("index.html", nil)))
+	mux.Handle("GET /login", middleware.RedirectIfAuthenticated(appOrigin)(handlers.TemplateRenderer("login.html", nil)))
+	mux.Handle("GET /register", middleware.RedirectIfAuthenticated(appOrigin)(handlers.TemplateRenderer("register.html", nil)))
 
 	mux.HandleFunc("POST /login", cfg.LoginPostHandler)
 	mux.HandleFunc("POST /register", cfg.RegisterPostHandler)
@@ -31,6 +31,7 @@ func startServer(cfg *handlers.Config, port int, dev bool) error {
 	mux.Handle("GET /metrics", promhttp.Handler())
 
 	handler := middleware.Wrap(mux,
+		middleware.CORS(appOrigin),
 		middleware.Auth(cfg),
 		middleware.RequestLogger(cfg.Logger),
 	)

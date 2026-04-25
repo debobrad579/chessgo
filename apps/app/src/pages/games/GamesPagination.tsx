@@ -11,6 +11,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination"
 import { PAGE_SIZE } from "."
+import { API_BASE } from "@/lib/api"
 
 export function GamesPagination({
   pageNumber,
@@ -19,7 +20,10 @@ export function GamesPagination({
   pageNumber: number
   setPageNumber: Dispatch<SetStateAction<number>>
 }) {
-  const { data: gameCount } = useFetch("/api/games/count", assertNumber)
+  const { data: gameCount } = useFetch(
+    `${API_BASE}/api/games/count`,
+    assertNumber,
+  )
 
   const { width } = useWindowSize()
   const VISIBLE_PAGES = Math.min(7, Math.max(3, Math.floor(width / 100)))

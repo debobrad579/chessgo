@@ -3,11 +3,12 @@ import { useFetch } from "@/hooks/useFetch"
 import { formatTimeControl } from "@/lib/formatters"
 import { useNavigate } from "react-router"
 import { assertGameSummaryList } from "@/types/chess"
+import { API_BASE } from "@/lib/api"
 import { PAGE_SIZE } from "."
 
 export function GamesTableBody({ pageNumber }: { pageNumber: number }) {
   const { data } = useFetch(
-    `/api/games?page_number=${pageNumber}&page_size=${PAGE_SIZE}`,
+    `${API_BASE}/api/games?page_number=${pageNumber}&page_size=${PAGE_SIZE}`,
     assertGameSummaryList,
   )
   const navigate = useNavigate()

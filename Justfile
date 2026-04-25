@@ -22,9 +22,9 @@ lint:
   @echo "Linting Go..."
   @go vet ./...
   @echo "Linting TypeScript..."
-  @npm run lint
+  @cd apps/app && npm run lint
   @echo "Checking types..."
-  @npx tsc
+  @cd apps/app && npx tsc
 
 # Run Go tests
 [group("dev")]

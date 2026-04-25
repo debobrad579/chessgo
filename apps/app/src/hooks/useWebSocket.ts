@@ -1,3 +1,4 @@
+import { API_BASE } from "@/lib/api"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 type ReadyState = "Connecting" | "Open" | "Closing" | "Closed"
@@ -21,10 +22,7 @@ export function useWebSocket(
     unmountedRef.current = false
 
     function connect() {
-      const protocol = window.location.protocol === "https:" ? "wss:" : "ws:"
-      const ws = new WebSocket(
-        `${protocol}//${window.location.host}${endpoint}`,
-      )
+      const ws = new WebSocket(`${API_BASE.replace(/^http/, "ws")}${endpoint}`)
       wsRef.current = ws
       setReadyState("Connecting")
 

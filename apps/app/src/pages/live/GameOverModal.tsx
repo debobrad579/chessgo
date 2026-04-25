@@ -54,6 +54,7 @@ export function GameOverModal({
             onClick={() => {
               fetch("/api/live/new", {
                 method: "POST",
+                credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   color: "random",

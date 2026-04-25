@@ -33,7 +33,7 @@ export function useFetch<T = unknown>(
   if (!pending.has(url)) {
     pending.set(
       url,
-      fetch(url)
+      fetch(url, { credentials: "include" })
         .then((res) => {
           if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
           return res.json()

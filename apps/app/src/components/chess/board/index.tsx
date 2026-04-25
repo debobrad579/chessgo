@@ -117,7 +117,7 @@ export function Chessboard({
           }}
         >
           <img
-            src={`/static/pieces/${draggedPiece.piece}.svg`}
+            src={`/pieces/${draggedPiece.piece}.svg`}
             alt={draggedPiece.piece}
             className="w-full h-full"
           />

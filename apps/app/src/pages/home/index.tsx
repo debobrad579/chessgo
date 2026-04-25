@@ -15,10 +15,11 @@ import { formatTimeControl } from "@/lib/formatters"
 import { useUser } from "@/context/UserContext"
 import { HomeSkeleton } from "./HomeSkeleton"
 import { assertGameList } from "@/types/chess"
+import { API_BASE } from "@/lib/api"
 
 export default function HomePage() {
   const user = useUser()
-  const { data, error } = useEventSource("/api/live", assertGameList)
+  const { data, error } = useEventSource(`${API_BASE}/api/live`, assertGameList)
   const navigate = useNavigate()
 
   const lobbyGames = data?.filter(
