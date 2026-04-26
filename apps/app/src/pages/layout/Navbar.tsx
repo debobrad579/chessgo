@@ -12,6 +12,21 @@ import { useMediaQuery } from "@/hooks/useMediaQuery"
 import { Menu } from "lucide-react"
 import { Suspense, useState } from "react"
 import { Link } from "react-router"
+import { API_BASE, WWW_BASE } from "@/lib/api"
+
+function handleLogout() {
+  fetch(`${API_BASE}/logout`, {
+    method: "POST",
+    credentials: "include",
+  })
+    .then((data) => data.json())
+    .then((res: { success: boolean }) => {
+      if (res.success) {
+        console.log(res)
+        window.location.assign(WWW_BASE)
+      }
+    })
+}
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width: 596px)")
@@ -47,10 +62,10 @@ export function NavbarMobile() {
         {!user.email ? (
           <>
             <DropdownMenuItem asChild>
-              <a href="/login">Login</a>
+              <a href={`${WWW_BASE}/login`}>Login</a>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <a href="/register">Register</a>
+              <a href={`${WWW_BASE}/register`}>Register</a>
             </DropdownMenuItem>
           </>
         ) : (
@@ -78,15 +93,14 @@ export function NavbarMobile() {
                   >
                     No
                   </Button>
-                  <form method="POST" action="/logout" className="contents">
-                    <Button
-                      className="flex-1"
-                      variant="destructive"
-                      type="submit"
-                    >
-                      Yes
-                    </Button>
-                  </form>
+                  <Button
+                    className="flex-1"
+                    variant="destructive"
+                    type="submit"
+                    onClick={handleLogout}
+                  >
+                    Yes
+                  </Button>
                 </div>
               </div>
             )}
@@ -107,10 +121,10 @@ export function NavbarDesktop() {
       {!user.email ? (
         <>
           <Button asChild variant="ghost">
-            <a href="/login">Login</a>
+            <a href={`${WWW_BASE}/login`}>Login</a>
           </Button>
           <Button asChild variant="ghost">
-            <a href="/register">Register</a>
+            <a href={`${WWW_BASE}/register`}>Register</a>
           </Button>
         </>
       ) : (
@@ -133,15 +147,14 @@ export function NavbarDesktop() {
                   >
                     No
                   </Button>
-                  <form method="POST" action="/logout" className="contents">
-                    <Button
-                      className="flex-1"
-                      variant="destructive"
-                      type="submit"
-                    >
-                      Yes
-                    </Button>
-                  </form>
+                  <Button
+                    className="flex-1"
+                    variant="destructive"
+                    type="submit"
+                    onClick={handleLogout}
+                  >
+                    Yes
+                  </Button>
                 </div>
               </div>
             </PopoverContent>

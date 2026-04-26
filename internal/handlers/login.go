@@ -1,26 +1,18 @@
 package handlers
 
 import (
-	"context"
 	"database/sql"
-	"fmt"
+	"encoding/json"
 	"net/http"
 	"regexp"
 
 	"github.com/debobrad579/chessgo/internal/auth"
-	"github.com/debobrad579/chessgo/internal/httperr"
 )
 
-type loginData struct {
-	Fields struct {
-		Email    string
-		Password string
-	}
-	Errors struct {
-		Email    string
-		Password string
-	}
-	AuthError string
+func writeJSON(w http.ResponseWriter, status int, payload any) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(payload)
 }
 
 func isEmailValid(e string) bool {
@@ -28,67 +20,82 @@ func isEmailValid(e string) bool {
 	return emailRegex.MatchString(e)
 }
 
-func (cfg *Config) LoginPostHandler(w http.ResponseWriter, r *http.Request) {
-	if err := r.ParseForm(); err != nil {
-		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("error parsing form: %w", err))
+type loginResponse struct {
+	Success bool `json:"success"`
+	Errors  struct {
+		Email    string `json:"email,omitempty"`
+		Password string `json:"password,omitempty"`
+	} `json:"errors,omitempty"`
+}
+
+func (cfg *Config) LoginHandler(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Email    string `json:"email"`
+		Password string `json:"password"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		writeJSON(w, http.StatusBadRequest, loginResponse{
+			Success: false,
+		})
 		return
 	}
 
-	email := r.FormValue("email")
-	password := r.FormValue("password")
+	email := body.Email
+	password := body.Password
 
-	var data loginData
-	data.Fields.Email = email
-	data.Fields.Password = password
+	var resp loginResponse
 
 	if email == "" {
-		data.Errors.Email = "Required"
+		resp.Errors.Email = "Required"
 	} else if !isEmailValid(email) {
-		data.Errors.Email = "Invalid email address"
+		resp.Errors.Email = "Invalid email address"
 	}
 
 	if password == "" {
-		data.Errors.Password = "Required"
+		resp.Errors.Password = "Required"
 	}
 
-	if data.Errors.Email != "" || data.Errors.Password != "" {
-		w.WriteHeader(http.StatusUnprocessableEntity)
-		RenderTemplate(r.Context(), w, "login.html", data)
+	if resp.Errors.Email != "" || resp.Errors.Password != "" {
+		writeJSON(w, http.StatusUnprocessableEntity, resp)
 		return
 	}
 
-	user, err := cfg.DB.GetUserByEmail(r.Context(), data.Fields.Email)
+	user, err := cfg.DB.GetUserByEmail(r.Context(), email)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			loginError(r.Context(), w, data, http.StatusUnauthorized, "Email or password is incorrect")
+			resp.Errors.Password = "Email or password is incorrect"
+			writeJSON(w, http.StatusUnauthorized, resp)
 			return
 		}
-		loginError(r.Context(), w, data, http.StatusInternalServerError, "Failed to get user")
+
+		resp.Errors.Password = "Failed to get user"
+		writeJSON(w, http.StatusInternalServerError, resp)
 		return
 	}
 
-	ok, err := auth.CheckPasswordHash(data.Fields.Password, user.HashedPassword)
-
+	ok, err := auth.CheckPasswordHash(password, user.HashedPassword)
 	if err != nil {
-		loginError(r.Context(), w, data, http.StatusInternalServerError, "Failed to verify password")
+		writeJSON(w, http.StatusInternalServerError, loginResponse{
+			Success: false,
+		})
 		return
 	}
 
 	if !ok {
-		loginError(r.Context(), w, data, http.StatusUnauthorized, "Email or password is incorrect")
+		resp.Errors.Password = "Email or password is incorrect"
+		writeJSON(w, http.StatusUnauthorized, resp)
 		return
 	}
 
 	if err := cfg.Login(w, r, user.ID); err != nil {
-		loginError(r.Context(), w, data, http.StatusInternalServerError, "Failed to log in")
+		writeJSON(w, http.StatusInternalServerError, loginResponse{
+			Success: false,
+		})
 		return
 	}
 
-	http.Redirect(w, r, "/app", http.StatusSeeOther)
-}
-
-func loginError(ctx context.Context, w http.ResponseWriter, data loginData, code int, message string) {
-	data.AuthError = message
-	w.WriteHeader(code)
-	RenderTemplate(ctx, w, "login.html", data)
+	writeJSON(w, http.StatusOK, loginResponse{
+		Success: true,
+	})
 }

@@ -81,7 +81,7 @@ func main() {
 	}
 
 	logger.Info("starting server", slog.Int("port", port))
-	if err := startServer(cfg, port, os.Getenv("APP_ORIGIN")); err != nil {
+	if err := startServer(cfg, port, os.Getenv("APP_ORIGIN"), os.Getenv("WWW_ORIGIN")); err != nil {
 		logger.Fatal("failed to start server", slog.Any("error", err))
 	}
 }
