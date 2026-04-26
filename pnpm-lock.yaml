@@ -86,12 +86,6 @@ importers:
       '@chessgo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
-      react:
-        specifier: ^19.2.5
-        version: 19.2.5
-      react-dom:
-        specifier: ^19.2.5
-        version: 19.2.5(react@19.2.5)
     devDependencies:
       '@astrojs/react':
         specifier: ^5.0.4
@@ -114,6 +108,12 @@ importers:
       prettier-plugin-astro:
         specifier: ^0.14.1
         version: 0.14.1
+      react:
+        specifier: ^19.2.5
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.5
+        version: 19.2.5(react@19.2.5)
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0

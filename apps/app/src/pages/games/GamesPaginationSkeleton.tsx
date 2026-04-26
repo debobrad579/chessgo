@@ -16,7 +16,7 @@ export function GamesPaginationSkeleton() {
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious size="icon" />
+          <PaginationPrevious />
         </PaginationItem>
         {Array.from({ length: VISIBLE_PAGES }).map((_, i) => (
           <PaginationItem key={i}>
@@ -24,7 +24,7 @@ export function GamesPaginationSkeleton() {
           </PaginationItem>
         ))}
         <PaginationItem>
-          <PaginationNext size="icon" />
+          <PaginationNext />
         </PaginationItem>
       </PaginationContent>
     </Pagination>

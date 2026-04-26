@@ -12,7 +12,7 @@ install:
 dev:
   @pnpm dlx concurrently \
     -n API,APP,WWW \
-    -c blue,yellow,magenta \
+    -c blue,magenta,yellow \
     "cd apps/api && DEV=true air" \
     "cd apps/app && pnpm run dev" \
     "cd apps/www && pnpm run dev"
@@ -20,7 +20,7 @@ dev:
 # Lint Go and TypeScript
 [group("dev")]
 lint:
-  @echo "Linting Go..."
+  @echo "Linting API..."
   @cd apps/api && go vet ./...
   @echo "Linting App..."
   @cd apps/app && pnpm lint

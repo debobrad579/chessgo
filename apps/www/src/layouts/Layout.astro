@@ -1,5 +1,10 @@
 ---
 import "../tailwind.css"
+
+const {
+  title = "ChessGo",
+  description = "Share a link and start playing. No account required.",
+} = Astro.props
 ---
 
 <script is:inline>
@@ -14,7 +19,9 @@ import "../tailwind.css"
     <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
-    <title>ChessGo</title>
+    <meta name="robots" content="index,follow" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
   </head>
   <body class="bg-background text-foreground">
     <slot />
