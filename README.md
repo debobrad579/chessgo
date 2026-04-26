@@ -65,34 +65,36 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 
 ## Getting Started
 
-1. **Clone the repository**
+**Clone the repository**
 
 ```bash
 git clone https://github.com/debobrad579/chessgo.git
 cd chessgo
 ```
 
-2. **Configure your environment variables**
+### Option 1: Run with Docker
+
+1. **Configure your environment variables**
 
 ```bash
-cp apps/api/.env.example apps/api/.env
-cp apps/app/.env.example apps/app/.env
-cp apps/www/.env.example apps/www/.env
+cp .env.example .env
 ```
 
-Then edit `apps/api/.env` and set secure values for `POSTGRES_PASSWORD` and `TOKEN_SECRET`:
+Then edit `.env` and set secure values for `POSTGRES_PASSWORD` and `TOKEN_SECRET`:
 
 ```env
 POSTGRES_PASSWORD=changeme        # pick something strong
 TOKEN_SECRET=changeme             # generate with: openssl rand -base64 64
-CF_TUNNEL_TOKEN=changeme          # only if you're using cloudflare tunnels
+
+# Cloudflare Tunnel (optional)
+CF_TUNNEL_TOKEN=
 ```
 
-### Option 1: Run with Docker (recommended)
+2. **Run Docker Compose**
 
 ```bash
-docker compose --env-file /path/to/.env up
-# or: docker compose --env-file /path/to/.env --profile cloudflare up
+docker compose up
+# or: docker compose --profile cloudflare up
 ```
 
 Docker Compose will:
@@ -116,17 +118,39 @@ To stop: `docker compose down`. To also remove the database volume: `docker comp
 - [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
 - [air](https://github.com/air-verse/air) (optional, required for `just dev`) — `go install github.com/air-verse/air@latest`
 
-**Install dependencies and run database migrations**
+1. **Configure your environment variables**
+
+```bash
+cp .env.example apps/api/.env
+```
+
+Then edit `apps/api/.env` and set secure values for `POSTGRES_PASSWORD` and `TOKEN_SECRET`:
+
+```env
+POSTGRES_PASSWORD=changeme        # pick something strong
+TOKEN_SECRET=changeme             # generate with: openssl rand -base64 64
+```
+
+2. **Install dependencies**
 
 ```bash
 just install
+```
+
+3. **Run database migrations**
+
+```bash
 just migrate up
 ```
 
-**Run development environment** (with live reload and hot module replacement)
+4. **Run development environment** (with live reload and hot module replacement)
 
 ```bash
 just dev
+
+# Or run production environment:
+just build
+just preview
 ```
 
 Open the app at [http://localhost:3000](http://localhost:3000)
@@ -141,6 +165,8 @@ Open the app at [http://localhost:3000](http://localhost:3000)
 | `just test` | Run Go tests |
 | `just generate` | Regenerate sqlc query code |
 | `just migrate *args="up"` | Run database migrations via goose |
+| `just build` | Build Go API, React SPA, and Astro static site |
+| `just preview` | Start production environment |
 
 ## Contributing
 
