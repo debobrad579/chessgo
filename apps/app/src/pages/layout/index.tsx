@@ -10,7 +10,7 @@ export default function Layout() {
     <div className="flex flex-col">
       <Navbar />
       <Separator />
-      <main className="p-4 flex-1">
+      <main className="flex-1 p-4">
         <ErrorBoundary fallback={<InternalServerError />}>
           <Suspense fallback={null}>
             <Outlet />

@@ -18,7 +18,7 @@ export function PromotionPopover({
       {anchor && (
         <PopoverAnchor asChild>
           <div
-            className="absolute pointer-events-none"
+            className="pointer-events-none absolute"
             style={{
               left: anchor.left + anchor.size / 2,
               top: anchor.top,
@@ -29,7 +29,7 @@ export function PromotionPopover({
         </PopoverAnchor>
       )}
       <PopoverContent
-        className="flex flex-col gap-2 w-fit"
+        className="flex w-fit flex-col gap-2"
         side="bottom"
         align="center"
         onOpenAutoFocus={(e) => e.preventDefault()}

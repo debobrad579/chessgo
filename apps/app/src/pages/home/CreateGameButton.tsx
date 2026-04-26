@@ -56,7 +56,7 @@ export function CreateGameButton() {
           <RadioGroup
             value={timeControl}
             onValueChange={setTimeControl}
-            className="grid grid-rows-3 grid-cols-3 gap-4"
+            className="grid grid-cols-3 grid-rows-3 gap-4"
           >
             <div className="flex items-center gap-2">
               <RadioGroupItem value="1+0" id="1+0" />

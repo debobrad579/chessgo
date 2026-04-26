@@ -32,9 +32,9 @@ export function Navbar() {
   const mobile = useMediaQuery("(max-width: 596px)")
 
   return (
-    <nav className="flex justify-between items-center p-4">
+    <nav className="flex items-center justify-between p-4">
       <Link to="/">
-        <img src="/logo.svg" alt="Logo" className="dark:invert h-12 w-auto" />
+        <img src="/logo.svg" alt="Logo" className="h-12 w-auto dark:invert" />
       </Link>
       <Suspense fallback={null}>
         {mobile ? <NavbarMobile /> : <NavbarDesktop />}
@@ -83,7 +83,7 @@ export function NavbarMobile() {
                 Logout
               </DropdownMenuItem>
             ) : (
-              <div className="px-2 py-1.5 space-y-2">
+              <div className="space-y-2 px-2 py-1.5">
                 <p className="text-sm">Are you sure you want to log out?</p>
                 <div className="flex gap-2">
                   <Button

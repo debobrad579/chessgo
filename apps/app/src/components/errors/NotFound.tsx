@@ -1,5 +1,5 @@
 export function NotFound() {
   return (
-    <h1 className="text-4xl font-bold text-center">404 - Page Not Found</h1>
+    <h1 className="text-center text-4xl font-bold">404 - Page Not Found</h1>
   )
 }

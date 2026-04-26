@@ -95,7 +95,7 @@ export function Square({
         }
       }}
       onContextMenu={(e) => e.preventDefault()}
-      className={"w-full aspect-square relative leading-none"}
+      className={"relative aspect-square w-full leading-none"}
       style={getBackgroundStyle()}
     >
       {showRank && (
@@ -108,7 +108,7 @@ export function Square({
       )}
       {showFile && (
         <div
-          className={"absolute bottom-1 right-1"}
+          className={"absolute right-1 bottom-1"}
           style={{ fontSize: squareWidth / 5 }}
         >
           {file}
@@ -118,7 +118,7 @@ export function Square({
         <img
           src={`/pieces/${piece}.svg`}
           alt={piece}
-          className="w-full h-full cursor-grab"
+          className="h-full w-full cursor-grab"
         />
       )}
     </div>

@@ -52,7 +52,7 @@ export function MobileGameView() {
       <Clock color={flipBoard ? "b" : "w"} />
       <ScrollArea
         ref={listScrollAreaRef}
-        className="w-full text-nowrap relative"
+        className="relative w-full text-nowrap"
       >
         <MoveCell
           active={undoCount === moves.length}
@@ -60,7 +60,7 @@ export function MobileGameView() {
           scrollAreaRef={listScrollAreaRef}
           noStyles
         />
-        <div className="flex gap-4 w-full">
+        <div className="flex w-full gap-4">
           {getMoveNumberArrays(moves).map((moveSet, index) => (
             <div key={index} className="flex gap-2">
               <div>{index + 1}.</div>

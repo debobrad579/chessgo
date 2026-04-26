@@ -31,7 +31,7 @@ export function DesktopGameView() {
       : null
 
   return (
-    <div className="flex gap-2 h-full">
+    <div className="flex h-full gap-2">
       <div className="w-[calc(100vh-7rem-1px)]">
         <Chessboard
           fen={game.fen()}
@@ -58,7 +58,7 @@ export function DesktopGameView() {
           }
         />
       </div>
-      <div className="flex-1 flex flex-col gap-2 h-[calc(100vh-7rem-1px)]">
+      <div className="flex h-[calc(100vh-7rem-1px)] flex-1 flex-col gap-2">
         <Clock color={flipBoard ? "w" : "b"} />
         <NavigationButtons
           moveCount={moves.length}
@@ -67,7 +67,7 @@ export function DesktopGameView() {
         />
         <ScrollArea
           ref={tableScrollAreaRef}
-          className="flex-1 pr-1 overflow-auto"
+          className="flex-1 overflow-auto pr-1"
         >
           <Table>
             <TableHeader>
@@ -112,10 +112,10 @@ export function DesktopGameView() {
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell className="font-bold text-right">
+                <TableCell className="text-right font-bold">
                   {result.split("-")[0]}
                 </TableCell>
-                <TableCell className="font-bold text-center">-</TableCell>
+                <TableCell className="text-center font-bold">-</TableCell>
                 <TableCell className="font-bold">
                   {result.split("-")[1]}
                 </TableCell>

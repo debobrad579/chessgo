@@ -1,0 +1,8 @@
+{
+  "semi": false,
+  "plugins": [
+    "prettier-plugin-astro",
+    "prettier-plugin-tailwindcss"
+  ],
+  "tailwindStylesheet": "./src/tailwind.css"
+}

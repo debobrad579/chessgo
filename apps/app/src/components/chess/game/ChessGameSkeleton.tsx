@@ -13,7 +13,7 @@ import {
 function ClockSkeleton({ black }: { black?: boolean }) {
   return (
     <div
-      className={`h-9 px-2 py-1 rounded-md flex justify-between items-center gap-2 w-full border border-border ${
+      className={`flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border px-2 py-1 ${
         black ? "bg-gray-900" : "bg-gray-100"
       }`}
     >
@@ -80,18 +80,18 @@ function MoveTableSkeleton() {
           {MOVE_WIDTHS.map(([wWidth, bWidth], i) => (
             <TableRow key={i} style={{ opacity: 1 - i * 0.07 }}>
               <TableCell>
-                <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh w-4 rounded-sm" />
+                <div className="h-lh w-4 animate-pulse rounded-sm bg-gray-300 dark:bg-gray-600" />
               </TableCell>
               <TableCell>
                 <div
-                  className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh rounded-sm"
+                  className="h-lh animate-pulse rounded-sm bg-gray-300 dark:bg-gray-600"
                   style={{ width: wWidth }}
                 />
               </TableCell>
               <TableCell>
                 {i < MOVE_WIDTHS.length - 1 && (
                   <div
-                    className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh rounded-sm"
+                    className="h-lh animate-pulse rounded-sm bg-gray-300 dark:bg-gray-600"
                     style={{ width: bWidth }}
                   />
                 )}
@@ -101,14 +101,14 @@ function MoveTableSkeleton() {
         </TableBody>
         <TableFooter>
           <TableRow>
-            <TableCell className="font-bold text-right">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh w-3 rounded-sm ml-auto" />
+            <TableCell className="text-right font-bold">
+              <div className="ml-auto h-lh w-3 animate-pulse rounded-sm bg-gray-300 dark:bg-gray-600" />
             </TableCell>
-            <TableCell className="font-bold text-center">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh w-3 rounded-sm mx-auto" />
+            <TableCell className="text-center font-bold">
+              <div className="mx-auto h-lh w-3 animate-pulse rounded-sm bg-gray-300 dark:bg-gray-600" />
             </TableCell>
             <TableCell className="font-bold">
-              <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-lh w-3 rounded-sm" />
+              <div className="h-lh w-3 animate-pulse rounded-sm bg-gray-300 dark:bg-gray-600" />
             </TableCell>
           </TableRow>
         </TableFooter>
@@ -132,7 +132,7 @@ function MoveListSkeleton() {
         {widthPairs.map(([wWidth, bWidth], i) => (
           <div
             key={i}
-            className="flex gap-2 shrink-0"
+            className="flex shrink-0 gap-2"
             style={{ opacity: 1 - i * 0.12 }}
           >
             <Skeleton className="h-lh w-5" />
@@ -147,7 +147,7 @@ function MoveListSkeleton() {
 
 function ChessboardSkeleton() {
   return (
-    <div className="w-full aspect-square grid grid-cols-8 grid-rows-8">
+    <div className="grid aspect-square w-full grid-cols-8 grid-rows-8">
       {Array.from({ length: 64 }).map((_, i) => {
         const isLightSquare = (Math.floor(i / 8) + (i % 8)) % 2 === 0
         return (
@@ -166,11 +166,11 @@ function ChessboardSkeleton() {
 
 function DesktopGameSkeleton() {
   return (
-    <div className="flex gap-2 h-full">
-      <div className="w-[calc(100vh-7rem-1px)] max-w-[calc(100%-12rem)] shrink aspect-square self-start">
+    <div className="flex h-full gap-2">
+      <div className="aspect-square w-[calc(100vh-7rem-1px)] max-w-[calc(100%-12rem)] shrink self-start">
         <ChessboardSkeleton />
       </div>
-      <div className="flex-1 flex flex-col gap-2 h-[calc(100vh-7rem-1px)] min-w-48">
+      <div className="flex h-[calc(100vh-7rem-1px)] min-w-48 flex-1 flex-col gap-2">
         <ClockSkeleton black />
         <NavigationButtonsSkeleton />
         <MoveTableSkeleton />

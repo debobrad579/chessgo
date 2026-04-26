@@ -29,7 +29,7 @@ const ONGOING_WIDTHS: [number, number, number][] = [
 export function HomeSkeleton() {
   return (
     <div className="space-y-4">
-      <h2 className="text-center font-bold text-3xl">Lobby</h2>
+      <h2 className="text-center text-3xl font-bold">Lobby</h2>
       <CreateGameButton />
       <Table>
         <TableHeader>
@@ -62,7 +62,7 @@ export function HomeSkeleton() {
           })}
         </TableBody>
       </Table>
-      <h2 className="text-center font-bold text-3xl">Ongoing Games</h2>
+      <h2 className="text-center text-3xl font-bold">Ongoing Games</h2>
       <Table>
         <TableHeader>
           <TableRow>

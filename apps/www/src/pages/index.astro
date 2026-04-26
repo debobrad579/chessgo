@@ -8,13 +8,13 @@ const APP_URL = import.meta.env.PUBLIC_APP_URL
 
 <Layout>
   <section
-    class="flex flex-col items-center justify-center text-center flex-1 px-4 py-24 gap-4 h-screen relative"
+    class="relative flex h-screen flex-1 flex-col items-center justify-center gap-4 px-4 py-24 text-center"
   >
     <img src="/logo.svg" alt="Logo" class="h-16 dark:invert" />
     <div class="font-medium text-muted-foreground">
       Share a link and start playing. No account required.
     </div>
-    <div class="flex gap-3 flex-wrap justify-center pt-2">
+    <div class="flex flex-wrap justify-center gap-3 pt-2">
       <a href={APP_URL}>
         <Button size="lg">Play as guest</Button>
       </a>

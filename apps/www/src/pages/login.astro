@@ -14,7 +14,7 @@ import {
 
 <Layout title="Login | ChessGo" description="Log in to your account.">
   <div
-    class="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-muted"
+    class="flex min-h-svh w-full items-center justify-center bg-muted p-6 md:p-10"
   >
     <div class="w-full max-w-sm">
       <Card>
@@ -50,7 +50,7 @@ import {
               </div>
               <div class="flex flex-col gap-4">
                 <Button>Login</Button>
-                <p class="text-sm text-muted-foreground text-center">
+                <p class="text-center text-sm text-muted-foreground">
                   Don't have an account?
                   <a
                     href="/register"
@@ -86,6 +86,11 @@ import {
 
     if (!email) {
       emailError.innerHTML = "Required"
+      return
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailError.innerHTML = "Invalid email address"
       return
     }
 

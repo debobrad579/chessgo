@@ -64,7 +64,7 @@ export function Chessboard({
   return (
     <div
       ref={ref}
-      className="aspect-square grid grid-cols-8 grid-rows-8 relative touch-none"
+      className="relative grid aspect-square touch-none grid-cols-8 grid-rows-8"
       onClick={handleBoardClick}
       onPointerMove={handleDragMove}
     >
@@ -119,7 +119,7 @@ export function Chessboard({
           <img
             src={`/pieces/${draggedPiece.piece}.svg`}
             alt={draggedPiece.piece}
-            className="w-full h-full"
+            className="h-full w-full"
           />
         </div>
       )}
@@ -137,7 +137,7 @@ export function Chessboard({
             : undefined
         }
       />
-      <svg className="absolute inset-0 w-full h-full pointer-events-none">
+      <svg className="pointer-events-none absolute inset-0 h-full w-full">
         {arrows
           .filter((arrow) => arrow.fen === fen)
           .map((arrow) => {

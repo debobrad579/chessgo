@@ -37,7 +37,7 @@ export default function HomePage() {
   return (
     <>
       {error && (
-        <p className="text-muted-foreground text-sm text-center pb-2">
+        <p className="pb-2 text-center text-sm text-muted-foreground">
           {error.message}
         </p>
       )}
@@ -45,7 +45,7 @@ export default function HomePage() {
         <HomeSkeleton />
       ) : (
         <div className="space-y-4">
-          <h2 className="text-center font-bold text-3xl">Lobby</h2>
+          <h2 className="text-center text-3xl font-bold">Lobby</h2>
           <CreateGameButton />
           <Table>
             <TableHeader>
@@ -79,7 +79,7 @@ export default function HomePage() {
               ))}
             </TableBody>
           </Table>
-          <h2 className="text-center font-bold text-3xl">Ongoing Games</h2>
+          <h2 className="text-center text-3xl font-bold">Ongoing Games</h2>
           <Table>
             <TableHeader>
               <TableRow>

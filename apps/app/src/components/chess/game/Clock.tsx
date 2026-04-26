@@ -32,10 +32,10 @@ export function Clock({ color }: { color: Color }) {
   return (
     <div
       className={cn(
-        "h-9 px-4 py-2 rounded-md border border-border font-semibold transition-colors flex justify-between items-center gap-2 w-full px-2 py-1 font-bold",
+        "flex h-9 w-full items-center justify-between gap-2 rounded-md border border-border px-2 px-4 py-1 py-2 font-bold font-semibold transition-colors",
         color === "w"
-          ? "bg-gray-100 hover:bg-gray-200 text-black"
-          : "bg-gray-900 hover:bg-gray-800 text-white",
+          ? "bg-gray-100 text-black hover:bg-gray-200"
+          : "bg-gray-900 text-white hover:bg-gray-800",
       )}
     >
       <div
@@ -64,7 +64,7 @@ export function Clock({ color }: { color: Color }) {
               : "1/2"}
       </div>
 
-      <div className="flex gap-2 items-center">
+      <div className="flex items-center gap-2">
         {connected != null && (
           <span
             className={cn(

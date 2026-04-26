@@ -1,7 +1,10 @@
 @import "tailwindcss";
 
 @source ".";
-@source "../../../packages/ui/src";
+@source "../../../packages/ui/src/components/button.tsx";
+@source "../../../packages/ui/src/components/card.tsx";
+@source "../../../packages/ui/src/components/input.tsx";
+@source "../../../packages/ui/src/components/label.tsx";
 
 @custom-variant dark (&:is(.dark *));
 
