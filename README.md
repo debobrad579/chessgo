@@ -23,36 +23,44 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 
 ```
 .
-├── cmd/server/          # Go application entry point
+├── apps/
+│   ├── api/                     # Go REST API + WebSocket server
+│   │   ├── cmd/server/          # Application entry point
+│   │   └── internal/            # Backend Go modules
+│   │       ├── appmetrics/      # Prometheus metrics
+│   │       ├── auth/            # JWT, password hashing, refresh tokens
+│   │       ├── chess/           # Chess game state and move validation
+│   │       ├── database/        # Database layer (sqlc-generated)
+│   │       ├── handlers/        # HTTP handlers
+│   │       ├── httperr/         # HTTP error handling and context
+│   │       ├── live/            # Live game room and WebSocket connection management
+│   │       ├── logging/         # Structured application logging
+│   │       └── middleware/      # HTTP middleware
 
-├── internal/            # Backend Go modules
-│   ├── appmetrics/      # Prometheus metrics
-│   ├── auth/            # JWT, password hashing, refresh tokens
-│   ├── chess/           # Chess game state and move validation
-│   ├── database/        # Database layer (sqlc-generated)
-│   ├── handlers/        # HTTP handlers
-│   ├── httperr/         # HTTP error handling and context
-│   ├── live/            # Live game room and WebSocket connection management
-│   ├── logging/         # Structured application logging
-│   └── middleware/      # HTTP middleware
+│   ├── app/                     # React SPA
+│   │   └── src/
+│   │       ├── components/      # React components
+│   │       ├── context/         # React contexts
+│   │       ├── hooks/           # Custom hooks
+│   │       ├── lib/             # Formatters, parsers, utilities
+│   │       ├── pages/           # Page-level components
+│   │       ├── types/           # TypeScript types
+│   │       └── App.tsx          # React entry point + router
 
-├── app/                 # React + TypeScript frontend
-│   ├── components/      # React components
-│   ├── context/         # React contexts
-│   ├── hooks/           # Custom hooks
-│   ├── lib/             # Formatters, parsers, utilities
-│   ├── pages/           # Page-level components
-│   ├── types/           # TypeScript types
-│   └── App.tsx          # React entry point + router
+│   └── www/                     # Astro static site
+│       └── src/
+│           ├── layouts/         # Astro layouts
+│           └── pages/           # Astro pages
 
-├── sql/                 # Database schema and queries
-│   ├── queries/         # SQL queries (input for sqlc)
-│   └── schema/          # Goose migration files
+├── packages/
+│   └── ui/                      # Shared React component library
+│       └── src/
+│           ├── components/ui/   # shadcn/ui components
+│           └── lib/             # Utilities
 
-├── static/              # Static assets
-├── views/               # Go HTML templates
-
-└── dist/                # Generated build artifacts (Go binary + frontend bundle)
+└── sql/                         # Database schema and queries
+    ├── queries/                 # SQL queries (input for sqlc)
+    └── schema/                  # Goose migration files
 ```
 
 ## Getting Started
@@ -64,13 +72,15 @@ git clone https://github.com/debobrad579/chessgo.git
 cd chessgo
 ```
 
-2. **Create your `.env` file**
+2. **Configure your environment variables**
 
 ```bash
-cp .env.example .env
+cp apps/api/.env.example apps/api/.env
+cp apps/app/.env.example apps/app/.env
+cp apps/www/.env.example apps/www/.env
 ```
 
-Then edit `.env` and set secure values for `POSTGRES_PASSWORD` and `TOKEN_SECRET`:
+Then edit `apps/api/.env` and set secure values for `POSTGRES_PASSWORD` and `TOKEN_SECRET`:
 
 ```env
 POSTGRES_PASSWORD=changeme        # pick something strong
@@ -81,8 +91,8 @@ CF_TUNNEL_TOKEN=changeme          # only if you're using cloudflare tunnels
 ### Option 1: Run with Docker (recommended)
 
 ```bash
-docker compose up
-# or: docker compose --profile cloudflare up
+docker compose --env-file /path/to/.env up
+# or: docker compose --env-file /path/to/.env --profile cloudflare up
 ```
 
 Docker Compose will:
@@ -113,13 +123,6 @@ just install
 just migrate up
 ```
 
-**Run production build**
-
-```bash
-just build
-just preview
-```
-
 **Run development environment** (with live reload and hot module replacement)
 
 ```bash
@@ -138,8 +141,6 @@ Open the app at [http://localhost:3000](http://localhost:3000)
 | `just test` | Run Go tests |
 | `just generate` | Regenerate sqlc query code |
 | `just migrate *args="up"` | Run database migrations via goose |
-| `just build` | Build Go binary and frontend assets into `/dist` |
-| `just preview` | Serve the production build |
 
 ## Contributing
 
