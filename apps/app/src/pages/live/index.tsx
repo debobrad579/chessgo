@@ -8,6 +8,7 @@ import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { useWebSocket } from "@/hooks/useWebSocket"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { playerExists } from "@/components/chess/game/utils"
+import { API_BASE } from "@/lib/api"
 
 const PING_TIMEOUT_MS = 90_000
 
@@ -26,7 +27,7 @@ export default function LivePage() {
   const pingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { sendJsonMessage, readyState } = useWebSocket(
-    `/api/live/${gameID}`,
+    `${API_BASE.replace(/^http/, "ws")}/live/${gameID}`,
     (event) => {
       const data: unknown = JSON.parse(event.data)
       assertLiveGame(data)

@@ -1,13 +1,19 @@
-# Go
+# Environment Variables
+.env
+.env.production
+
+# Output
 tmp/
 dist/
 
-# Node
+# Dependencies
 node_modules/
 
-# Generated assets
-static/app.js
-static/style.css
+# Generated types
+.astro/
 
-# Environment Variables
-.env
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

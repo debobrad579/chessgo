@@ -19,7 +19,7 @@ import { API_BASE } from "@/lib/api"
 
 export default function HomePage() {
   const user = useUser()
-  const { data, error } = useEventSource(`${API_BASE}/api/live`, assertGameList)
+  const { data, error } = useEventSource(`${API_BASE}/live`, assertGameList)
   const navigate = useNavigate()
 
   const lobbyGames = data?.filter(

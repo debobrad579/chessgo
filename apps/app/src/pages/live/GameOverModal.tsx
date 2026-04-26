@@ -11,6 +11,7 @@ import { formatTimeControl } from "@/lib/formatters"
 import type { TimeControl } from "@/types/chess"
 import type { Dispatch, SetStateAction } from "react"
 import { Link, useNavigate } from "react-router"
+import { API_BASE } from "@/lib/api"
 
 export function GameOverModal({
   timeControl,
@@ -52,7 +53,7 @@ export function GameOverModal({
           <Button
             className="flex-1"
             onClick={() => {
-              fetch("/api/live/new", {
+              fetch(`${API_BASE}/live/new`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },

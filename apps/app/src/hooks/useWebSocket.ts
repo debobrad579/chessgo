@@ -1,10 +1,9 @@
-import { API_BASE } from "@/lib/api"
 import { useCallback, useEffect, useRef, useState } from "react"
 
 type ReadyState = "Connecting" | "Open" | "Closing" | "Closed"
 
 export function useWebSocket(
-  endpoint: string,
+  url: string,
   onMessage: (event: MessageEvent) => void,
 ) {
   const [readyState, setReadyState] = useState<ReadyState>("Connecting")
@@ -22,7 +21,7 @@ export function useWebSocket(
     unmountedRef.current = false
 
     function connect() {
-      const ws = new WebSocket(`${API_BASE.replace(/^http/, "ws")}${endpoint}`)
+      const ws = new WebSocket(url)
       wsRef.current = ws
       setReadyState("Connecting")
 
@@ -54,7 +53,7 @@ export function useWebSocket(
         if (ws.readyState !== WebSocket.CONNECTING) ws.close()
       }
     }
-  }, [endpoint])
+  }, [url])
 
   const sendJsonMessage = useCallback((message: unknown) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {

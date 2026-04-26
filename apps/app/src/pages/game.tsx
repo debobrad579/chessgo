@@ -11,7 +11,7 @@ import { API_BASE } from "@/lib/api"
 
 function GamePageContent() {
   const { gameID } = useParams()
-  const { data } = useFetch(`${API_BASE}/api/games/${gameID}`, assertGame)
+  const { data } = useFetch(`${API_BASE}/games/${gameID}`, assertGame)
 
   return <ChessGame gameData={data} />
 }

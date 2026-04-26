@@ -6,7 +6,7 @@ import { API_BASE } from "@/lib/api"
 const UserContext = createContext<User | null>(null)
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const { data: user } = useFetch(`${API_BASE}/api/me`, assertUser)
+  const { data: user } = useFetch(`${API_BASE}/me`, assertUser)
 
   return <UserContext.Provider value={user}>{children}</UserContext.Provider>
 }

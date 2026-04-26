@@ -1,0 +1,31 @@
+name: Deploy WWW
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "apps/www/**"
+      - ".github/workflows/deploy-www.yaml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm build
+        working-directory: apps/www
+        env:
+          PUBLIC_API_URL: https://api.chessgo.ca
+          PUBLIC_APP_URL: https://app.chessgo.ca
+      - run: pnpm dlx wrangler deploy
+        working-directory: apps/www
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

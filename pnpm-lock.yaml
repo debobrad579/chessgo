@@ -25,9 +25,6 @@ importers:
       lucide-react:
         specifier: ^1.7.0
         version: 1.11.0(react@19.2.5)
-      radix-ui:
-        specifier: ^1.4.3
-        version: 1.4.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react:
         specifier: ^19.2.4
         version: 19.2.5
@@ -86,12 +83,19 @@ importers:
 
   apps/www:
     dependencies:
-      '@astrojs/react':
-        specifier: ^5.0.4
-        version: 5.0.4(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(yaml@2.8.3)
       '@chessgo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      react:
+        specifier: ^19.2.5
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.2.5
+        version: 19.2.5(react@19.2.5)
+    devDependencies:
+      '@astrojs/react':
+        specifier: ^5.0.4
+        version: 5.0.4(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(jiti@2.6.1)(lightningcss@1.32.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(yaml@2.8.3)
       '@tailwindcss/vite':
         specifier: ^4.2.4
         version: 4.2.4(vite@8.0.10(esbuild@0.27.3)(jiti@2.6.1)(yaml@2.8.3))
@@ -107,22 +111,18 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      react:
-        specifier: ^19.2.5
-        version: 19.2.5
-      react-dom:
-        specifier: ^19.2.5
-        version: 19.2.5(react@19.2.5)
+      prettier-plugin-astro:
+        specifier: ^0.14.1
+        version: 0.14.1
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
       tailwindcss:
         specifier: ^4.2.4
         version: 4.2.4
-    devDependencies:
-      prettier-plugin-astro:
-        specifier: ^0.14.1
-        version: 0.14.1
+      wrangler:
+        specifier: ^4.0.0
+        version: 4.85.0(@cloudflare/workers-types@4.20260425.1)
 
   packages/ui:
     dependencies:

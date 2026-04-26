@@ -99,7 +99,7 @@ export function CreateGameButton() {
         <DialogFooter>
           <Button
             onClick={() => {
-              fetch(`${API_BASE}/api/live/new`, {
+              fetch(`${API_BASE}/live/new`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
