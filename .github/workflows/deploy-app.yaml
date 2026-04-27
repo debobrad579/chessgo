@@ -21,6 +21,8 @@ jobs:
           cache: pnpm
       - run: pnpm install
       - run: pnpm build
+        working-directory: packages/ui
+      - run: pnpm build
         working-directory: apps/app
         env:
           VITE_API_URL: https://api.chessgo.ca

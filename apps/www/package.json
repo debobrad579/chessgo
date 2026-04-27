@@ -11,11 +11,9 @@
     "preview": "astro preview",
     "astro": "astro"
   },
-  "dependencies": {
-    "@chessgo/ui": "workspace:*"
-  },
   "devDependencies": {
     "@astrojs/react": "^5.0.4",
+    "@chessgo/ui": "workspace:*",
     "@tailwindcss/vite": "^4.2.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

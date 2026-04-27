@@ -46,15 +46,25 @@ migrate *args="up":
     "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB?sslmode=disable" \
     {{args}}
 
-# Build Go API, React SPA, and Astro static site
+# Build applications
 [group("staging")]
-build:
-  @echo "Building API..."
-  @cd apps/api && go build -o dist/chessgo ./cmd/server
-  @echo "Building SPA..."
-  @cd apps/app && pnpm run build --mode preview
-  @echo "Building static site..."
-  @cd apps/www && pnpm run build --mode preview
+build target="all":
+  @set -e
+  @if [ "{{target}}" = "all" ]; then \
+    (echo "Building API..." && cd apps/api && go build -o dist/chessgo ./cmd/server) & \
+    (echo "Building APP..." && cd apps/app && pnpm run build --mode preview) & \
+    (echo "Building WWW..." && cd apps/www && pnpm run build --mode preview) & \
+    (echo "Building UI..." && cd packages/ui && pnpm run build) & \
+    wait; \
+  else \
+    case "{{target}}" in \
+      api)  echo "Building API..." && cd apps/api && go build -o dist/chessgo ./cmd/server ;; \
+      app)  echo "Building APP..." && cd apps/app && pnpm run build --mode preview ;; \
+      www)  echo "Building WWW..." && cd apps/www && pnpm run build --mode preview ;; \
+      ui)   echo "Building UI..." && cd packages/ui && pnpm run build ;; \
+      *) echo "Unknown target: {{target}}. Use api|app|www|ui|all" && exit 1 ;; \
+    esac; \
+  fi
 
 # Start production environment
 [group("staging")]

@@ -165,7 +165,7 @@ Open the app at [http://localhost:3000](http://localhost:3000)
 | `just test` | Run Go tests |
 | `just generate` | Regenerate sqlc query code |
 | `just migrate *args="up"` | Run database migrations via goose |
-| `just build` | Build Go API, React SPA, and Astro static site |
+| `just build target="all"` | Build services (api, app, www, ui) |
 | `just preview` | Start production environment |
 
 ## Contributing

@@ -3,15 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    "./*": "./src/components/*.tsx"
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./src/components/*.tsx"
-      ]
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./*": {
+      "import": "./dist/components/*.js",
+      "types": "./dist/components/*.d.ts"
     }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",

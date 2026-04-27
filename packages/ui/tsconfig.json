@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "jsxImportSource": "react",
-    "module": "esnext",
-    "target": "es2023",
+    "target": "ES2023",
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
-    "noEmit": true,
+    "jsx": "react-jsx",
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "outDir": "dist",
     "strict": true,
-    "erasableSyntaxOnly": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    }
+    "skipLibCheck": true,
+    "rootDir": "src"
   },
-  "include": ["src/**/*"]
+  "include": [
+    "src"
+  ]
 }
