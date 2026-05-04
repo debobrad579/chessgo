@@ -25,40 +25,11 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 .
 ├── apps/
 │   ├── api/                     # Go REST API + WebSocket server
-│   │   ├── cmd/server/          # Application entry point
-│   │   └── internal/            # Backend Go modules
-│   │       ├── appmetrics/      # Prometheus metrics
-│   │       ├── auth/            # JWT, password hashing, refresh tokens
-│   │       ├── chess/           # Chess game state and move validation
-│   │       ├── database/        # Database layer (sqlc-generated)
-│   │       ├── handlers/        # HTTP handlers
-│   │       ├── httperr/         # HTTP error handling and context
-│   │       ├── live/            # Live game room and WebSocket connection management
-│   │       ├── logging/         # Structured application logging
-│   │       └── middleware/      # HTTP middleware
-
 │   ├── app/                     # React SPA
-│   │   └── src/
-│   │       ├── components/      # React components
-│   │       ├── context/         # React contexts
-│   │       ├── hooks/           # Custom hooks
-│   │       ├── lib/             # Formatters, parsers, utilities
-│   │       ├── pages/           # Page-level components
-│   │       ├── types/           # TypeScript types
-│   │       └── App.tsx          # React entry point + router
-
 │   └── www/                     # Astro static site
-│       └── src/
-│           ├── layouts/         # Astro layouts
-│           └── pages/           # Astro pages
-
 ├── packages/
-│   └── ui/                      # Shared React component library
-│       └── src/
-│           ├── components/ui/   # shadcn/ui components
-│           └── lib/             # Utilities
-
-└── sql/                         # Database schema and queries
+│   └── ui/                      # Shared shadcn/ui component library
+└── sql/
     ├── queries/                 # SQL queries (input for sqlc)
     └── schema/                  # Goose migration files
 ```
@@ -174,5 +145,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 
-This project is licensed under the GNU Affero General Public License v3.0 (AGPL-3.0).
-See the [LICENSE](LICENSE) file for full details.
+This project is licensed under the GNU Affero General Public License v3.0 ([AGPL-3.0](LICENSE)).

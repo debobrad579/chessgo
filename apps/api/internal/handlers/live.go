@@ -37,7 +37,7 @@ type clientMessage struct {
 	Payload json.RawMessage   `json:"payload"`
 }
 
-func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) CreateLiveGameHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUserOrGuest(w, r)
 	if err != nil {
 		httperr.Write(r.Context(), w, http.StatusInternalServerError, err)
@@ -87,7 +87,7 @@ func (cfg *Config) NewGameHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(data)
 }
 
-func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) ConnectToLiveGameHandler(w http.ResponseWriter, r *http.Request) {
 	gameIDStr := r.PathValue("gameID")
 
 	gameID, err := uuid.Parse(gameIDStr)
@@ -172,7 +172,7 @@ func (cfg *Config) ConnectToGameHandler(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (cfg *Config) GamesListHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) GetLiveGamesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")

@@ -20,7 +20,7 @@ type registerResponse struct {
 	} `json:"errors,omitempty"`
 }
 
-func (cfg *Config) RegisterHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) CreateUserHandler(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Name            string `json:"name"`
 		Email           string `json:"email"`

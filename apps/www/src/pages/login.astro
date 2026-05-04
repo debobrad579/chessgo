@@ -109,7 +109,7 @@ import {
       return
     }
 
-    const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/login`, {
+    const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/tokens`, {
       method: "POST",
       credentials: "include",
       body: JSON.stringify({

@@ -15,8 +15,8 @@ import { Link } from "react-router"
 import { API_BASE, WWW_BASE } from "@/lib/api"
 
 function handleLogout() {
-  fetch(`${API_BASE}/logout`, {
-    method: "POST",
+  fetch(`${API_BASE}/tokens`, {
+    method: "DELETE",
     credentials: "include",
   })
     .then((data) => data.json())

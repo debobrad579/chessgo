@@ -25,7 +25,7 @@ type GameResponse struct {
 	Result      chess.Result      `json:"result"`
 }
 
-func (cfg *Config) MyGamesHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) GetGamesHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUser(r.Context())
 	if err != nil {
 		httperr.Write(r.Context(), w, http.StatusUnauthorized, fmt.Errorf("failed to get user: %w", err))
@@ -129,7 +129,7 @@ func (cfg *Config) GetGamesCountHandler(w http.ResponseWriter, r *http.Request) 
 	w.Write(data)
 }
 
-func (cfg *Config) GameHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) GetGameHandler(w http.ResponseWriter, r *http.Request) {
 	gameIDStr := r.PathValue("gameID")
 
 	gameID, err := uuid.Parse(gameIDStr)

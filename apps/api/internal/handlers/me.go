@@ -8,7 +8,7 @@ import (
 	"github.com/debobrad579/chessgo/internal/httperr"
 )
 
-func (cfg *Config) ApiMeHandler(w http.ResponseWriter, r *http.Request) {
+func (cfg *Config) GetLoggedInUserHandler(w http.ResponseWriter, r *http.Request) {
 	user, err := cfg.getUserOrGuest(w, r)
 	if err != nil {
 		httperr.Write(r.Context(), w, http.StatusUnauthorized, errors.New("unauthorized"))

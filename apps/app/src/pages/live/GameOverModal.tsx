@@ -53,7 +53,7 @@ export function GameOverModal({
           <Button
             className="flex-1"
             onClick={() => {
-              fetch(`${API_BASE}/live/new`, {
+              fetch(`${API_BASE}/live`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
