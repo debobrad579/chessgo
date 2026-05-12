@@ -11,6 +11,8 @@ import GamesPage from "@/pages/games"
 import GamePage from "@/pages/game"
 import { NotFound } from "@/components/errors/NotFound"
 import "./tailwind.css"
+import { ErrorBoundary } from "./components/errors/ErrorBoundary"
+import { ServiceUnavailable } from "./components/errors/ServiceUnavailable"
 
 function App() {
   return (
@@ -30,12 +32,14 @@ function App() {
 
 createRoot(document.getElementById("app")!).render(
   <StrictMode>
-    <UserProvider>
-      <ThemeProvider storageKey="ui-theme">
-        <TooltipProvider>
-          <App />
-        </TooltipProvider>
-      </ThemeProvider>
-    </UserProvider>
+    <ThemeProvider storageKey="ui-theme">
+      <TooltipProvider>
+        <ErrorBoundary fallback={<ServiceUnavailable />}>
+          <UserProvider>
+            <App />
+          </UserProvider>
+        </ErrorBoundary>
+      </TooltipProvider>
+    </ThemeProvider>
   </StrictMode>,
 )
