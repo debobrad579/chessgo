@@ -5,6 +5,7 @@
 # Output
 tmp/
 dist/
+target/
 
 # Dependencies
 node_modules/
