@@ -172,7 +172,7 @@ mod test {
     #[test]
     fn castling_rights() -> Result<(), BoardError> {
         assert_eq!(
-            Board::try_from("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 0 3")?,
+            Board::try_from("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 3")?,
             Board {
                 w_pawn: 0x000000001000EF00,
                 w_knight: 0x0000000000200002,
@@ -190,7 +190,7 @@ mod test {
 
                 castling_rights: 0b00001100,
                 enpassant: None,
-                half_moves: 0,
+                half_moves: 5,
             }
         );
 
