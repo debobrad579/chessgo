@@ -130,16 +130,63 @@ const fn compute_bishop_attack_masks() -> [u64; 64] {
     return table;
 }
 
+const fn compute_rook_attack_masks() -> [u64; 64] {
+    let mut table = [0u64; 64];
+
+    let mut i = 0;
+    while i < 64 {
+        let mut attacks = 0u64;
+
+        let rank = (i / 8) as i32;
+        let file = (i % 8) as i32;
+
+        // north
+        let mut r = rank + 1;
+        while r <= 6 {
+            attacks |= 1u64 << (r * 8 + file);
+            r += 1;
+        }
+
+        // east
+        let mut f = file + 1;
+        while f <= 6 {
+            attacks |= 1u64 << (rank * 8 + f);
+            f += 1;
+        }
+
+        // south
+        r = rank - 1;
+        while r >= 1 {
+            attacks |= 1u64 << (r * 8 + file);
+            r -= 1;
+        }
+
+        // west
+        f = file - 1;
+        while f >= 1 {
+            attacks |= 1u64 << (rank * 8 + f);
+            f -= 1;
+        }
+
+        table[i] = attacks;
+        i += 1;
+    }
+
+    return table;
+}
+
 pub static WHITE_PAWN_ATTACKS: [u64; 64] = compute_pawn_attacks(false);
 pub static BLACK_PAWN_ATTACKS: [u64; 64] = compute_pawn_attacks(true);
 pub static KNIGHT_ATTACKS: [u64; 64] = compute_knight_attacks();
 pub static KING_ATTACKS: [u64; 64] = compute_king_attacks();
 pub static BISHOP_ATTACK_MASKS: [u64; 64] = compute_bishop_attack_masks();
+pub static ROOK_ATTACK_MASKS: [u64; 64] = compute_rook_attack_masks();
 
 #[cfg(test)]
 mod test {
     use crate::attacks::{
-        BISHOP_ATTACK_MASKS, BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, WHITE_PAWN_ATTACKS,
+        BISHOP_ATTACK_MASKS, BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, ROOK_ATTACK_MASKS,
+        WHITE_PAWN_ATTACKS,
     };
 
     #[test]
@@ -183,7 +230,15 @@ mod test {
     fn bishop_mask() {
         assert_eq!(BISHOP_ATTACK_MASKS[28], 0x0002442800284400); // e4
         assert_eq!(BISHOP_ATTACK_MASKS[9], 0x0040201008040000); // b2
-        assert_eq!(BISHOP_ATTACK_MASKS[26], 0x0020100a000a1000); // c4
+        assert_eq!(BISHOP_ATTACK_MASKS[26], 0x0020100A000A1000); // c4
         assert_eq!(BISHOP_ATTACK_MASKS[61], 0x0050080402000000); // f8
+    }
+
+    #[test]
+    fn rook_mask() {
+        assert_eq!(ROOK_ATTACK_MASKS[0], 0x000101010101017E); // a1
+        assert_eq!(ROOK_ATTACK_MASKS[28], 0x001010106E101000); // e4
+        assert_eq!(ROOK_ATTACK_MASKS[61], 0x5E20202020202000); // f8
+        assert_eq!(ROOK_ATTACK_MASKS[10], 0x0004040404047A00); // c2
     }
 }
