@@ -3,184 +3,163 @@ const NOT_H: u64 = 0x7F7F7F7F7F7F7F7F;
 const NOT_AB: u64 = 0xFCFCFCFCFCFCFCFC;
 const NOT_GH: u64 = 0x3F3F3F3F3F3F3F3F;
 
-const fn compute_pawn_attacks(is_black: bool) -> [u64; 64] {
-    let mut table = [0u64; 64];
+const fn mask_white_pawn_attacks(square: usize) -> u64 {
+    let bit = 1u64 << square;
+    let mut attacks = 0u64;
 
-    let mut i = 0;
-    while i < 64 {
-        let bit = 1u64 << i;
-        let mut attacks = 0u64;
+    attacks |= (bit & NOT_H) << 9; // north-east
+    attacks |= (bit & NOT_A) << 7; // north-west
 
-        if is_black {
-            attacks |= (bit & NOT_H) >> 7; // south-east
-            attacks |= (bit & NOT_A) >> 9; // south-west
-        } else {
-            attacks |= (bit & NOT_H) << 9; // north-east
-            attacks |= (bit & NOT_A) << 7; // north-west
-        }
-
-        table[i] = attacks;
-        i += 1;
-    }
-
-    return table;
+    return attacks;
 }
 
-const fn compute_knight_attacks() -> [u64; 64] {
-    let mut table = [0u64; 64];
+const fn mask_black_pawn_attacks(square: usize) -> u64 {
+    let bit = 1u64 << square;
+    let mut attacks = 0u64;
 
-    let mut i = 0;
-    while i < 64 {
-        let bit = 1u64 << i;
-        let mut attacks = 0u64;
+    attacks |= (bit & NOT_H) >> 7; // south-east
+    attacks |= (bit & NOT_A) >> 9; // south-west
 
-        attacks |= (bit & NOT_H) << 17; // north-north-east
-        attacks |= (bit & NOT_A) << 15; // north-north-west
-        attacks |= (bit & NOT_GH) << 10; // north-east-east
-        attacks |= (bit & NOT_AB) << 6; // north-west-west
-
-        attacks |= (bit & NOT_A) >> 17; // south-south-west
-        attacks |= (bit & NOT_H) >> 15; // south-south-east
-        attacks |= (bit & NOT_AB) >> 10; // south-west-west
-        attacks |= (bit & NOT_GH) >> 6; // south-east-east
-
-        table[i] = attacks;
-        i += 1;
-    }
-
-    return table;
+    return attacks;
 }
 
-const fn compute_king_attacks() -> [u64; 64] {
-    let mut table = [0u64; 64];
+const fn mask_knight_attacks(square: usize) -> u64 {
+    let bit = 1u64 << square;
+    let mut attacks = 0u64;
 
-    let mut i = 0;
-    while i < 64 {
-        let bit = 1u64 << i;
-        let mut attacks = 0u64;
+    attacks |= (bit & NOT_H) << 17; // north-north-east
+    attacks |= (bit & NOT_A) << 15; // north-north-west
+    attacks |= (bit & NOT_GH) << 10; // north-east-east
+    attacks |= (bit & NOT_AB) << 6; // north-west-west
 
-        attacks |= bit << 8; // north
-        attacks |= (bit & NOT_A) << 7; // north-west
-        attacks |= (bit & NOT_H) << 9; // north-east
-
-        attacks |= bit >> 8; // south
-        attacks |= (bit & NOT_A) >> 9; // south-west
-        attacks |= (bit & NOT_H) >> 7; // south-east
-
-        attacks |= (bit & NOT_H) << 1; // east
-        attacks |= (bit & NOT_A) >> 1; // west
-
-        table[i] = attacks;
-        i += 1;
-    }
-
-    return table;
+    attacks |= (bit & NOT_A) >> 17; // south-south-west
+    attacks |= (bit & NOT_H) >> 15; // south-south-east
+    attacks |= (bit & NOT_AB) >> 10; // south-west-west
+    attacks |= (bit & NOT_GH) >> 6; // south-east-east
+    //
+    return attacks;
 }
 
-const fn compute_bishop_attack_masks() -> [u64; 64] {
-    let mut table = [0u64; 64];
+const fn mask_king_attacks(square: usize) -> u64 {
+    let bit = 1u64 << square;
+    let mut attacks = 0u64;
 
-    let mut i = 0;
-    while i < 64 {
-        let mut attacks = 0u64;
+    attacks |= bit << 8; // north
+    attacks |= (bit & NOT_A) << 7; // north-west
+    attacks |= (bit & NOT_H) << 9; // north-east
 
-        let rank = (i / 8) as i32;
-        let file = (i % 8) as i32;
+    attacks |= bit >> 8; // south
+    attacks |= (bit & NOT_A) >> 9; // south-west
+    attacks |= (bit & NOT_H) >> 7; // south-east
 
-        // north-east
-        let mut r = rank + 1;
-        let mut f = file + 1;
-        while r <= 6 && f <= 6 {
-            attacks |= 1u64 << (r * 8 + f);
-            r += 1;
-            f += 1;
-        }
+    attacks |= (bit & NOT_H) << 1; // east
+    attacks |= (bit & NOT_A) >> 1; // west
 
-        // north-west
-        r = rank + 1;
-        f = file - 1;
-        while r <= 6 && f >= 1 {
-            attacks |= 1u64 << (r * 8 + f);
-            r += 1;
-            f -= 1;
-        }
-
-        // south-east
-        r = rank - 1;
-        f = file + 1;
-        while r >= 1 && f <= 6 {
-            attacks |= 1u64 << (r * 8 + f);
-            r -= 1;
-            f += 1;
-        }
-
-        // south-west
-        r = rank - 1;
-        f = file - 1;
-        while r >= 1 && f >= 1 {
-            attacks |= 1u64 << (r * 8 + f);
-            r -= 1;
-            f -= 1;
-        }
-
-        table[i] = attacks;
-        i += 1;
-    }
-
-    return table;
+    return attacks;
 }
 
-const fn compute_rook_attack_masks() -> [u64; 64] {
-    let mut table = [0u64; 64];
+const fn mask_bishop_attacks(square: usize) -> u64 {
+    let mut attacks = 0u64;
 
-    let mut i = 0;
-    while i < 64 {
-        let mut attacks = 0u64;
+    let rank = (square / 8) as i32;
+    let file = (square % 8) as i32;
 
-        let rank = (i / 8) as i32;
-        let file = (i % 8) as i32;
-
-        // north
-        let mut r = rank + 1;
-        while r <= 6 {
-            attacks |= 1u64 << (r * 8 + file);
-            r += 1;
-        }
-
-        // east
-        let mut f = file + 1;
-        while f <= 6 {
-            attacks |= 1u64 << (rank * 8 + f);
-            f += 1;
-        }
-
-        // south
-        r = rank - 1;
-        while r >= 1 {
-            attacks |= 1u64 << (r * 8 + file);
-            r -= 1;
-        }
-
-        // west
-        f = file - 1;
-        while f >= 1 {
-            attacks |= 1u64 << (rank * 8 + f);
-            f -= 1;
-        }
-
-        table[i] = attacks;
-        i += 1;
+    // north-east
+    let mut r = rank + 1;
+    let mut f = file + 1;
+    while r <= 6 && f <= 6 {
+        attacks |= 1u64 << (r * 8 + f);
+        r += 1;
+        f += 1;
     }
 
-    return table;
+    // north-west
+    r = rank + 1;
+    f = file - 1;
+    while r <= 6 && f >= 1 {
+        attacks |= 1u64 << (r * 8 + f);
+        r += 1;
+        f -= 1;
+    }
+
+    // south-east
+    r = rank - 1;
+    f = file + 1;
+    while r >= 1 && f <= 6 {
+        attacks |= 1u64 << (r * 8 + f);
+        r -= 1;
+        f += 1;
+    }
+
+    // south-west
+    r = rank - 1;
+    f = file - 1;
+    while r >= 1 && f >= 1 {
+        attacks |= 1u64 << (r * 8 + f);
+        r -= 1;
+        f -= 1;
+    }
+
+    return attacks;
 }
 
-pub static WHITE_PAWN_ATTACKS: [u64; 64] = compute_pawn_attacks(false);
-pub static BLACK_PAWN_ATTACKS: [u64; 64] = compute_pawn_attacks(true);
-pub static KNIGHT_ATTACKS: [u64; 64] = compute_knight_attacks();
-pub static KING_ATTACKS: [u64; 64] = compute_king_attacks();
-pub static BISHOP_ATTACK_MASKS: [u64; 64] = compute_bishop_attack_masks();
-pub static ROOK_ATTACK_MASKS: [u64; 64] = compute_rook_attack_masks();
+const fn mask_rook_attacks(square: usize) -> u64 {
+    let mut attacks = 0u64;
+
+    let rank = (square / 8) as i32;
+    let file = (square % 8) as i32;
+
+    // north
+    let mut r = rank + 1;
+    while r <= 6 {
+        attacks |= 1u64 << (r * 8 + file);
+        r += 1;
+    }
+
+    // east
+    let mut f = file + 1;
+    while f <= 6 {
+        attacks |= 1u64 << (rank * 8 + f);
+        f += 1;
+    }
+
+    // south
+    r = rank - 1;
+    while r >= 1 {
+        attacks |= 1u64 << (r * 8 + file);
+        r -= 1;
+    }
+
+    // west
+    f = file - 1;
+    while f >= 1 {
+        attacks |= 1u64 << (rank * 8 + f);
+        f -= 1;
+    }
+
+    return attacks;
+}
+
+macro_rules! compute_table {
+    ($f:expr) => {{
+        let mut table = [0u64; 64];
+
+        let mut i = 0;
+        while i < 64 {
+            table[i] = $f(i);
+            i += 1;
+        }
+
+        table
+    }};
+}
+
+pub static WHITE_PAWN_ATTACKS: [u64; 64] = compute_table!(mask_white_pawn_attacks);
+pub static BLACK_PAWN_ATTACKS: [u64; 64] = compute_table!(mask_black_pawn_attacks);
+pub static KNIGHT_ATTACKS: [u64; 64] = compute_table!(mask_knight_attacks);
+pub static KING_ATTACKS: [u64; 64] = compute_table!(mask_king_attacks);
+pub static BISHOP_ATTACK_MASKS: [u64; 64] = compute_table!(mask_bishop_attacks);
+pub static ROOK_ATTACK_MASKS: [u64; 64] = compute_table!(mask_rook_attacks);
 
 #[cfg(test)]
 mod test {
