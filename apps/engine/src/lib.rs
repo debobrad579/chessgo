@@ -1,5 +1,4 @@
-#![allow(long_running_const_eval)]
-
 pub mod attacks;
 pub mod board;
-pub mod magic_numbers;
+pub mod macros;
+pub mod magic;

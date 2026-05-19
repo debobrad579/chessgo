@@ -1,5 +1,6 @@
-use crate::attacks::{
-    compute_bishop_attacks, compute_rook_attacks, mask_bishop_attacks, mask_rook_attacks,
+use crate::{
+    attacks::{BISHOP_MASKS, ROOK_MASKS, compute_bishop_attacks, compute_rook_attacks},
+    compute_table,
 };
 
 const RANDOM_SEED: u32 = 1804289383;
@@ -29,9 +30,9 @@ const fn find_magic_number(square: usize, is_bishop: bool) -> u64 {
     let mut occupancies = [0u64; 4096];
     let mut attacks = [0u64; 4096];
     let attack_mask = if is_bishop {
-        mask_bishop_attacks(square)
+        BISHOP_MASKS[square]
     } else {
-        mask_rook_attacks(square)
+        ROOK_MASKS[square]
     };
 
     let mut i = 0;
@@ -82,7 +83,7 @@ const fn find_magic_number(square: usize, is_bishop: bool) -> u64 {
     }
 }
 
-pub const fn find_magic_numbers(is_bishop: bool) -> [u64; 64] {
+pub const fn compute_magic_numbers(is_bishop: bool) -> [u64; 64] {
     let mut table = [0u64; 64];
 
     let mut i = 0;
@@ -93,6 +94,51 @@ pub const fn find_magic_numbers(is_bishop: bool) -> [u64; 64] {
 
     return table;
 }
+
+const fn compute_bishop_magic_bitboards(square: usize) -> [u64; 4096] {
+    let mut attacks = [0u64; 4096];
+    let attack_mask = BISHOP_MASKS[square];
+    let relevant_bits = attack_mask.count_ones();
+    let magic_number = BISHOP_MAGIC_NUMBERS[square];
+
+    let mut subset = attack_mask;
+    loop {
+        let magic_index = (subset.wrapping_mul(magic_number)) >> (64 - relevant_bits);
+        attacks[magic_index as usize] = compute_bishop_attacks(square, subset);
+
+        if subset == 0 {
+            break;
+        }
+
+        subset = (subset - 1) & attack_mask;
+    }
+
+    return attacks;
+}
+
+const fn compute_rook_magic_bitboards(square: usize) -> [u64; 4096] {
+    let mut attacks = [0u64; 4096];
+    let attack_mask = ROOK_MASKS[square];
+    let relevant_bits = attack_mask.count_ones();
+    let magic_number = ROOK_MAGIC_NUMBERS[square];
+
+    let mut subset = attack_mask;
+    loop {
+        let magic_index = (subset.wrapping_mul(magic_number)) >> (64 - relevant_bits);
+        attacks[magic_index as usize] = compute_rook_attacks(square, subset);
+
+        if subset == 0 {
+            break;
+        }
+
+        subset = (subset - 1) & attack_mask;
+    }
+
+    return attacks;
+}
+
+pub static MAGIC_BISHOP_ATTACKS: [[u64; 4096]; 64] = compute_table!(compute_bishop_magic_bitboards);
+pub static MAGIC_ROOK_ATTACKS: [[u64; 4096]; 64] = compute_table!(compute_rook_magic_bitboards);
 
 pub static BISHOP_MAGIC_NUMBERS: [u64; 64] = [
     0x40040822862081,
@@ -227,3 +273,45 @@ pub static ROOK_MAGIC_NUMBERS: [u64; 64] = [
     0x2000011002080084,
     0x1010549228402,
 ];
+
+#[cfg(test)]
+mod test {
+    use crate::{get_bishop_attacks, get_rook_attacks};
+
+    #[test]
+    fn bishop_attacks() {
+        assert_eq!(
+            get_bishop_attacks!(28, 0x0000440000004400),
+            0x0000442800284400
+        );
+        assert_eq!(
+            get_bishop_attacks!(9, 0x0040000000000000),
+            0x0040201008050005
+        );
+        assert_eq!(
+            get_bishop_attacks!(26, 0x0020000200000000),
+            0x0020100A000A1120
+        );
+        assert_eq!(
+            get_bishop_attacks!(61, 0x0040000002000000),
+            0x0050080402000000
+        );
+    }
+
+    #[test]
+    fn rook_attacks() {
+        assert_eq!(get_rook_attacks!(0, 0x0000000100000010), 0x000000010101011E);
+        assert_eq!(
+            get_rook_attacks!(28, 0x0000100020000000),
+            0x000010102F101010
+        );
+        assert_eq!(
+            get_rook_attacks!(61, 0x4000000020000000),
+            0x5F20202020000000
+        );
+        assert_eq!(
+            get_rook_attacks!(10, 0x0000000400002204),
+            0x0000000404043A04
+        );
+    }
+}
