@@ -44,3 +44,23 @@ macro_rules! get_rook_attacks {
 macro_rules! get_queen_attacks {
     ($square:expr, $occupancy:expr) => {{ get_bishop_attacks!($square, $occupancy) | get_rook_attacks!($square, $occupancy) }};
 }
+
+#[macro_export]
+macro_rules! set_bit {
+    ($bitboard:expr, $square:expr) => {{ $bitboard |= (1 << ($square)) }};
+}
+
+#[macro_export]
+macro_rules! pop_bit {
+    ($bitboard:expr, $square:expr) => {{ $bitboard &= !(1 << $square) }};
+}
+
+#[macro_export]
+macro_rules! get_bit {
+    ($bitboard:expr, $square:expr) => {{ ($bitboard) & (1 << ($square)) }};
+}
+
+#[macro_export]
+macro_rules! get_ls1b_index {
+    ($bitboard:expr) => {{ (($bitboard & $bitboard.wrapping_neg()) - 1).count_ones() }};
+}

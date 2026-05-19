@@ -1,5 +1,7 @@
 use thiserror::Error;
 
+use crate::set_bit;
+
 #[derive(Debug, Error)]
 pub enum BoardError {
     #[error("invalid fen: {0}")]
@@ -8,26 +10,26 @@ pub enum BoardError {
 
 #[derive(Debug, Default, PartialEq)]
 pub struct Board {
-    castling_rights: u8,
-    enpassant: Option<u8>,
-    half_moves: u16,
+    pub castling_rights: u8,
+    pub enpassant: Option<u8>,
+    pub half_moves: u16,
 
-    white_pawns: u64,
-    white_knights: u64,
-    white_bishops: u64,
-    white_rooks: u64,
-    white_queens: u64,
-    white_king: u64,
+    pub white_pawns: u64,
+    pub white_knights: u64,
+    pub white_bishops: u64,
+    pub white_rooks: u64,
+    pub white_queens: u64,
+    pub white_king: u64,
 
-    black_pawns: u64,
-    black_knights: u64,
-    black_bishops: u64,
-    black_rooks: u64,
-    black_queens: u64,
-    black_king: u64,
+    pub black_pawns: u64,
+    pub black_knights: u64,
+    pub black_bishops: u64,
+    pub black_rooks: u64,
+    pub black_queens: u64,
+    pub black_king: u64,
 
-    white_pieces: u64,
-    black_pieces: u64,
+    pub white_pieces: u64,
+    pub black_pieces: u64,
 }
 
 impl TryFrom<&str> for Board {
@@ -66,25 +68,25 @@ impl TryFrom<&str> for Board {
                     }
 
                     match c {
-                        'P' => board.white_pawns |= 1u64 << square,
-                        'N' => board.white_knights |= 1u64 << square,
-                        'B' => board.white_bishops |= 1u64 << square,
-                        'R' => board.white_rooks |= 1u64 << square,
-                        'Q' => board.white_queens |= 1u64 << square,
-                        'K' => board.white_king |= 1u64 << square,
-                        'p' => board.black_pawns |= 1u64 << square,
-                        'n' => board.black_knights |= 1u64 << square,
-                        'b' => board.black_bishops |= 1u64 << square,
-                        'r' => board.black_rooks |= 1u64 << square,
-                        'q' => board.black_queens |= 1u64 << square,
-                        'k' => board.black_king |= 1u64 << square,
+                        'P' => set_bit!(board.white_pawns, square),
+                        'N' => set_bit!(board.white_knights, square),
+                        'B' => set_bit!(board.white_bishops, square),
+                        'R' => set_bit!(board.white_rooks, square),
+                        'Q' => set_bit!(board.white_queens, square),
+                        'K' => set_bit!(board.white_king, square),
+                        'p' => set_bit!(board.black_pawns, square),
+                        'n' => set_bit!(board.black_knights, square),
+                        'b' => set_bit!(board.black_bishops, square),
+                        'r' => set_bit!(board.black_rooks, square),
+                        'q' => set_bit!(board.black_queens, square),
+                        'k' => set_bit!(board.black_king, square),
                         _ => return Err(Self::Error::InvalidFEN(fen.to_string())),
                     }
 
                     if c.is_uppercase() {
-                        board.white_pieces |= 1u64 << square;
+                        set_bit!(board.white_pieces, square);
                     } else {
-                        board.black_pieces |= 1u64 << square;
+                        set_bit!(board.black_pieces, square);
                     }
 
                     file += 1;
@@ -93,7 +95,7 @@ impl TryFrom<&str> for Board {
         }
 
         if color_to_move == "w" {
-            board.castling_rights |= 1 << 7;
+            set_bit!(board.castling_rights, 7);
         } else if color_to_move != "b" {
             return Err(Self::Error::InvalidFEN(fen.to_string()));
         }
@@ -109,10 +111,10 @@ impl TryFrom<&str> for Board {
 
         for c in castling_rights.chars() {
             match c {
-                'K' => board.castling_rights |= 1 << 0,
-                'Q' => board.castling_rights |= 1 << 1,
-                'k' => board.castling_rights |= 1 << 2,
-                'q' => board.castling_rights |= 1 << 3,
+                'K' => set_bit!(board.castling_rights, 0),
+                'Q' => set_bit!(board.castling_rights, 1),
+                'k' => set_bit!(board.castling_rights, 2),
+                'q' => set_bit!(board.castling_rights, 3),
                 '-' => {}
                 _ => return Err(Self::Error::InvalidFEN(fen.to_string())),
             }
