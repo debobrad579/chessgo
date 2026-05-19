@@ -305,7 +305,7 @@ pub static ROOK_MAGIC_NUMBERS: [u64; 64] = [
 
 #[cfg(test)]
 mod test {
-    use crate::{get_bishop_attacks, get_rook_attacks};
+    use crate::{get_bishop_attacks, get_queen_attacks, get_rook_attacks};
 
     #[test]
     fn bishop_attacks() {
@@ -341,6 +341,26 @@ mod test {
         assert_eq!(
             get_rook_attacks!(10, 0x0000000400002204),
             0x0000000404043A04
+        );
+    }
+
+    #[test]
+    fn queen_attacks() {
+        assert_eq!(
+            get_queen_attacks!(28, 0x0000000000000000),
+            0x11925438EF385492
+        );
+        assert_eq!(
+            get_queen_attacks!(18, 0x0000001000200400),
+            0x040404150E3B0E11
+        );
+        assert_eq!(
+            get_queen_attacks!(32, 0xF7F304000804E7F7),
+            0x080503FE03050100
+        );
+        assert_eq!(
+            get_queen_attacks!(3, 0xBDF3240C2834E3B3),
+            0x00000000092A1C16
         );
     }
 }

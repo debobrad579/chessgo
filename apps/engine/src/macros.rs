@@ -39,3 +39,8 @@ macro_rules! get_rook_attacks {
         $crate::magics::MAGIC_ROOK_ATTACKS[$square][index as usize]
     }};
 }
+
+#[macro_export]
+macro_rules! get_queen_attacks {
+    ($square:expr, $occupancy:expr) => {{ get_bishop_attacks!($square, $occupancy) | get_rook_attacks!($square, $occupancy) }};
+}
