@@ -19,10 +19,11 @@ macro_rules! get_bishop_attacks {
         let attack_mask = $crate::attacks::BISHOP_MASKS[$square];
         let relevant_occupancy = $occupancy & attack_mask;
 
-        let index = (relevant_occupancy.wrapping_mul($crate::magic::BISHOP_MAGIC_NUMBERS[$square]))
+        let index = (relevant_occupancy
+            .wrapping_mul($crate::magics::BISHOP_MAGIC_NUMBERS[$square]))
             >> (64 - attack_mask.count_ones());
 
-        $crate::magic::MAGIC_BISHOP_ATTACKS[$square][index as usize]
+        $crate::magics::MAGIC_BISHOP_ATTACKS[$square][index as usize]
     }};
 }
 
@@ -32,10 +33,9 @@ macro_rules! get_rook_attacks {
         let attack_mask = $crate::attacks::ROOK_MASKS[$square];
         let relevant_occupancy = $occupancy & attack_mask;
 
-        let index = (relevant_occupancy.wrapping_mul($crate::magic::ROOK_MAGIC_NUMBERS[$square]))
+        let index = (relevant_occupancy.wrapping_mul($crate::magics::ROOK_MAGIC_NUMBERS[$square]))
             >> (64 - attack_mask.count_ones());
 
-        $crate::magic::MAGIC_ROOK_ATTACKS[$square][index as usize]
+        $crate::magics::MAGIC_ROOK_ATTACKS[$square][index as usize]
     }};
 }
-
