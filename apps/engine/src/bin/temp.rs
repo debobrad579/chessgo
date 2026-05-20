@@ -1,8 +1,12 @@
-use engine::board::{Board, BoardError, Color};
+use engine::board::{Board, BoardError};
 
 fn main() -> Result<(), BoardError> {
-    let b = Board::try_from("rnbqkbnr/pppp1ppp/8/4p3/3P4/2N5/PPP1PPPP/R1BQKBNR b KQkq - 0 2")?;
-    println!("{}", b.generate_pseudolegal_moves(Color::Black).len());
+    let b = Board::try_from("8/8/8/8/8/8/1r6/K7 w - - 0 1")?;
+    let legal_moves = b.get_legal_moves();
+    println!("{}", legal_moves.len());
+    for m in legal_moves {
+        println!("{:?} {} {}", m.piece(), m.source(), m.target());
+    }
 
     Ok(())
 }

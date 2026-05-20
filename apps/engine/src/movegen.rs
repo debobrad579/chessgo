@@ -25,7 +25,7 @@ macro_rules! gen_moves {
 }
 
 impl Board {
-    fn is_square_attacked(&self, square: usize, color: Color) -> bool {
+    pub fn is_square_attacked(&self, square: usize, color: Color) -> bool {
         let all_pieces = self.side_bitboards[Color::White] | self.side_bitboards[Color::Black];
         let opp_pawn_attacks = match color {
             Color::White => &BLACK_PAWN_ATTACKS,
@@ -75,12 +75,12 @@ impl Board {
             }
 
             if second_rank.contains(&source) {
-                let target = ((source as i32) + pawn_offset * 2) as u32;
+                let double_target = ((source as i32) + pawn_offset * 2) as u32;
 
-                if get_bit!(all, target) == 0 {
+                if get_bit!(all, target) == 0 && get_bit!(all, double_target) == 0 {
                     moves.push(Move::new(MoveData {
                         source,
-                        target,
+                        target: double_target,
                         piece: Piece::Pawn,
                         double: true,
                         ..Default::default()
@@ -95,7 +95,7 @@ impl Board {
             self.piece_bitboards[color][Piece::Pawn],
             |source| pawn_attacks[source as usize],
             |source: u32, target: u32| {
-                if self.enpassant == Some(target as u8) || get_bit!(opp, target) != 0 {
+                if get_bit!(opp, target) != 0 {
                     if last_rank.contains(&target) {
                         push_promotions(&mut moves, source, target, true);
                     } else {
@@ -107,6 +107,14 @@ impl Board {
                             ..Default::default()
                         }));
                     }
+                } else if self.enpassant == Some(target as u8) {
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::Pawn,
+                        enpassant: true,
+                        ..Default::default()
+                    }));
                 }
             }
         );
@@ -213,6 +221,7 @@ impl Board {
         if get_bit!(self.castling_rights, castling_bit + 1) != 0
             && get_bit!(all, castling_source - 1) == 0
             && get_bit!(all, castling_source - 2) == 0
+            && get_bit!(all, castling_source - 3) == 0
             && get_bit!(
                 self.piece_bitboards[color][Piece::Rook],
                 castling_source - 4
@@ -245,9 +254,58 @@ fn push_promotions(moves: &mut Vec<Move>, source: u32, target: u32, capture: boo
             source,
             target,
             piece: Piece::Pawn,
-            promoted: piece,
+            promoted: Some(piece),
             capture,
             ..Default::default()
         }));
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use crate::board::Board;
+
+    fn perft(board: &Board, depth: u32) -> u64 {
+        if depth == 0 {
+            return 1;
+        }
+
+        let moves = board.get_legal_moves();
+
+        if depth == 1 {
+            return moves.len() as u64;
+        }
+
+        moves
+            .iter()
+            .map(|&m| {
+                let mut new_board = *board;
+                new_board.make_move(m);
+                perft(&new_board, depth - 1)
+            })
+            .sum()
+    }
+
+    #[test]
+    fn perft_startpos() {
+        let board =
+            Board::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+
+        assert_eq!(perft(&board, 1), 20);
+        assert_eq!(perft(&board, 2), 400);
+        assert_eq!(perft(&board, 3), 8_902);
+        assert_eq!(perft(&board, 4), 197_281);
+        assert_eq!(perft(&board, 5), 4_865_609);
+    }
+
+    #[test]
+    fn perft_kiwipete() {
+        let board =
+            Board::try_from("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1")
+                .unwrap();
+
+        assert_eq!(perft(&board, 1), 48);
+        assert_eq!(perft(&board, 2), 2_039);
+        assert_eq!(perft(&board, 3), 97_862);
     }
 }

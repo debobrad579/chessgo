@@ -11,7 +11,7 @@ pub enum BoardError {
 }
 
 #[repr(u8)]
-#[derive(Copy, Clone, PartialEq, Default)]
+#[derive(Copy, Clone, PartialEq, Default, Debug)]
 pub enum Color {
     #[default]
     White = 0,
@@ -30,7 +30,7 @@ impl Not for Color {
 }
 
 #[repr(u8)]
-#[derive(Copy, Clone, PartialEq, Default)]
+#[derive(Copy, Clone, PartialEq, Default, Debug)]
 pub enum Piece {
     #[default]
     Pawn = 0b000,
@@ -41,7 +41,7 @@ pub enum Piece {
     King = 0b101,
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct PieceBitboardArray([u64; 6]);
 
 impl Index<Piece> for PieceBitboardArray {
@@ -58,7 +58,7 @@ impl IndexMut<Piece> for PieceBitboardArray {
     }
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct ColorArray<T>([T; 2]);
 
 impl<T> Index<Color> for ColorArray<T> {
@@ -75,7 +75,7 @@ impl<T> IndexMut<Color> for ColorArray<T> {
     }
 }
 
-#[derive(Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Board {
     pub castling_rights: u8,
     pub enpassant: Option<u8>,
