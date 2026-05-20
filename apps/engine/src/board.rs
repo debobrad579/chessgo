@@ -1,6 +1,8 @@
+use std::ops::{Index, IndexMut, Not};
+
 use thiserror::Error;
 
-use crate::set_bit;
+use crate::{get_bit, set_bit};
 
 #[derive(Debug, Error)]
 pub enum BoardError {
@@ -8,28 +10,78 @@ pub enum BoardError {
     InvalidFEN(String),
 }
 
+#[repr(u8)]
+#[derive(Copy, Clone, PartialEq, Default)]
+pub enum Color {
+    #[default]
+    White = 0,
+    Black = 1,
+}
+
+impl Not for Color {
+    type Output = Color;
+
+    fn not(self) -> Color {
+        match self {
+            Color::White => Color::Black,
+            Color::Black => Color::White,
+        }
+    }
+}
+
+#[repr(u8)]
+#[derive(Copy, Clone, PartialEq, Default)]
+pub enum Piece {
+    #[default]
+    Pawn = 0b000,
+    Knight = 0b001,
+    Bishop = 0b010,
+    Rook = 0b011,
+    Queen = 0b100,
+    King = 0b101,
+}
+
+#[derive(Debug, Default, PartialEq)]
+pub struct PieceBitboardArray([u64; 6]);
+
+impl Index<Piece> for PieceBitboardArray {
+    type Output = u64;
+
+    fn index(&self, piece: Piece) -> &Self::Output {
+        &self.0[piece as usize]
+    }
+}
+
+impl IndexMut<Piece> for PieceBitboardArray {
+    fn index_mut(&mut self, piece: Piece) -> &mut Self::Output {
+        &mut self.0[piece as usize]
+    }
+}
+
+#[derive(Debug, Default, PartialEq)]
+pub struct ColorArray<T>([T; 2]);
+
+impl<T> Index<Color> for ColorArray<T> {
+    type Output = T;
+
+    fn index(&self, color: Color) -> &Self::Output {
+        &self.0[color as usize]
+    }
+}
+
+impl<T> IndexMut<Color> for ColorArray<T> {
+    fn index_mut(&mut self, color: Color) -> &mut Self::Output {
+        &mut self.0[color as usize]
+    }
+}
+
 #[derive(Debug, Default, PartialEq)]
 pub struct Board {
     pub castling_rights: u8,
     pub enpassant: Option<u8>,
     pub half_moves: u16,
-
-    pub white_pawns: u64,
-    pub white_knights: u64,
-    pub white_bishops: u64,
-    pub white_rooks: u64,
-    pub white_queens: u64,
-    pub white_king: u64,
-
-    pub black_pawns: u64,
-    pub black_knights: u64,
-    pub black_bishops: u64,
-    pub black_rooks: u64,
-    pub black_queens: u64,
-    pub black_king: u64,
-
-    pub white_pieces: u64,
-    pub black_pieces: u64,
+    pub side_bitboards: ColorArray<u64>,
+    pub piece_bitboards: ColorArray<PieceBitboardArray>,
 }
 
 impl TryFrom<&str> for Board {
@@ -67,26 +119,22 @@ impl TryFrom<&str> for Board {
                         return Err(Self::Error::InvalidFEN(fen.to_string()));
                     }
 
-                    match c {
-                        'P' => set_bit!(board.white_pawns, square),
-                        'N' => set_bit!(board.white_knights, square),
-                        'B' => set_bit!(board.white_bishops, square),
-                        'R' => set_bit!(board.white_rooks, square),
-                        'Q' => set_bit!(board.white_queens, square),
-                        'K' => set_bit!(board.white_king, square),
-                        'p' => set_bit!(board.black_pawns, square),
-                        'n' => set_bit!(board.black_knights, square),
-                        'b' => set_bit!(board.black_bishops, square),
-                        'r' => set_bit!(board.black_rooks, square),
-                        'q' => set_bit!(board.black_queens, square),
-                        'k' => set_bit!(board.black_king, square),
-                        _ => return Err(Self::Error::InvalidFEN(fen.to_string())),
-                    }
-
-                    if c.is_uppercase() {
-                        set_bit!(board.white_pieces, square);
+                    let piece_bitboard_array: &mut PieceBitboardArray = if c.is_uppercase() {
+                        set_bit!(board.side_bitboards[Color::White], square);
+                        &mut board.piece_bitboards[Color::White]
                     } else {
-                        set_bit!(board.black_pieces, square);
+                        set_bit!(board.side_bitboards[Color::Black], square);
+                        &mut board.piece_bitboards[Color::Black]
+                    };
+
+                    match c {
+                        'P' | 'p' => set_bit!(piece_bitboard_array[Piece::Pawn], square),
+                        'N' | 'n' => set_bit!(piece_bitboard_array[Piece::Knight], square),
+                        'B' | 'b' => set_bit!(piece_bitboard_array[Piece::Bishop], square),
+                        'R' | 'r' => set_bit!(piece_bitboard_array[Piece::Rook], square),
+                        'Q' | 'q' => set_bit!(piece_bitboard_array[Piece::Queen], square),
+                        'K' | 'k' => set_bit!(piece_bitboard_array[Piece::King], square),
+                        _ => return Err(Self::Error::InvalidFEN(fen.to_string())),
                     }
 
                     file += 1;
@@ -128,100 +176,198 @@ impl TryFrom<&str> for Board {
     }
 }
 
+impl Board {
+    #[inline]
+    pub fn color_to_move(&self) -> Color {
+        if get_bit!(self.castling_rights, 7) == 0 {
+            Color::Black
+        } else {
+            Color::White
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
-    use crate::board::{Board, BoardError};
+    use crate::board::{Board, BoardError, Color, Piece};
 
     #[test]
     fn starting_position() -> Result<(), BoardError> {
+        let board = Board::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
         assert_eq!(
-            Board::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?,
-            Board {
-                castling_rights: 0b10001111,
-                enpassant: None,
-                half_moves: 0,
-
-                white_pawns: 0x000000000000FF00,
-                white_knights: 0x0000000000000042,
-                white_bishops: 0x0000000000000024,
-                white_rooks: 0x0000000000000081,
-                white_queens: 0x0000000000000008,
-                white_king: 0x0000000000000010,
-
-                black_pawns: 0x00FF000000000000,
-                black_knights: 0x4200000000000000,
-                black_bishops: 0x2400000000000000,
-                black_rooks: 0x8100000000000000,
-                black_queens: 0x0800000000000000,
-                black_king: 0x1000000000000000,
-
-                white_pieces: 0x000000000000FFFF,
-                black_pieces: 0xFFFF000000000000,
-            }
+            board.piece_bitboards[Color::White][Piece::Pawn],
+            0x000000000000FF00
         );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Knight],
+            0x0000000000000042
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Bishop],
+            0x0000000000000024
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Rook],
+            0x0000000000000081
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Queen],
+            0x0000000000000008
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::King],
+            0x0000000000000010
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Pawn],
+            0x00FF000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Knight],
+            0x4200000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Bishop],
+            0x2400000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Rook],
+            0x8100000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Queen],
+            0x0800000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::King],
+            0x1000000000000000
+        );
+        assert_eq!(board.side_bitboards[Color::White], 0x000000000000FFFF);
+        assert_eq!(board.side_bitboards[Color::Black], 0xFFFF000000000000);
+        assert_eq!(board.castling_rights, 0b10001111);
+        assert_eq!(board.enpassant, None);
+        assert_eq!(board.half_moves, 0);
 
         Ok(())
     }
 
     #[test]
     fn enpassant() -> Result<(), BoardError> {
+        let board =
+            Board::try_from("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 3")?;
         assert_eq!(
-            Board::try_from("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 3")?,
-            Board {
-                castling_rights: 0b00001111,
-                enpassant: Some(20),
-                half_moves: 0,
-
-                white_pawns: 0x000000100000EF00,
-                white_knights: 0x0000000000000042,
-                white_bishops: 0x0000000000000024,
-                white_rooks: 0x0000000000000081,
-                white_queens: 0x0000000000000008,
-                white_king: 0x0000000000000010,
-
-                black_pawns: 0x00F7000800000000,
-                black_knights: 0x4200000000000000,
-                black_bishops: 0x2400000000000000,
-                black_rooks: 0x8100000000000000,
-                black_queens: 0x0800000000000000,
-                black_king: 0x1000000000000000,
-
-                white_pieces: 0x000000100000EFFF,
-                black_pieces: 0xFFF7000800000000,
-            }
+            board.piece_bitboards[Color::White][Piece::Pawn],
+            0x000000100000EF00
         );
-
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Knight],
+            0x0000000000000042
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Bishop],
+            0x0000000000000024
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Rook],
+            0x0000000000000081
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Queen],
+            0x0000000000000008
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::King],
+            0x0000000000000010
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Pawn],
+            0x00F7000800000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Knight],
+            0x4200000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Bishop],
+            0x2400000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Rook],
+            0x8100000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Queen],
+            0x0800000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::King],
+            0x1000000000000000
+        );
+        assert_eq!(board.side_bitboards[Color::White], 0x000000100000EFFF);
+        assert_eq!(board.side_bitboards[Color::Black], 0xFFF7000800000000);
+        assert_eq!(board.castling_rights, 0b00001111);
+        assert_eq!(board.enpassant, Some(20));
+        assert_eq!(board.half_moves, 0);
         Ok(())
     }
 
     #[test]
     fn castling_rights() -> Result<(), BoardError> {
+        let board =
+            Board::try_from("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 3")?;
         assert_eq!(
-            Board::try_from("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 3")?,
-            Board {
-                castling_rights: 0b00001100,
-                enpassant: None,
-                half_moves: 5,
-
-                white_pawns: 0x000000001000EF00,
-                white_knights: 0x0000000000200002,
-                white_bishops: 0x0000000004000004,
-                white_rooks: 0x0000000000000021,
-                white_queens: 0x0000000000000008,
-                white_king: 0x0000000000000040,
-
-                black_pawns: 0x00EF001000000000,
-                black_knights: 0x0000240000000000,
-                black_bishops: 0x2400000000000000,
-                black_rooks: 0x8100000000000000,
-                black_queens: 0x0800000000000000,
-                black_king: 0x1000000000000000,
-
-                white_pieces: 0x000000001420EF6F,
-                black_pieces: 0xBDEF241000000000,
-            }
+            board.piece_bitboards[Color::White][Piece::Pawn],
+            0x000000001000EF00
         );
-
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Knight],
+            0x0000000000200002
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Bishop],
+            0x0000000004000004
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Rook],
+            0x0000000000000021
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::Queen],
+            0x0000000000000008
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::White][Piece::King],
+            0x0000000000000040
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Pawn],
+            0x00EF001000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Knight],
+            0x0000240000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Bishop],
+            0x2400000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Rook],
+            0x8100000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::Queen],
+            0x0800000000000000
+        );
+        assert_eq!(
+            board.piece_bitboards[Color::Black][Piece::King],
+            0x1000000000000000
+        );
+        assert_eq!(board.side_bitboards[Color::White], 0x000000001420EF6F);
+        assert_eq!(board.side_bitboards[Color::Black], 0xBDEF241000000000);
+        assert_eq!(board.castling_rights, 0b00001100);
+        assert_eq!(board.enpassant, None);
+        assert_eq!(board.half_moves, 5);
         Ok(())
     }
 }

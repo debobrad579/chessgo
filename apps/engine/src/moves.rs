@@ -1,14 +1,4 @@
-#[repr(u8)]
-#[derive(Copy, Clone, PartialEq, Default)]
-pub enum Piece {
-    #[default]
-    Pawn = 0b000,
-    Knight = 0b001,
-    Bishop = 0b010,
-    Rook = 0b011,
-    Queen = 0b100,
-    King = 0b101,
-}
+use crate::board::Piece;
 
 #[repr(u8)]
 #[derive(Copy, Clone, PartialEq, Default)]
