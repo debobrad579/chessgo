@@ -1,7 +1,9 @@
 use crate::{
     attacks::{BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, WHITE_PAWN_ATTACKS},
     board::Board,
-    get_bishop_attacks, get_bit, get_ls1b_index, get_queen_attacks, get_rook_attacks, pop_bit,
+    get_bishop_attacks, get_bit, get_ls1b_index, get_queen_attacks, get_rook_attacks,
+    moves::{Move, MoveData, Piece},
+    pop_bit,
 };
 
 impl Board {
@@ -27,8 +29,9 @@ impl Board {
             || get_rook_attacks!(square, all_pieces) & (self.black_rooks | self.black_queens) != 0
     }
 
-    pub fn generate_white_moves(&self) {
+    pub fn generate_white_moves(&self) -> Vec<Move> {
         let all_pieces = self.white_pieces | self.black_pieces;
+        let mut moves: Vec<Move> = vec![];
         let mut source: u32;
         let mut target: u32;
         let mut attacks: u64;
@@ -40,12 +43,57 @@ impl Board {
 
             if get_bit!(all_pieces, target) == 0 {
                 if (56..64).contains(&target) {
-                    println!("{}-{}=q", source, target);
-                    println!("{}-{}=r", source, target);
-                    println!("{}-{}=b", source, target);
-                    println!("{}-{}=k", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhitePawn,
+                        promoted: Some(Piece::WhiteQueen),
+                        capture: false,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhitePawn,
+                        promoted: Some(Piece::WhiteRook),
+                        capture: false,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhitePawn,
+                        promoted: Some(Piece::WhiteBishop),
+                        capture: false,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhitePawn,
+                        promoted: Some(Piece::WhiteKnight),
+                        capture: false,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 } else {
-                    println!("{}-{}", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhitePawn,
+                        promoted: None,
+                        capture: false,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 }
             }
 
@@ -53,7 +101,16 @@ impl Board {
                 target = source + 16;
 
                 if get_bit!(all_pieces, target) == 0 {
-                    println!("{}-{}", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhitePawn,
+                        promoted: None,
+                        capture: false,
+                        double: true,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 }
             }
 
@@ -63,7 +120,16 @@ impl Board {
 
                 if self.enpassant == Some(target as u8) || get_bit!(self.black_pieces, target) != 0
                 {
-                    println!("x{}-{}", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhitePawn,
+                        promoted: None,
+                        capture: true,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 }
 
                 pop_bit!(attacks, target);
@@ -81,7 +147,16 @@ impl Board {
                 target = get_ls1b_index!(attacks);
 
                 if get_bit!(self.white_pieces, target) == 0 {
-                    println!("N{}-{}", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhiteKnight,
+                        promoted: None,
+                        capture: get_bit!(self.black_pieces, target) != 0,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 }
 
                 pop_bit!(attacks, target);
@@ -99,7 +174,16 @@ impl Board {
                 target = get_ls1b_index!(attacks);
 
                 if get_bit!(self.white_pieces, target) == 0 {
-                    println!("B{}-{}", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhiteBishop,
+                        promoted: None,
+                        capture: get_bit!(self.black_pieces, target) != 0,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 }
 
                 pop_bit!(attacks, target);
@@ -117,7 +201,16 @@ impl Board {
                 target = get_ls1b_index!(attacks);
 
                 if get_bit!(self.white_pieces, target) == 0 {
-                    println!("R{}-{}", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhiteRook,
+                        promoted: None,
+                        capture: get_bit!(self.black_pieces, target) != 0,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 }
 
                 pop_bit!(attacks, target);
@@ -135,7 +228,16 @@ impl Board {
                 target = get_ls1b_index!(attacks);
 
                 if get_bit!(self.white_pieces, target) == 0 {
-                    println!("Q{}-{}", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhiteQueen,
+                        promoted: None,
+                        capture: get_bit!(self.black_pieces, target) != 0,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 }
 
                 pop_bit!(attacks, target);
@@ -155,7 +257,16 @@ impl Board {
                 if get_bit!(self.white_pieces, target) == 0
                     && !self.black_attacks_square(target as usize)
                 {
-                    println!("Q{}-{}", source, target);
+                    moves.push(Move::new(MoveData {
+                        source,
+                        target,
+                        piece: Piece::WhiteKing,
+                        promoted: None,
+                        capture: get_bit!(self.black_pieces, target) != 0,
+                        double: false,
+                        enpassant: false,
+                        castling: false,
+                    }));
                 }
 
                 pop_bit!(attacks, target);
@@ -170,7 +281,16 @@ impl Board {
             && !self.black_attacks_square(5)
             && !self.black_attacks_square(6)
         {
-            println!("O-O");
+            moves.push(Move::new(MoveData {
+                source: 4,
+                target: 6,
+                piece: Piece::WhiteKing,
+                promoted: None,
+                capture: false,
+                double: false,
+                enpassant: false,
+                castling: true,
+            }));
         }
 
         if get_bit!(self.castling_rights, 1) != 0
@@ -179,7 +299,18 @@ impl Board {
             && !self.black_attacks_square(3)
             && !self.black_attacks_square(2)
         {
-            println!("O-O-O");
+            moves.push(Move::new(MoveData {
+                source: 4,
+                target: 2,
+                piece: Piece::WhiteKing,
+                promoted: None,
+                capture: false,
+                double: false,
+                enpassant: false,
+                castling: true,
+            }));
         }
+
+        return moves;
     }
 }
