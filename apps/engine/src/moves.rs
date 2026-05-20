@@ -1,3 +1,5 @@
+use arrayvec::ArrayVec;
+
 use crate::{
     board::{Board, Color, Piece},
     get_bit, get_ls1b_index, pop_bit, set_bit,
@@ -215,7 +217,7 @@ impl Board {
         };
     }
 
-    pub fn get_legal_moves(&self) -> Vec<Move> {
+    pub fn get_legal_moves(&self) -> ArrayVec<Move, 256> {
         let color = self.color_to_move();
         self.generate_pseudolegal_moves(color)
             .into_iter()

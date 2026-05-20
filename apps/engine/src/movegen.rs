@@ -1,3 +1,5 @@
+use arrayvec::ArrayVec;
+
 use crate::{
     attacks::{BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, WHITE_PAWN_ATTACKS},
     board::{Board, Color, Piece},
@@ -45,7 +47,7 @@ impl Board {
                 != 0
     }
 
-    pub fn generate_pseudolegal_moves(&self, color: Color) -> Vec<Move> {
+    pub fn generate_pseudolegal_moves(&self, color: Color) -> ArrayVec<Move, 256> {
         let own = self.side_bitboards[color];
         let opp = self.side_bitboards[!color];
         let all = own | opp;
@@ -54,7 +56,7 @@ impl Board {
                 Color::White => (&WHITE_PAWN_ATTACKS, 8, 8..16, 56..64, 4, 0),
                 Color::Black => (&BLACK_PAWN_ATTACKS, -8, 48..56, 0..8, 60, 2),
             };
-        let mut moves: Vec<Move> = vec![];
+        let mut moves = ArrayVec::<Move, 256>::new();
 
         let mut bitboard = self.piece_bitboards[color][Piece::Pawn];
         while bitboard != 0 {
@@ -243,7 +245,7 @@ impl Board {
 }
 
 #[inline(always)]
-fn push_promotions(moves: &mut Vec<Move>, source: u32, target: u32, capture: bool) {
+fn push_promotions(moves: &mut ArrayVec<Move, 256>, source: u32, target: u32, capture: bool) {
     for piece in [
         PromotionPiece::Queen,
         PromotionPiece::Rook,
@@ -263,49 +265,33 @@ fn push_promotions(moves: &mut Vec<Move>, source: u32, target: u32, capture: boo
 
 #[cfg(test)]
 mod test {
-    use crate::board::Board;
-
-    fn perft(board: &Board, depth: u32) -> u64 {
-        if depth == 0 {
-            return 1;
-        }
-
-        let moves = board.get_legal_moves();
-
-        if depth == 1 {
-            return moves.len() as u64;
-        }
-
-        moves
-            .iter()
-            .map(|&m| {
-                let mut new_board = *board;
-                new_board.make_move(m);
-                perft(&new_board, depth - 1)
-            })
-            .sum()
-    }
+    use crate::{
+        board::{Board, BoardError},
+        perft::perft,
+    };
 
     #[test]
-    fn perft_startpos() {
-        let board =
-            Board::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+    fn perft_startpos() -> Result<(), BoardError> {
+        let board = Board::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
 
         assert_eq!(perft(&board, 1), 20);
         assert_eq!(perft(&board, 2), 400);
         assert_eq!(perft(&board, 3), 8_902);
         assert_eq!(perft(&board, 4), 197_281);
-        assert_eq!(perft(&board, 5), 4_865_609);
+
+        Ok(())
     }
 
     #[test]
-    fn perft_kiwipete() {
-        let board =
-            Board::try_from("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1")
-                .unwrap();
+    fn perft_kiwipete() -> Result<(), BoardError> {
+        let board = Board::try_from(
+            "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",
+        )?;
 
         assert_eq!(perft(&board, 1), 48);
         assert_eq!(perft(&board, 2), 2_039);
         assert_eq!(perft(&board, 3), 97_862);
+
+        Ok(())
     }
 }

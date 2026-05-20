@@ -4,3 +4,4 @@ pub mod macros;
 pub mod magics;
 pub mod movegen;
 pub mod moves;
+pub mod perft;
