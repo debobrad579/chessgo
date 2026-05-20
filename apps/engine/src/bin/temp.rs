@@ -1,6 +1,8 @@
-use engine::board::Board;
+use engine::board::{Board, BoardError};
 
-fn main() {
-    let b = Board::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
-    println!("{}", b.generate_white_moves().len());
+fn main() -> Result<(), BoardError> {
+    let b = Board::try_from("rnbqkbnr/pppp1ppp/8/4p3/3P4/2N5/PPP1PPPP/R1BQKBNR b KQkq - 0 2")?;
+    println!("{}", b.generate_black_moves().len());
+
+    Ok(())
 }

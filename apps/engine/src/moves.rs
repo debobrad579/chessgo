@@ -1,26 +1,31 @@
 #[repr(u8)]
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Default)]
 pub enum Piece {
-    WhitePawn = 0,
-    WhiteKnight = 1,
-    WhiteBishop = 2,
-    WhiteRook = 3,
-    WhiteQueen = 4,
-    WhiteKing = 5,
-    BlackPawn = 6,
-    BlackKnight = 7,
-    BlackBishop = 8,
-    BlackRook = 9,
-    BlackQueen = 10,
-    BlackKing = 11,
+    #[default]
+    Pawn = 0b000,
+    Knight = 0b001,
+    Bishop = 0b010,
+    Rook = 0b011,
+    Queen = 0b100,
+    King = 0b101,
 }
 
-#[derive(Copy, Clone)]
+#[repr(u8)]
+#[derive(Copy, Clone, PartialEq, Default)]
+pub enum PromotionPiece {
+    #[default]
+    Queen = 0b00,
+    Rook = 0b01,
+    Bishop = 0b10,
+    Knight = 0b11,
+}
+
+#[derive(Copy, Clone, Default)]
 pub struct MoveData {
     pub source: u32,
     pub target: u32,
     pub piece: Piece,
-    pub promoted: Option<Piece>,
+    pub promoted: PromotionPiece,
     pub capture: bool,
     pub double: bool,
     pub enpassant: bool,
@@ -35,11 +40,11 @@ impl Move {
             data.source
                 | (data.target << 6)
                 | ((data.piece as u32) << 12)
-                | ((data.promoted.unwrap_or(Piece::WhitePawn) as u32) << 16)
-                | (data.capture as u32) << 20
-                | ((data.double as u32) << 21)
-                | ((data.enpassant as u32) << 22)
-                | ((data.castling as u32) << 23),
+                | ((data.promoted as u32) << 15)
+                | (data.capture as u32) << 17
+                | ((data.double as u32) << 18)
+                | ((data.enpassant as u32) << 19)
+                | ((data.castling as u32) << 20),
         )
     }
 
@@ -60,31 +65,31 @@ impl Move {
 
     #[inline]
     pub fn piece(self) -> Piece {
-        unsafe { std::mem::transmute(((self.0 & 0xF000) >> 12) as u8) }
+        unsafe { std::mem::transmute(((self.0 >> 12) & 0b111) as u8) }
     }
 
     #[inline]
-    pub fn promoted(self) -> Piece {
-        unsafe { std::mem::transmute(((self.0 & 0xF0000) >> 16) as u8) }
+    pub fn promoted(self) -> PromotionPiece {
+        unsafe { std::mem::transmute(((self.0 >> 15) & 0b11) as u8) }
     }
 
     #[inline]
     pub fn is_capture(self) -> bool {
-        (self.0 & 0x100000) != 0
+        ((self.0 >> 17) & 1) != 0
     }
 
     #[inline]
     pub fn is_double_pawn_push(self) -> bool {
-        (self.0 & 0x200000) != 0
+        ((self.0 >> 18) & 1) != 0
     }
 
     #[inline]
     pub fn is_enpassant(self) -> bool {
-        (self.0 & 0x400000) != 0
+        ((self.0 >> 19) & 1) != 0
     }
 
     #[inline]
     pub fn is_castling(self) -> bool {
-        (self.0 & 0x800000) != 0
+        ((self.0 >> 20) & 1) != 0
     }
 }
