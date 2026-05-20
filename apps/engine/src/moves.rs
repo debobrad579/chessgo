@@ -15,6 +15,14 @@ pub enum PromotionPiece {
     Knight = 0b111,
 }
 
+impl PromotionPiece {
+    pub const ALL: [Self; 4] = [Self::Queen, Self::Rook, Self::Bishop, Self::Knight];
+
+    pub fn iter() -> impl Iterator<Item = Self> {
+        Self::ALL.into_iter()
+    }
+}
+
 #[derive(Copy, Clone, Default)]
 pub struct MoveData {
     pub source: u32,
@@ -99,42 +107,36 @@ impl Move {
 
 impl Board {
     pub fn make_move(&mut self, m: Move) {
-        let color = self.color_to_move();
+        let opp_color = !self.turn;
         let source = m.source();
         let source_piece = m.piece();
         let target = m.target();
 
-        pop_bit!(self.piece_bitboards[color][source_piece], source);
+        pop_bit!(self.piece_bitboards[self.turn][source_piece], source);
 
         if let Some(promoted) = m.promoted() {
             match promoted {
                 PromotionPiece::Queen => {
-                    set_bit!(self.piece_bitboards[color][Piece::Queen], target);
+                    set_bit!(self.piece_bitboards[self.turn][Piece::Queen], target);
                 }
                 PromotionPiece::Rook => {
-                    set_bit!(self.piece_bitboards[color][Piece::Rook], target);
+                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], target);
                 }
                 PromotionPiece::Bishop => {
-                    set_bit!(self.piece_bitboards[color][Piece::Bishop], target);
+                    set_bit!(self.piece_bitboards[self.turn][Piece::Bishop], target);
                 }
                 PromotionPiece::Knight => {
-                    set_bit!(self.piece_bitboards[color][Piece::Knight], target);
+                    set_bit!(self.piece_bitboards[self.turn][Piece::Knight], target);
                 }
             }
         } else {
-            set_bit!(self.piece_bitboards[color][source_piece], target);
+            set_bit!(self.piece_bitboards[self.turn][source_piece], target);
         }
 
         if m.is_capture() {
-            for target_piece in [
-                Piece::Pawn,
-                Piece::Knight,
-                Piece::Bishop,
-                Piece::Rook,
-                Piece::Queen,
-            ] {
-                if get_bit!(self.piece_bitboards[!color][target_piece], target) != 0 {
-                    pop_bit!(self.piece_bitboards[!color][target_piece], target);
+            for target_piece in Piece::iter() {
+                if get_bit!(self.piece_bitboards[opp_color][target_piece], target) != 0 {
+                    pop_bit!(self.piece_bitboards[opp_color][target_piece], target);
                 }
             }
         }
@@ -142,27 +144,27 @@ impl Board {
         if m.is_castling() {
             match target {
                 6 => {
-                    pop_bit!(self.piece_bitboards[color][Piece::Rook], 7);
-                    set_bit!(self.piece_bitboards[color][Piece::Rook], 5);
+                    pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 7);
+                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 5);
                 }
                 2 => {
-                    pop_bit!(self.piece_bitboards[color][Piece::Rook], 0);
-                    set_bit!(self.piece_bitboards[color][Piece::Rook], 3);
+                    pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 0);
+                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 3);
                 }
                 62 => {
-                    pop_bit!(self.piece_bitboards[color][Piece::Rook], 63);
-                    set_bit!(self.piece_bitboards[color][Piece::Rook], 61);
+                    pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 63);
+                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 61);
                 }
                 58 => {
-                    pop_bit!(self.piece_bitboards[color][Piece::Rook], 56);
-                    set_bit!(self.piece_bitboards[color][Piece::Rook], 59);
+                    pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 56);
+                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 59);
                 }
                 _ => {}
             }
         }
 
         if m.is_castling() || source_piece == Piece::King {
-            match color {
+            match self.turn {
                 Color::White => {
                     pop_bit!(self.castling_rights, 0);
                     pop_bit!(self.castling_rights, 1);
@@ -182,13 +184,13 @@ impl Board {
             }
         }
 
-        let square_behind = match color {
+        let square_behind = match self.turn {
             Color::White => target.wrapping_sub(8),
             Color::Black => target.wrapping_add(8),
         };
 
         if m.is_enpassant() {
-            pop_bit!(self.piece_bitboards[!color][Piece::Pawn], square_behind);
+            pop_bit!(self.piece_bitboards[opp_color][Piece::Pawn], square_behind);
         }
 
         self.enpassant = if m.is_double_pawn_push() {
@@ -197,36 +199,23 @@ impl Board {
             None
         };
 
-        self.side_bitboards[color] = self.piece_bitboards[color][Piece::Pawn]
-            | self.piece_bitboards[color][Piece::Knight]
-            | self.piece_bitboards[color][Piece::Bishop]
-            | self.piece_bitboards[color][Piece::Rook]
-            | self.piece_bitboards[color][Piece::Queen]
-            | self.piece_bitboards[color][Piece::King];
+        self.side_bitboards[self.turn] =
+            Piece::iter().fold(0, |acc, piece| acc | self.piece_bitboards[self.turn][piece]);
+        self.side_bitboards[opp_color] =
+            Piece::iter().fold(0, |acc, piece| acc | self.piece_bitboards[opp_color][piece]);
 
-        self.side_bitboards[!color] = self.piece_bitboards[!color][Piece::Pawn]
-            | self.piece_bitboards[!color][Piece::Knight]
-            | self.piece_bitboards[!color][Piece::Bishop]
-            | self.piece_bitboards[!color][Piece::Rook]
-            | self.piece_bitboards[!color][Piece::Queen]
-            | self.piece_bitboards[!color][Piece::King];
-
-        match color {
-            Color::White => pop_bit!(self.castling_rights, 7),
-            Color::Black => set_bit!(self.castling_rights, 7),
-        };
+        self.turn = opp_color;
     }
 
     pub fn get_legal_moves(&self) -> ArrayVec<Move, 256> {
-        let color = self.color_to_move();
-        self.generate_pseudolegal_moves(color)
+        self.generate_pseudolegal_moves(self.turn)
             .into_iter()
             .filter(|m| {
                 let mut new_board = *self;
                 new_board.make_move(*m);
                 !new_board.is_square_attacked(
-                    get_ls1b_index!(new_board.piece_bitboards[color][Piece::King]) as usize,
-                    !color,
+                    get_ls1b_index!(new_board.piece_bitboards[self.turn][Piece::King]) as usize,
+                    !self.turn,
                 )
             })
             .collect()

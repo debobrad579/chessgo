@@ -246,12 +246,7 @@ impl Board {
 
 #[inline(always)]
 fn push_promotions(moves: &mut ArrayVec<Move, 256>, source: u32, target: u32, capture: bool) {
-    for piece in [
-        PromotionPiece::Queen,
-        PromotionPiece::Rook,
-        PromotionPiece::Bishop,
-        PromotionPiece::Knight,
-    ] {
+    for piece in PromotionPiece::iter() {
         moves.push(Move::new(MoveData {
             source,
             target,

@@ -2,7 +2,7 @@ use std::ops::{Index, IndexMut, Not};
 
 use thiserror::Error;
 
-use crate::{get_bit, set_bit};
+use crate::set_bit;
 
 #[derive(Debug, Error)]
 pub enum BoardError {
@@ -41,6 +41,21 @@ pub enum Piece {
     King = 0b101,
 }
 
+impl Piece {
+    pub const ALL: [Self; 6] = [
+        Self::Pawn,
+        Self::Knight,
+        Self::Bishop,
+        Self::Rook,
+        Self::Queen,
+        Self::King,
+    ];
+
+    pub fn iter() -> impl Iterator<Item = Self> {
+        Self::ALL.into_iter()
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct PieceBitboardArray([u64; 6]);
 
@@ -77,6 +92,7 @@ impl<T> IndexMut<Color> for ColorArray<T> {
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct Board {
+    pub turn: Color,
     pub castling_rights: u8,
     pub enpassant: Option<u8>,
     pub half_moves: u16,
@@ -90,7 +106,7 @@ impl TryFrom<&str> for Board {
     fn try_from(fen: &str) -> Result<Self, Self::Error> {
         let [
             pieces,
-            color_to_move,
+            side_to_move,
             castling_rights,
             enpassant,
             half_moves,
@@ -142,11 +158,11 @@ impl TryFrom<&str> for Board {
             }
         }
 
-        if color_to_move == "w" {
-            set_bit!(board.castling_rights, 7);
-        } else if color_to_move != "b" {
-            return Err(Self::Error::InvalidFEN(fen.to_string()));
-        }
+        board.turn = match side_to_move {
+            "w" => Color::White,
+            "b" => Color::Black,
+            _ => return Err(Self::Error::InvalidFEN(fen.to_string())),
+        };
 
         if enpassant != "-" {
             let enpassant = enpassant.as_bytes();
@@ -173,17 +189,6 @@ impl TryFrom<&str> for Board {
             .map_err(|_| Self::Error::InvalidFEN(fen.to_string()))?;
 
         Ok(board)
-    }
-}
-
-impl Board {
-    #[inline]
-    pub fn color_to_move(&self) -> Color {
-        if get_bit!(self.castling_rights, 7) == 0 {
-            Color::Black
-        } else {
-            Color::White
-        }
     }
 }
 
@@ -244,7 +249,7 @@ mod test {
         );
         assert_eq!(board.side_bitboards[Color::White], 0x000000000000FFFF);
         assert_eq!(board.side_bitboards[Color::Black], 0xFFFF000000000000);
-        assert_eq!(board.castling_rights, 0b10001111);
+        assert_eq!(board.castling_rights, 0b00001111);
         assert_eq!(board.enpassant, None);
         assert_eq!(board.half_moves, 0);
 
