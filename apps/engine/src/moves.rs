@@ -1,8 +1,8 @@
 use arrayvec::ArrayVec;
 
 use crate::{
-    board::{Board, Color, Piece},
     get_bit, get_ls1b_index, pop_bit, set_bit,
+    state::{Color, Piece, State},
 };
 
 #[repr(u8)]
@@ -104,17 +104,17 @@ impl Move {
     }
 }
 
-impl Board {
-    pub fn make_move(&mut self, m: Move) {
+impl State {
+    pub fn make_move(&mut self, mv: Move) {
         let opp_color = !self.turn;
-        let source = m.source();
-        let source_piece = m.piece();
-        let target = m.target();
+        let source = mv.source();
+        let source_piece = mv.piece();
+        let target = mv.target();
 
         pop_bit!(self.piece_bitboards[self.turn][source_piece], source);
         pop_bit!(self.side_bitboards[self.turn], source);
 
-        if let Some(promoted) = m.promoted() {
+        if let Some(promoted) = mv.promoted() {
             let piece = unsafe { std::mem::transmute::<u8, Piece>(promoted as u8) };
             set_bit!(self.piece_bitboards[self.turn][piece], target);
         } else {
@@ -122,7 +122,7 @@ impl Board {
         }
         set_bit!(self.side_bitboards[self.turn], target);
 
-        if m.is_capture() {
+        if mv.is_capture() {
             for target_piece in Piece::iter() {
                 if get_bit!(self.piece_bitboards[opp_color][target_piece], target) != 0 {
                     pop_bit!(self.piece_bitboards[opp_color][target_piece], target);
@@ -132,7 +132,7 @@ impl Board {
             }
         }
 
-        if m.is_castling() {
+        if mv.is_castling() {
             match target {
                 6 => {
                     pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 7);
@@ -162,7 +162,7 @@ impl Board {
             }
         }
 
-        if m.is_castling() || source_piece == Piece::King {
+        if mv.is_castling() || source_piece == Piece::King {
             match self.turn {
                 Color::White => {
                     pop_bit!(self.castling_rights, 0);
@@ -188,12 +188,12 @@ impl Board {
             Color::Black => target.wrapping_add(8),
         };
 
-        if m.is_enpassant() {
+        if mv.is_enpassant() {
             pop_bit!(self.piece_bitboards[opp_color][Piece::Pawn], square_behind);
             pop_bit!(self.side_bitboards[opp_color], square_behind);
         }
 
-        self.enpassant = if m.is_double_pawn_push() {
+        self.enpassant = if mv.is_double_pawn_push() {
             Some(square_behind as u8)
         } else {
             None
@@ -208,11 +208,11 @@ impl Board {
 
         self.generate_pseudolegal_moves(self.turn)
             .into_iter()
-            .filter(|m| {
+            .filter(|mv| {
                 let mut new_board = *self;
-                new_board.make_move(*m);
-                let king_square = if m.piece() == Piece::King {
-                    m.target()
+                new_board.make_move(*mv);
+                let king_square = if mv.piece() == Piece::King {
+                    mv.target()
                 } else {
                     source_king_square
                 };

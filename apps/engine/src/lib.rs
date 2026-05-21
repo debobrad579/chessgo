@@ -1,7 +1,9 @@
 pub mod attacks;
-pub mod board;
+pub mod fen;
 pub mod macros;
 pub mod magics;
 pub mod movegen;
 pub mod moves;
 pub mod perft;
+pub mod state;
+pub mod uci;

@@ -1,8 +1,8 @@
 use std::time::Instant;
 
-use crate::board::Board;
+use crate::state::State;
 
-pub fn perft(board: &Board, depth: u32) -> u64 {
+pub fn perft(board: &State, depth: u32) -> u64 {
     if depth == 0 {
         return 1;
     }
@@ -15,9 +15,9 @@ pub fn perft(board: &Board, depth: u32) -> u64 {
 
     moves
         .iter()
-        .map(|&m| {
+        .map(|&mv| {
             let mut new_board = *board;
-            new_board.make_move(m);
+            new_board.make_move(mv);
             perft(&new_board, depth - 1)
         })
         .sum()

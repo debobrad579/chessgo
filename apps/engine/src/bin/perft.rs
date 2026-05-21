@@ -1,12 +1,13 @@
 use engine::{
-    board::{Board, BoardError},
+    fen::FENError,
     perft::{benchmark, perft},
+    state::State,
 };
 
-fn main() -> Result<(), BoardError> {
-    let board = Board::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
+fn main() -> Result<(), FENError> {
+    let state = State::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
 
-    benchmark("Starting position - depth 6", || perft(&board, 6));
+    benchmark("Starting position - depth 6", || perft(&state, 6));
 
     Ok(())
 }
