@@ -10,9 +10,9 @@ use crate::{
 pub enum PromotionPiece {
     #[default]
     Queen = 0b100,
-    Rook = 0b101,
-    Bishop = 0b110,
-    Knight = 0b111,
+    Rook = 0b011,
+    Bishop = 0b010,
+    Knight = 0b001,
 }
 
 impl PromotionPiece {
@@ -23,32 +23,31 @@ impl PromotionPiece {
     }
 }
 
-#[derive(Copy, Clone, Default)]
-pub struct MoveData {
-    pub source: u32,
-    pub target: u32,
-    pub piece: Piece,
-    pub promoted: Option<PromotionPiece>,
-    pub capture: bool,
-    pub double: bool,
-    pub enpassant: bool,
-    pub castling: bool,
-}
-
 #[derive(Debug, Clone, Copy)]
 pub struct Move(u32);
 
 impl Move {
-    pub fn new(data: MoveData) -> Self {
+    #[allow(clippy::too_many_arguments)]
+    #[inline(always)]
+    pub fn new(
+        source: u32,
+        target: u32,
+        piece: Piece,
+        promoted: Option<PromotionPiece>,
+        capture: bool,
+        double: bool,
+        enpassant: bool,
+        castling: bool,
+    ) -> Self {
         Move(
-            data.source
-                | (data.target << 6)
-                | ((data.piece as u32) << 12)
-                | ((data.promoted.map(|p| p as u32).unwrap_or(0b000)) << 15)
-                | (data.capture as u32) << 18
-                | ((data.double as u32) << 19)
-                | ((data.enpassant as u32) << 20)
-                | ((data.castling as u32) << 21),
+            source
+                | (target << 6)
+                | ((piece as u32) << 12)
+                | ((promoted.map(|p| p as u32).unwrap_or(0b000)) << 15)
+                | (capture as u32) << 18
+                | ((double as u32) << 19)
+                | ((enpassant as u32) << 20)
+                | ((castling as u32) << 21),
         )
     }
 
@@ -77,9 +76,9 @@ impl Move {
         match ((self.0 >> 15) & 0b111) as u8 {
             0b000 => None,
             0b100 => Some(PromotionPiece::Queen),
-            0b101 => Some(PromotionPiece::Rook),
-            0b110 => Some(PromotionPiece::Bishop),
-            0b111 => Some(PromotionPiece::Knight),
+            0b011 => Some(PromotionPiece::Rook),
+            0b010 => Some(PromotionPiece::Bishop),
+            0b001 => Some(PromotionPiece::Knight),
             _ => unreachable!(),
         }
     }
@@ -113,30 +112,22 @@ impl Board {
         let target = m.target();
 
         pop_bit!(self.piece_bitboards[self.turn][source_piece], source);
+        pop_bit!(self.side_bitboards[self.turn], source);
 
         if let Some(promoted) = m.promoted() {
-            match promoted {
-                PromotionPiece::Queen => {
-                    set_bit!(self.piece_bitboards[self.turn][Piece::Queen], target);
-                }
-                PromotionPiece::Rook => {
-                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], target);
-                }
-                PromotionPiece::Bishop => {
-                    set_bit!(self.piece_bitboards[self.turn][Piece::Bishop], target);
-                }
-                PromotionPiece::Knight => {
-                    set_bit!(self.piece_bitboards[self.turn][Piece::Knight], target);
-                }
-            }
+            let piece = unsafe { std::mem::transmute::<u8, Piece>(promoted as u8) };
+            set_bit!(self.piece_bitboards[self.turn][piece], target);
         } else {
             set_bit!(self.piece_bitboards[self.turn][source_piece], target);
         }
+        set_bit!(self.side_bitboards[self.turn], target);
 
         if m.is_capture() {
             for target_piece in Piece::iter() {
                 if get_bit!(self.piece_bitboards[opp_color][target_piece], target) != 0 {
                     pop_bit!(self.piece_bitboards[opp_color][target_piece], target);
+                    pop_bit!(self.side_bitboards[opp_color], target);
+                    break;
                 }
             }
         }
@@ -145,21 +136,29 @@ impl Board {
             match target {
                 6 => {
                     pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 7);
+                    pop_bit!(self.side_bitboards[self.turn], 7);
                     set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 5);
+                    set_bit!(self.side_bitboards[self.turn], 5);
                 }
                 2 => {
                     pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 0);
+                    pop_bit!(self.side_bitboards[self.turn], 0);
                     set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 3);
+                    set_bit!(self.side_bitboards[self.turn], 3);
                 }
                 62 => {
                     pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 63);
+                    pop_bit!(self.side_bitboards[self.turn], 63);
                     set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 61);
+                    set_bit!(self.side_bitboards[self.turn], 61);
                 }
                 58 => {
                     pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 56);
+                    pop_bit!(self.side_bitboards[self.turn], 56);
                     set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 59);
+                    set_bit!(self.side_bitboards[self.turn], 59);
                 }
-                _ => {}
+                _ => unreachable!(),
             }
         }
 
@@ -191,6 +190,7 @@ impl Board {
 
         if m.is_enpassant() {
             pop_bit!(self.piece_bitboards[opp_color][Piece::Pawn], square_behind);
+            pop_bit!(self.side_bitboards[opp_color], square_behind);
         }
 
         self.enpassant = if m.is_double_pawn_push() {
@@ -199,24 +199,24 @@ impl Board {
             None
         };
 
-        self.side_bitboards[self.turn] =
-            Piece::iter().fold(0, |acc, piece| acc | self.piece_bitboards[self.turn][piece]);
-        self.side_bitboards[opp_color] =
-            Piece::iter().fold(0, |acc, piece| acc | self.piece_bitboards[opp_color][piece]);
-
+        self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[opp_color];
         self.turn = opp_color;
     }
 
     pub fn get_legal_moves(&self) -> ArrayVec<Move, 256> {
+        let source_king_square = get_ls1b_index!(self.piece_bitboards[self.turn][Piece::King]);
+
         self.generate_pseudolegal_moves(self.turn)
             .into_iter()
             .filter(|m| {
                 let mut new_board = *self;
                 new_board.make_move(*m);
-                !new_board.is_square_attacked(
-                    get_ls1b_index!(new_board.piece_bitboards[self.turn][Piece::King]) as usize,
-                    !self.turn,
-                )
+                let king_square = if m.piece() == Piece::King {
+                    m.target()
+                } else {
+                    source_king_square
+                };
+                !new_board.is_square_attacked(king_square as usize, !self.turn)
             })
             .collect()
     }

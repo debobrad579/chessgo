@@ -96,6 +96,7 @@ pub struct Board {
     pub castling_rights: u8,
     pub enpassant: Option<u8>,
     pub half_moves: u16,
+    pub occupancy: u64,
     pub side_bitboards: ColorArray<u64>,
     pub piece_bitboards: ColorArray<PieceBitboardArray>,
 }
@@ -157,6 +158,8 @@ impl TryFrom<&str> for Board {
                 }
             }
         }
+
+        board.occupancy = board.side_bitboards[Color::White] | board.side_bitboards[Color::Black];
 
         board.turn = match side_to_move {
             "w" => Color::White,
