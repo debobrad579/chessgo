@@ -38,7 +38,7 @@ impl TryFrom<&str> for State {
             half_moves,
             _full_moves,
         ]: [&str; 6] = fen
-            .split(' ')
+            .split_whitespace()
             .collect::<Vec<_>>()
             .try_into()
             .map_err(|_| Self::Error::InvalidFEN(fen.to_string()))?;

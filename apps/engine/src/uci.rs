@@ -1,9 +1,12 @@
 use thiserror::Error;
 
 use crate::{
+    fen::FENError,
     moves::{Move, PromotionPiece},
     state::State,
 };
+
+const STARTPOS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 #[derive(Debug, Error)]
 pub enum MoveError {
@@ -15,6 +18,25 @@ pub enum MoveError {
 
     #[error("illegal move: {0}")]
     IllegalMove(String),
+}
+
+#[derive(Debug)]
+pub enum PositionCmdError {
+    InvalidArgs,
+    FENError(FENError),
+    MoveError(MoveError),
+}
+
+impl From<FENError> for PositionCmdError {
+    fn from(err: FENError) -> Self {
+        PositionCmdError::FENError(err)
+    }
+}
+
+impl From<MoveError> for PositionCmdError {
+    fn from(err: MoveError) -> Self {
+        PositionCmdError::MoveError(err)
+    }
 }
 
 impl State {
@@ -49,11 +71,43 @@ impl State {
             })
             .ok_or(MoveError::IllegalMove(move_str.to_string()))?)
     }
+
+    pub fn from_position_cmd(cmd: &str) -> Result<Self, PositionCmdError> {
+        match cmd.split_whitespace().collect::<Vec<_>>().as_slice() {
+            ["startpos"] => Ok(State::try_from(STARTPOS)?),
+            ["startpos", "moves", moves @ ..] => {
+                let mut state = State::try_from(STARTPOS)?;
+                for mv in moves {
+                    state.make_move(state.parse_move(mv)?);
+                }
+                Ok(state)
+            }
+            ["fen", rest @ ..] => {
+                let (fen, moves): (&str, Option<&[&str]>) =
+                    if let Some(idx) = rest.iter().position(|x| *x == "moves") {
+                        (&rest[..idx].join(" "), Some(&rest[idx + 1..]))
+                    } else {
+                        (&rest.join(" "), None)
+                    };
+
+                let mut state = State::try_from(fen)?;
+                if let Some(moves) = moves {
+                    for mv in moves {
+                        state.make_move(state.parse_move(mv)?);
+                    }
+                }
+                Ok(state)
+            }
+            [..] => Err(PositionCmdError::InvalidArgs),
+        }
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{moves::PromotionPiece, state::State};
+    use crate::{moves::PromotionPiece, state::State, uci::STARTPOS};
+
+    const TEST_FEN: &str = "r2q1rk1/pp1bbppp/2n1pn2/2pp4/3P4/2PBPN2/PPQ2PPP/R1B2RK1 w - - 0 10";
 
     #[test]
     fn parse_starting_pos_moves() {
@@ -104,5 +158,37 @@ mod test {
         assert_eq!(mv.source(), 50);
         assert_eq!(mv.target(), 58);
         assert_eq!(mv.promotion(), Some(PromotionPiece::Knight));
+    }
+
+    #[test]
+    fn parse_position_cmd_startpos() {
+        assert_eq!(
+            State::from_position_cmd("startpos").unwrap(),
+            State::try_from(STARTPOS).unwrap(),
+        );
+    }
+
+    #[test]
+    fn parse_position_cmd_moves() {
+        assert!(State::from_position_cmd("startpos moves e2e4 e7e5 b1c3 g8f6").is_ok());
+    }
+
+    #[test]
+    fn parse_position_cmd_fen() {
+        assert_eq!(
+            State::from_position_cmd(&format!("fen {}", TEST_FEN)).unwrap(),
+            State::try_from(TEST_FEN).unwrap(),
+        );
+    }
+
+    #[test]
+    fn parse_position_cmd_fen_moves() {
+        assert!(
+            State::from_position_cmd(&format!(
+                "fen {} moves d4c5 e7c5 e3e4 d5e4 d3e4 f6e4 c2e4",
+                TEST_FEN
+            ))
+            .is_ok()
+        );
     }
 }
