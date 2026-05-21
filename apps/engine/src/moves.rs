@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[repr(u8)]
-#[derive(Copy, Clone, PartialEq, Default)]
+#[derive(Copy, Clone, PartialEq, Default, Debug)]
 pub enum PromotionPiece {
     #[default]
     Queen = 0b100,
@@ -33,7 +33,7 @@ impl Move {
         source: u32,
         target: u32,
         piece: Piece,
-        promoted: Option<PromotionPiece>,
+        promotion: Option<PromotionPiece>,
         capture: bool,
         double: bool,
         enpassant: bool,
@@ -43,7 +43,7 @@ impl Move {
             source
                 | (target << 6)
                 | ((piece as u32) << 12)
-                | ((promoted.map(|p| p as u32).unwrap_or(0b000)) << 15)
+                | ((promotion.map(|p| p as u32).unwrap_or(0b000)) << 15)
                 | (capture as u32) << 18
                 | ((double as u32) << 19)
                 | ((enpassant as u32) << 20)
@@ -72,7 +72,7 @@ impl Move {
     }
 
     #[inline]
-    pub fn promoted(self) -> Option<PromotionPiece> {
+    pub fn promotion(self) -> Option<PromotionPiece> {
         match ((self.0 >> 15) & 0b111) as u8 {
             0b000 => None,
             0b100 => Some(PromotionPiece::Queen),
@@ -114,7 +114,7 @@ impl State {
         pop_bit!(self.piece_bitboards[self.turn][source_piece], source);
         pop_bit!(self.side_bitboards[self.turn], source);
 
-        if let Some(promoted) = mv.promoted() {
+        if let Some(promoted) = mv.promotion() {
             let piece = unsafe { std::mem::transmute::<u8, Piece>(promoted as u8) };
             set_bit!(self.piece_bitboards[self.turn][piece], target);
         } else {

@@ -84,6 +84,12 @@ impl TryFrom<&str> for State {
             }
         }
 
+        if state.piece_bitboards[Color::White][Piece::King].count_ones() != 1
+            || state.piece_bitboards[Color::Black][Piece::King].count_ones() != 1
+        {
+            return Err(Self::Error::InvalidPieces(pieces.to_string()));
+        }
+
         let first_last_mask = 0xFF000000000000FF;
         if (state.piece_bitboards[Color::White][Piece::Pawn] & first_last_mask)
             | (state.piece_bitboards[Color::Black][Piece::Pawn] & first_last_mask)
@@ -174,6 +180,7 @@ mod test {
     #[test]
     fn starting_position() -> Result<(), FENError> {
         let state = State::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
+        assert_eq!(state.turn, Color::White);
         assert_eq!(
             state.piece_bitboards[Color::White][Piece::Pawn],
             0x000000000000FF00
@@ -235,6 +242,7 @@ mod test {
     fn enpassant() -> Result<(), FENError> {
         let state =
             State::try_from("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3")?;
+        assert_eq!(state.turn, Color::White);
         assert_eq!(
             state.piece_bitboards[Color::White][Piece::Pawn],
             0x000000100000EF00
@@ -295,6 +303,7 @@ mod test {
     fn castling_rights() -> Result<(), FENError> {
         let state =
             State::try_from("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 3")?;
+        assert_eq!(state.turn, Color::Black);
         assert_eq!(
             state.piece_bitboards[Color::White][Piece::Pawn],
             0x000000001000EF00
