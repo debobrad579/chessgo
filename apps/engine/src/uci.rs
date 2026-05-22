@@ -20,23 +20,28 @@ pub enum MoveError {
     IllegalMove(String),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum PositionCmdError {
+    #[error("invalid arguments")]
     InvalidArgs,
-    FENError(FENError),
-    MoveError(MoveError),
+
+    #[error(transparent)]
+    FENError(#[from] FENError),
+
+    #[error(transparent)]
+    MoveError(#[from] MoveError),
 }
 
-impl From<FENError> for PositionCmdError {
-    fn from(err: FENError) -> Self {
-        PositionCmdError::FENError(err)
-    }
-}
+#[derive(Debug, Error)]
+pub enum GoCmdError {
+    #[error("invalid arguments")]
+    InvalidArgs,
 
-impl From<MoveError> for PositionCmdError {
-    fn from(err: MoveError) -> Self {
-        PositionCmdError::MoveError(err)
-    }
+    #[error("invalid depth: {0}")]
+    InvalidDepth(String),
+
+    #[error(transparent)]
+    MoveError(#[from] MoveError),
 }
 
 impl State {
@@ -72,8 +77,8 @@ impl State {
             .ok_or(MoveError::IllegalMove(move_str.to_string()))?)
     }
 
-    pub fn from_position_cmd(cmd: &str) -> Result<Self, PositionCmdError> {
-        match cmd.split_whitespace().collect::<Vec<_>>().as_slice() {
+    pub fn from_position_cmd(args: &[&str]) -> Result<Self, PositionCmdError> {
+        match args {
             ["startpos"] => Ok(State::try_from(STARTPOS)?),
             ["startpos", "moves", moves @ ..] => {
                 let mut state = State::try_from(STARTPOS)?;
@@ -96,9 +101,23 @@ impl State {
                         state.make_move(state.parse_move(mv)?);
                     }
                 }
+
                 Ok(state)
             }
             [..] => Err(PositionCmdError::InvalidArgs),
+        }
+    }
+
+    pub fn go(&self, args: &[&str]) -> Result<Move, GoCmdError> {
+        match args {
+            ["depth", depth] => {
+                let _: u32 = depth
+                    .parse()
+                    .map_err(|_| GoCmdError::InvalidDepth(depth.to_string()))?;
+                Ok(self.get_legal_moves()[0])
+            }
+            ["infinite"] => Ok(self.get_legal_moves()[0]),
+            [..] => Err(GoCmdError::InvalidArgs),
         }
     }
 }
@@ -163,20 +182,23 @@ mod test {
     #[test]
     fn parse_position_cmd_startpos() {
         assert_eq!(
-            State::from_position_cmd("startpos").unwrap(),
+            State::from_position_cmd(&["startpos"]).unwrap(),
             State::try_from(STARTPOS).unwrap(),
         );
     }
 
     #[test]
     fn parse_position_cmd_moves() {
-        assert!(State::from_position_cmd("startpos moves e2e4 e7e5 b1c3 g8f6").is_ok());
+        assert!(
+            State::from_position_cmd(&["startpos", "moves", "e2e4", "e7e5", "b1c3", "g8f6"])
+                .is_ok()
+        );
     }
 
     #[test]
     fn parse_position_cmd_fen() {
         assert_eq!(
-            State::from_position_cmd(&format!("fen {}", TEST_FEN)).unwrap(),
+            State::from_position_cmd(&["fen", TEST_FEN]).unwrap(),
             State::try_from(TEST_FEN).unwrap(),
         );
     }
@@ -184,10 +206,9 @@ mod test {
     #[test]
     fn parse_position_cmd_fen_moves() {
         assert!(
-            State::from_position_cmd(&format!(
-                "fen {} moves d4c5 e7c5 e3e4 d5e4 d3e4 f6e4 c2e4",
-                TEST_FEN
-            ))
+            State::from_position_cmd(&[
+                "fen", TEST_FEN, "moves", "d4c5", "e7c5", "e3e4", "d5e4", "d3e4", "f6e4", "c2e4"
+            ])
             .is_ok()
         );
     }

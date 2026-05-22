@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use arrayvec::ArrayVec;
 
 use crate::{
@@ -25,6 +27,28 @@ impl PromotionPiece {
 
 #[derive(Debug, Clone, Copy)]
 pub struct Move(u32);
+
+impl Display for Move {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let file = (b'a' + ((self.source() as u8) % 8)) as char;
+        let rank = (self.source() / 8) + 1;
+        let target_file = (b'a' + ((self.target() as u8) % 8)) as char;
+        let target_rank = ((self.target() as u8) / 8) + 1;
+        let promotion = match self.promotion() {
+            Some(PromotionPiece::Queen) => "q",
+            Some(PromotionPiece::Rook) => "r",
+            Some(PromotionPiece::Bishop) => "b",
+            Some(PromotionPiece::Knight) => "n",
+            None => "",
+        };
+
+        write!(
+            f,
+            "{}{}{}{}{}",
+            file, rank, target_file, target_rank, promotion
+        )
+    }
+}
 
 impl Move {
     #[allow(clippy::too_many_arguments)]
