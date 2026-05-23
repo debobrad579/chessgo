@@ -2,12 +2,12 @@ use std::time::Instant;
 
 use crate::state::State;
 
-pub fn perft(board: &State, depth: u32) -> u64 {
+pub fn perft(state: &State, depth: u32) -> u64 {
     if depth == 0 {
         return 1;
     }
 
-    let moves = board.get_legal_moves();
+    let moves = state.get_legal_moves();
 
     if depth == 1 {
         return moves.len() as u64;
@@ -16,23 +16,36 @@ pub fn perft(board: &State, depth: u32) -> u64 {
     moves
         .iter()
         .map(|&mv| {
-            let mut new_board = *board;
+            let mut new_board = *state;
             new_board.make_move(mv);
             perft(&new_board, depth - 1)
         })
         .sum()
 }
 
-pub fn benchmark(name: &str, f: impl FnOnce() -> u64) {
+pub fn perft_divide(state: &State, depth: u32) {
+    let moves = state.get_legal_moves();
+    let mut total = 0;
+
     let start = Instant::now();
-    let nodes = f();
+    for &mv in &moves {
+        let mut new_board = *state;
+        new_board.make_move(mv);
+        let count = if depth <= 1 {
+            1
+        } else {
+            perft(&new_board, depth - 1)
+        };
+        println!("{}: {}", mv, count);
+        total += count;
+    }
     let elapsed = start.elapsed();
 
     println!(
-        "{}: {} nodes in {:.3}s ({:.2} Mnps)",
-        name,
-        nodes,
+        "Total (depth {}): {} nodes in {:.3}s ({:.2} Mnps)",
+        depth,
+        total,
         elapsed.as_secs_f64(),
-        nodes as f64 / elapsed.as_secs_f64() / 1_000_000.0
+        total as f64 / elapsed.as_secs_f64() / 1_000_000.0
     );
 }

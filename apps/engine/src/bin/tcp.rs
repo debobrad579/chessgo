@@ -47,8 +47,8 @@ fn handle_client(mut stream: TcpStream) {
 
                 match cmd {
                     "uci" => {
-                        writeln!(stream, "id name Engine").unwrap();
-                        writeln!(stream, "id author debobrad579").unwrap();
+                        writeln!(stream, "id name OxChess").unwrap();
+                        writeln!(stream, "id author Brady DeBoer").unwrap();
                         writeln!(stream, "uciok").unwrap();
                     }
                     "isready" => {

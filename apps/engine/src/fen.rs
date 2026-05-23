@@ -1,6 +1,6 @@
 use crate::{
     get_bit, set_bit,
-    state::{Color, Piece, PieceBitboardArray, State},
+    state::{Color, Piece, PieceArray, State},
 };
 
 use thiserror::Error;
@@ -61,7 +61,7 @@ impl TryFrom<&str> for State {
                         return Err(Self::Error::InvalidFEN(fen.to_string()));
                     }
 
-                    let piece_bitboard_array: &mut PieceBitboardArray = if c.is_uppercase() {
+                    let piece_bitboard_array: &mut PieceArray<u64> = if c.is_uppercase() {
                         set_bit!(state.side_bitboards[Color::White], square);
                         &mut state.piece_bitboards[Color::White]
                     } else {

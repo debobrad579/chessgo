@@ -1,4 +1,5 @@
 pub mod attacks;
+pub mod evaluation;
 pub mod fen;
 pub mod macros;
 pub mod magics;

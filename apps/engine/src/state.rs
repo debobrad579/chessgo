@@ -19,6 +19,29 @@ impl Not for Color {
     }
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct ColorArray<T>([T; 2]);
+
+impl<T> Index<Color> for ColorArray<T> {
+    type Output = T;
+
+    fn index(&self, color: Color) -> &Self::Output {
+        &self.0[color as usize]
+    }
+}
+
+impl<T> IndexMut<Color> for ColorArray<T> {
+    fn index_mut(&mut self, color: Color) -> &mut Self::Output {
+        &mut self.0[color as usize]
+    }
+}
+
+impl<T> ColorArray<T> {
+    pub const fn new(v: [T; 2]) -> Self {
+        Self(v)
+    }
+}
+
 #[repr(u8)]
 #[derive(Copy, Clone, PartialEq, Default, Debug)]
 pub enum Piece {
@@ -47,36 +70,25 @@ impl Piece {
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct PieceBitboardArray([u64; 6]);
+pub struct PieceArray<T>([T; 6]);
 
-impl Index<Piece> for PieceBitboardArray {
-    type Output = u64;
+impl<T> Index<Piece> for PieceArray<T> {
+    type Output = T;
 
     fn index(&self, piece: Piece) -> &Self::Output {
         &self.0[piece as usize]
     }
 }
 
-impl IndexMut<Piece> for PieceBitboardArray {
+impl<T> IndexMut<Piece> for PieceArray<T> {
     fn index_mut(&mut self, piece: Piece) -> &mut Self::Output {
         &mut self.0[piece as usize]
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
-pub struct ColorArray<T>([T; 2]);
-
-impl<T> Index<Color> for ColorArray<T> {
-    type Output = T;
-
-    fn index(&self, color: Color) -> &Self::Output {
-        &self.0[color as usize]
-    }
-}
-
-impl<T> IndexMut<Color> for ColorArray<T> {
-    fn index_mut(&mut self, color: Color) -> &mut Self::Output {
-        &mut self.0[color as usize]
+impl<T> PieceArray<T> {
+    pub const fn new(v: [T; 6]) -> Self {
+        Self(v)
     }
 }
 
@@ -88,5 +100,5 @@ pub struct State {
     pub half_moves: u16,
     pub occupancy: u64,
     pub side_bitboards: ColorArray<u64>,
-    pub piece_bitboards: ColorArray<PieceBitboardArray>,
+    pub piece_bitboards: ColorArray<PieceArray<u64>>,
 }

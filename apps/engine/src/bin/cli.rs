@@ -1,6 +1,6 @@
 use std::io;
 
-use engine::state::State;
+use oxchess::state::State;
 
 fn main() {
     let mut game_state: Option<State> = None;
@@ -14,8 +14,8 @@ fn main() {
         match input.split_whitespace().collect::<Vec<_>>().as_slice() {
             ["quit", ..] => break,
             ["uci", ..] => {
-                println!("id name Engine");
-                println!("id author debobrad579");
+                println!("id name OxChess");
+                println!("id author Brady DeBoer");
                 println!("uciok");
             }
             ["isready", ..] => println!("readyok"),

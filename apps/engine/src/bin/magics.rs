@@ -1,4 +1,4 @@
-use engine::{
+use oxchess::{
     compute_table,
     magics::{find_bishop_magic_number, find_rook_magic_number},
 };
