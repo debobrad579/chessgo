@@ -228,6 +228,111 @@ impl State {
 
         return moves;
     }
+
+    pub fn generate_pseudolegal_captures(&self, color: Color) -> ArrayVec<Move, 256> {
+        let opp = self.side_bitboards[!color];
+        let (pawn_attacks, last_rank) = match color {
+            Color::White => (&WHITE_PAWN_ATTACKS, 56..64),
+            Color::Black => (&BLACK_PAWN_ATTACKS, 0..8),
+        };
+        let mut moves = ArrayVec::<Move, 256>::new();
+
+        let mut bitboard = self.piece_bitboards[color][Piece::Pawn];
+        while bitboard != 0 {
+            let source = get_ls1b_index!(bitboard);
+
+            let mut attacks = pawn_attacks[source as usize];
+
+            while attacks != 0 {
+                let target = get_ls1b_index!(attacks);
+                if get_bit!(opp, target) != 0 {
+                    if last_rank.contains(&target) {
+                        for piece in PromotionPiece::iter() {
+                            moves.push(Move::new(
+                                source,
+                                target,
+                                Piece::Pawn,
+                                Some(piece),
+                                true,
+                                false,
+                                false,
+                                false,
+                            ));
+                        }
+                    } else {
+                        moves.push(Move::new(
+                            source,
+                            target,
+                            Piece::Pawn,
+                            None,
+                            true,
+                            false,
+                            false,
+                            false,
+                        ));
+                    }
+                } else if self.enpassant == Some(target as u8) {
+                    moves.push(Move::new(
+                        source,
+                        target,
+                        Piece::Pawn,
+                        None,
+                        false,
+                        false,
+                        true,
+                        false,
+                    ));
+                }
+
+                pop_bit!(attacks, target);
+            }
+
+            pop_bit!(bitboard, source);
+        }
+
+        macro_rules! gen_moves {
+            ($piece:expr, $get_attacks:expr) => {{
+                let mut board = self.piece_bitboards[color][$piece];
+                while board != 0 {
+                    let source = get_ls1b_index!(board);
+                    let mut attacks = $get_attacks(source) & opp;
+
+                    while attacks != 0 {
+                        let target = get_ls1b_index!(attacks);
+
+                        moves.push(Move::new(
+                            source, target, $piece, None, true, false, false, false,
+                        ));
+
+                        pop_bit!(attacks, target);
+                    }
+
+                    pop_bit!(board, source);
+                }
+            }};
+        }
+
+        gen_moves!(Piece::Knight, |source| KNIGHT_ATTACKS[source as usize]);
+
+        gen_moves!(Piece::Bishop, |source| get_bishop_attacks!(
+            source as usize,
+            self.occupancy
+        ));
+
+        gen_moves!(Piece::Rook, |source| get_rook_attacks!(
+            source as usize,
+            self.occupancy
+        ));
+
+        gen_moves!(Piece::Queen, |source| get_queen_attacks!(
+            source as usize,
+            self.occupancy
+        ));
+
+        gen_moves!(Piece::King, |source| KING_ATTACKS[source as usize]);
+
+        return moves;
+    }
 }
 
 #[cfg(test)]

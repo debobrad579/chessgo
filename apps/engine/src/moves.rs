@@ -245,6 +245,24 @@ impl State {
             .collect()
     }
 
+    pub fn get_legal_captures(&self) -> ArrayVec<Move, 256> {
+        let source_king_square = get_ls1b_index!(self.piece_bitboards[self.turn][Piece::King]);
+
+        self.generate_pseudolegal_captures(self.turn)
+            .into_iter()
+            .filter(|mv| {
+                let mut new_board = *self;
+                new_board.make_move(*mv);
+                let king_square = if mv.piece() == Piece::King {
+                    mv.target()
+                } else {
+                    source_king_square
+                };
+                !new_board.is_square_attacked(king_square as usize, !self.turn)
+            })
+            .collect()
+    }
+
     pub fn in_check(&self, color: Color) -> bool {
         self.is_square_attacked(
             get_ls1b_index!(self.piece_bitboards[color][Piece::King]) as usize,

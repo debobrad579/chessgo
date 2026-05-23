@@ -3,9 +3,9 @@ use std::cmp::max;
 use crate::{moves::Move, state::State};
 
 impl State {
-    pub fn search(&self, depth: u32, mut alpha: i32, beta: i32) -> i32 {
+    pub fn negamax(&self, depth: u32, mut alpha: i32, beta: i32) -> i32 {
         if depth == 0 {
-            return self.evaluate(self.turn);
+            return self.quiescence_search(alpha, beta);
         }
 
         let moves = self.get_legal_moves();
@@ -21,7 +21,31 @@ impl State {
             let mut new_board = *self;
             new_board.make_move(mv);
 
-            let evaluation = -new_board.search(depth - 1, -beta, -alpha);
+            let evaluation = -new_board.negamax(depth - 1, -beta, -alpha);
+            if evaluation >= beta {
+                return beta;
+            }
+
+            alpha = max(alpha, evaluation);
+        }
+
+        alpha
+    }
+
+    pub fn quiescence_search(&self, mut alpha: i32, beta: i32) -> i32 {
+        let stand_pat = self.evaluate(self.turn) - self.evaluate(!self.turn);
+        if stand_pat >= beta {
+            return beta;
+        }
+
+        alpha = max(alpha, stand_pat);
+
+        let captures = self.get_legal_captures();
+        for capture in captures {
+            let mut new_board = *self;
+            new_board.make_move(capture);
+
+            let evaluation = -new_board.quiescence_search(-beta, -alpha);
             if evaluation >= beta {
                 return beta;
             }
@@ -42,7 +66,7 @@ impl State {
             let mut new_board = *self;
             new_board.make_move(mv);
 
-            let score = -new_board.search(depth - 1, -1000000000, 1000000000);
+            let score = -new_board.negamax(depth - 1, -1000000000, 1000000000);
 
             if score > best_score {
                 best_score = score;
