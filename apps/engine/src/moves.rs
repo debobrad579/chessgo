@@ -23,7 +23,7 @@ impl PromotionPiece {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Move(u32);
 
 impl Display for Move {

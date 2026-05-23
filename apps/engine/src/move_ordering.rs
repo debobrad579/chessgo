@@ -2,7 +2,10 @@ use std::cmp::Reverse;
 
 use arrayvec::ArrayVec;
 
-use crate::{moves::Move, state::PieceArray};
+use crate::{
+    moves::Move,
+    state::{PieceArray, State},
+};
 
 const MVV_LVA: PieceArray<PieceArray<u32>> = PieceArray::new([
     PieceArray::new([105, 205, 305, 405, 505, 605]),
@@ -13,17 +16,24 @@ const MVV_LVA: PieceArray<PieceArray<u32>> = PieceArray::new([
     PieceArray::new([100, 200, 300, 400, 500, 600]),
 ]);
 
-impl Move {
-    pub fn score(&self) -> u32 {
-        let victim = self.capture();
-
-        match victim {
-            Some(v) => MVV_LVA[self.piece()][v],
-            None => 0,
+impl State {
+    pub fn score(&self, mv: Move, ply: usize) -> u32 {
+        if let Some(victim) = mv.capture() {
+            return MVV_LVA[mv.piece()][victim] + 10000;
         }
-    }
-}
 
-pub fn sort_moves(moves: &mut ArrayVec<Move, 256>) {
-    moves.sort_by_key(|mv| Reverse(mv.score()));
+        if Some(mv) == self.killer_moves[ply][0] {
+            return 9000;
+        }
+
+        if Some(mv) == self.killer_moves[ply][1] {
+            return 8000;
+        }
+
+        return 0;
+    }
+
+    pub fn sort_moves(&self, moves: &mut ArrayVec<Move, 256>, ply: usize) {
+        moves.sort_by_key(|&mv| Reverse(self.score(mv, ply)));
+    }
 }
