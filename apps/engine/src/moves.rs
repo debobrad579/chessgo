@@ -236,6 +236,7 @@ impl State {
 
         self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[opp_color];
         self.turn = opp_color;
+        self.ply += 1;
 
         undo
     }
@@ -308,6 +309,7 @@ impl State {
         self.castling_rights = undo.castling_rights;
         self.enpassant = undo.enpassant;
         self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[opp_color];
+        self.ply -= 1;
     }
 
     pub fn in_check(&self, color: Color) -> bool {

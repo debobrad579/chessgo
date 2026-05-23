@@ -112,6 +112,7 @@ pub struct State {
     pub side_bitboards: ColorArray<u64>,
     pub piece_bitboards: ColorArray<PieceArray<u64>>,
     pub killer_moves: Box<[[Option<Move>; 2]; 64]>,
+    pub history_moves: Box<ColorArray<[[u32; 64]; 64]>>,
 }
 
 impl Default for State {
@@ -125,6 +126,7 @@ impl Default for State {
             side_bitboards: Default::default(),
             piece_bitboards: Default::default(),
             killer_moves: Box::new([[None; 2]; 64]),
+            history_moves: Box::new(ColorArray::new([[[0; 64]; 64], [[0; 64]; 64]])),
         }
     }
 }

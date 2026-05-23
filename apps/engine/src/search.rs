@@ -1,13 +1,13 @@
 use crate::{moves::Move, state::State};
 
 impl State {
-    pub fn negamax(&mut self, depth: u32, ply: usize, mut alpha: i32, beta: i32) -> i32 {
+    pub fn negamax(&mut self, depth: u32, mut alpha: i32, beta: i32) -> i32 {
         if depth == 0 {
             return self.quiescence_search(alpha, beta);
         }
 
         let mut moves = self.generate_pseudolegal_moves(self.turn);
-        self.sort_moves(&mut moves, ply);
+        self.sort_moves(&mut moves);
 
         let mut legal_move_count = 0;
 
@@ -19,13 +19,16 @@ impl State {
             }
 
             legal_move_count += 1;
-            let evaluation = -self.negamax(depth - 1, ply + 1, -beta, -alpha);
+            let evaluation = -self.negamax(depth - 1, -beta, -alpha);
             self.undo_move(mv, undo);
 
             if evaluation >= beta {
                 if mv.capture().is_none() {
-                    self.killer_moves[ply][1] = self.killer_moves[ply][0];
-                    self.killer_moves[ply][0] = Some(mv);
+                    self.killer_moves[self.ply as usize][1] =
+                        self.killer_moves[self.ply as usize][0];
+                    self.killer_moves[self.ply as usize][0] = Some(mv);
+                    self.history_moves[self.turn][mv.source() as usize][mv.target() as usize] +=
+                        depth * depth;
                 }
 
                 return beta;
@@ -36,7 +39,7 @@ impl State {
 
         if legal_move_count == 0 {
             return if self.in_check(self.turn) {
-                -1_000_000_000
+                -1_000_000_000 - (self.ply as i32)
             } else {
                 0
             };
@@ -54,7 +57,7 @@ impl State {
         alpha = alpha.max(stand_pat);
 
         let mut captures = self.generate_pseudolegal_captures(self.turn);
-        self.sort_moves(&mut captures, 0);
+        self.sort_moves(&mut captures);
 
         for capture in captures {
             let undo = self.make_move(capture);
@@ -78,9 +81,9 @@ impl State {
 
     pub fn get_best_move(&mut self, depth: u32) -> Move {
         let mut moves = self.generate_pseudolegal_moves(self.turn);
-        self.sort_moves(&mut moves, self.ply as usize);
+        self.sort_moves(&mut moves);
 
-        let mut best_score = -1_000_000_000;
+        let mut best_score = -2_000_000_000;
         let mut best_move = None;
 
         for mv in moves {
@@ -90,12 +93,7 @@ impl State {
                 continue;
             }
 
-            let score = -self.negamax(
-                depth - 1,
-                (self.ply + 1) as usize,
-                -1_000_000_000,
-                1_000_000_000,
-            );
+            let score = -self.negamax(depth - 1, -2_000_000_000, 2_000_000_000);
             self.undo_move(mv, undo);
 
             if score > best_score {
