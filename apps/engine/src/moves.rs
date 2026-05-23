@@ -3,7 +3,7 @@ use std::fmt::Display;
 use arrayvec::ArrayVec;
 
 use crate::{
-    get_bit, get_ls1b_index, pop_bit, set_bit,
+    get_ls1b_index, pop_bit, set_bit,
     state::{Color, Piece, State},
 };
 
@@ -58,7 +58,7 @@ impl Move {
         target: u32,
         piece: Piece,
         promotion: Option<PromotionPiece>,
-        capture: bool,
+        capture: Option<Piece>,
         double: bool,
         enpassant: bool,
         castling: bool,
@@ -68,10 +68,10 @@ impl Move {
                 | (target << 6)
                 | ((piece as u32) << 12)
                 | ((promotion.map(|p| p as u32).unwrap_or(0b000)) << 15)
-                | (capture as u32) << 18
-                | ((double as u32) << 19)
-                | ((enpassant as u32) << 20)
-                | ((castling as u32) << 21),
+                | (capture.map(|p| p as u32).unwrap_or(0b111)) << 18
+                | ((double as u32) << 21)
+                | ((enpassant as u32) << 22)
+                | ((castling as u32) << 23),
         )
     }
 
@@ -108,23 +108,28 @@ impl Move {
     }
 
     #[inline]
-    pub fn is_capture(self) -> bool {
-        ((self.0 >> 18) & 1) != 0
+    pub fn capture(self) -> Option<Piece> {
+        let bin = (self.0 >> 18) & 0b111;
+        if bin == 0b111 {
+            None
+        } else {
+            Some(unsafe { std::mem::transmute::<u8, Piece>(bin as u8) })
+        }
     }
 
     #[inline]
     pub fn is_double_pawn_push(self) -> bool {
-        ((self.0 >> 19) & 1) != 0
+        ((self.0 >> 21) & 1) != 0
     }
 
     #[inline]
     pub fn is_enpassant(self) -> bool {
-        ((self.0 >> 20) & 1) != 0
+        ((self.0 >> 22) & 1) != 0
     }
 
     #[inline]
     pub fn is_castling(self) -> bool {
-        ((self.0 >> 21) & 1) != 0
+        ((self.0 >> 23) & 1) != 0
     }
 }
 
@@ -135,52 +140,65 @@ impl State {
         let source_piece = mv.piece();
         let target = mv.target();
 
-        pop_bit!(self.piece_bitboards[self.turn][source_piece], source);
-        pop_bit!(self.side_bitboards[self.turn], source);
+        macro_rules! set_piece {
+            ($color:expr, $piece:expr, $square:expr) => {{
+                set_bit!(self.piece_bitboards[$color][$piece], $square);
+                set_bit!(self.side_bitboards[$color], $square);
+            }};
+        }
+
+        macro_rules! pop_piece {
+            ($color:expr, $piece:expr, $square:expr) => {{
+                pop_bit!(self.piece_bitboards[$color][$piece], $square);
+                pop_bit!(self.side_bitboards[$color], $square);
+            }};
+        }
+
+        pop_piece!(self.turn, source_piece, source);
 
         if let Some(promoted) = mv.promotion() {
             let piece = unsafe { std::mem::transmute::<u8, Piece>(promoted as u8) };
-            set_bit!(self.piece_bitboards[self.turn][piece], target);
+            set_piece!(self.turn, piece, target);
         } else {
-            set_bit!(self.piece_bitboards[self.turn][source_piece], target);
+            set_piece!(self.turn, source_piece, target);
         }
-        set_bit!(self.side_bitboards[self.turn], target);
 
-        if mv.is_capture() {
-            for target_piece in Piece::iter() {
-                if get_bit!(self.piece_bitboards[opp_color][target_piece], target) != 0 {
-                    pop_bit!(self.piece_bitboards[opp_color][target_piece], target);
-                    pop_bit!(self.side_bitboards[opp_color], target);
-                    break;
-                }
-            }
+        if let Some(capture) = mv.capture() {
+            pop_piece!(opp_color, capture, target);
         }
+
+        let square_behind = match self.turn {
+            Color::White => target.wrapping_sub(8),
+            Color::Black => target.wrapping_add(8),
+        };
+
+        if mv.is_enpassant() {
+            pop_piece!(opp_color, Piece::Pawn, square_behind);
+        }
+
+        self.enpassant = if mv.is_double_pawn_push() {
+            Some(square_behind as u8)
+        } else {
+            None
+        };
 
         if mv.is_castling() {
             match target {
                 6 => {
-                    pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 7);
-                    pop_bit!(self.side_bitboards[self.turn], 7);
-                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 5);
-                    set_bit!(self.side_bitboards[self.turn], 5);
+                    pop_piece!(self.turn, Piece::Rook, 7);
+                    set_piece!(self.turn, Piece::Rook, 5);
                 }
                 2 => {
-                    pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 0);
-                    pop_bit!(self.side_bitboards[self.turn], 0);
-                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 3);
-                    set_bit!(self.side_bitboards[self.turn], 3);
+                    pop_piece!(self.turn, Piece::Rook, 0);
+                    set_piece!(self.turn, Piece::Rook, 3);
                 }
                 62 => {
-                    pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 63);
-                    pop_bit!(self.side_bitboards[self.turn], 63);
-                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 61);
-                    set_bit!(self.side_bitboards[self.turn], 61);
+                    pop_piece!(self.turn, Piece::Rook, 63);
+                    set_piece!(self.turn, Piece::Rook, 61);
                 }
                 58 => {
-                    pop_bit!(self.piece_bitboards[self.turn][Piece::Rook], 56);
-                    pop_bit!(self.side_bitboards[self.turn], 56);
-                    set_bit!(self.piece_bitboards[self.turn][Piece::Rook], 59);
-                    set_bit!(self.side_bitboards[self.turn], 59);
+                    pop_piece!(self.turn, Piece::Rook, 56);
+                    set_piece!(self.turn, Piece::Rook, 59);
                 }
                 _ => unreachable!(),
             }
@@ -206,22 +224,6 @@ impl State {
                 _ => {}
             }
         }
-
-        let square_behind = match self.turn {
-            Color::White => target.wrapping_sub(8),
-            Color::Black => target.wrapping_add(8),
-        };
-
-        if mv.is_enpassant() {
-            pop_bit!(self.piece_bitboards[opp_color][Piece::Pawn], square_behind);
-            pop_bit!(self.side_bitboards[opp_color], square_behind);
-        }
-
-        self.enpassant = if mv.is_double_pawn_push() {
-            Some(square_behind as u8)
-        } else {
-            None
-        };
 
         self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[opp_color];
         self.turn = opp_color;

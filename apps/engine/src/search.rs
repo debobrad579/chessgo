@@ -33,7 +33,7 @@ impl State {
     }
 
     pub fn quiescence_search(&self, mut alpha: i32, beta: i32) -> i32 {
-        let stand_pat = self.evaluate(self.turn) - self.evaluate(!self.turn);
+        let stand_pat = self.evaluation(self.turn);
         if stand_pat >= beta {
             return beta;
         }

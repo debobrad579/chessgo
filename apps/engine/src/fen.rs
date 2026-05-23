@@ -1,6 +1,6 @@
 use crate::{
     get_bit, set_bit,
-    state::{Color, Piece, PieceArray, State},
+    state::{Color, Piece, State},
 };
 
 use thiserror::Error;
@@ -57,27 +57,28 @@ impl TryFrom<&str> for State {
                 _ => {
                     let square = rank * 8 + file;
 
-                    if !(0..=64).contains(&square) {
+                    if !(0..64).contains(&square) {
                         return Err(Self::Error::InvalidFEN(fen.to_string()));
                     }
 
-                    let piece_bitboard_array: &mut PieceArray<u64> = if c.is_uppercase() {
-                        set_bit!(state.side_bitboards[Color::White], square);
-                        &mut state.piece_bitboards[Color::White]
-                    } else {
-                        set_bit!(state.side_bitboards[Color::Black], square);
-                        &mut state.piece_bitboards[Color::Black]
+                    let (color, piece) = match c {
+                        'P' => (Color::White, Piece::Pawn),
+                        'p' => (Color::Black, Piece::Pawn),
+                        'N' => (Color::White, Piece::Knight),
+                        'n' => (Color::Black, Piece::Knight),
+                        'B' => (Color::White, Piece::Bishop),
+                        'b' => (Color::Black, Piece::Bishop),
+                        'R' => (Color::White, Piece::Rook),
+                        'r' => (Color::Black, Piece::Rook),
+                        'Q' => (Color::White, Piece::Queen),
+                        'q' => (Color::Black, Piece::Queen),
+                        'K' => (Color::White, Piece::King),
+                        'k' => (Color::Black, Piece::King),
+                        _ => return Err(Self::Error::InvalidPieces(pieces.to_string())),
                     };
 
-                    match c {
-                        'P' | 'p' => set_bit!(piece_bitboard_array[Piece::Pawn], square),
-                        'N' | 'n' => set_bit!(piece_bitboard_array[Piece::Knight], square),
-                        'B' | 'b' => set_bit!(piece_bitboard_array[Piece::Bishop], square),
-                        'R' | 'r' => set_bit!(piece_bitboard_array[Piece::Rook], square),
-                        'Q' | 'q' => set_bit!(piece_bitboard_array[Piece::Queen], square),
-                        'K' | 'k' => set_bit!(piece_bitboard_array[Piece::King], square),
-                        _ => return Err(Self::Error::InvalidPieces(pieces.to_string())),
-                    }
+                    set_bit!(state.piece_bitboards[color][piece], square);
+                    set_bit!(state.side_bitboards[color], square);
 
                     file += 1;
                 }
@@ -174,61 +175,36 @@ impl TryFrom<&str> for State {
 mod test {
     use crate::{
         fen::FENError,
-        state::{Color, Piece, State},
+        state::{Color, ColorArray, PieceArray, State},
     };
 
     #[test]
     fn starting_position() -> Result<(), FENError> {
         let state = State::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
+
+        assert_eq!(
+            state.piece_bitboards,
+            ColorArray::new([
+                PieceArray::new([
+                    0x000000000000FF00,
+                    0x0000000000000042,
+                    0x0000000000000024,
+                    0x0000000000000081,
+                    0x0000000000000008,
+                    0x0000000000000010,
+                ]),
+                PieceArray::new([
+                    0x00FF000000000000,
+                    0x4200000000000000,
+                    0x2400000000000000,
+                    0x8100000000000000,
+                    0x0800000000000000,
+                    0x1000000000000000,
+                ]),
+            ])
+        );
+
         assert_eq!(state.turn, Color::White);
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Pawn],
-            0x000000000000FF00
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Knight],
-            0x0000000000000042
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Bishop],
-            0x0000000000000024
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Rook],
-            0x0000000000000081
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Queen],
-            0x0000000000000008
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::King],
-            0x0000000000000010
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Pawn],
-            0x00FF000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Knight],
-            0x4200000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Bishop],
-            0x2400000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Rook],
-            0x8100000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Queen],
-            0x0800000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::King],
-            0x1000000000000000
-        );
         assert_eq!(state.side_bitboards[Color::White], 0x000000000000FFFF);
         assert_eq!(state.side_bitboards[Color::Black], 0xFFFF000000000000);
         assert_eq!(state.castling_rights, 0b00001111);
@@ -242,60 +218,36 @@ mod test {
     fn enpassant() -> Result<(), FENError> {
         let state =
             State::try_from("rnbqkbnr/ppp1pppp/8/3pP3/8/8/PPPP1PPP/RNBQKBNR w KQkq d6 0 3")?;
+
+        assert_eq!(
+            state.piece_bitboards,
+            ColorArray::new([
+                PieceArray::new([
+                    0x000000100000EF00,
+                    0x0000000000000042,
+                    0x0000000000000024,
+                    0x0000000000000081,
+                    0x0000000000000008,
+                    0x0000000000000010,
+                ]),
+                PieceArray::new([
+                    0x00F7000800000000,
+                    0x4200000000000000,
+                    0x2400000000000000,
+                    0x8100000000000000,
+                    0x0800000000000000,
+                    0x1000000000000000,
+                ]),
+            ])
+        );
+
         assert_eq!(state.turn, Color::White);
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Pawn],
-            0x000000100000EF00
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Knight],
-            0x0000000000000042
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Bishop],
-            0x0000000000000024
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Rook],
-            0x0000000000000081
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Queen],
-            0x0000000000000008
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::King],
-            0x0000000000000010
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Pawn],
-            0x00F7000800000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Knight],
-            0x4200000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Bishop],
-            0x2400000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Rook],
-            0x8100000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Queen],
-            0x0800000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::King],
-            0x1000000000000000
-        );
         assert_eq!(state.side_bitboards[Color::White], 0x000000100000EFFF);
         assert_eq!(state.side_bitboards[Color::Black], 0xFFF7000800000000);
         assert_eq!(state.castling_rights, 0b00001111);
         assert_eq!(state.enpassant, Some(43));
         assert_eq!(state.half_moves, 0);
+
         Ok(())
     }
 
@@ -303,60 +255,36 @@ mod test {
     fn castling_rights() -> Result<(), FENError> {
         let state =
             State::try_from("r1bqkb1r/pppp1ppp/2n2n2/4p3/2B1P3/5N2/PPPP1PPP/RNBQ1RK1 b kq - 5 3")?;
+
+        assert_eq!(
+            state.piece_bitboards,
+            ColorArray::new([
+                PieceArray::new([
+                    0x000000001000EF00,
+                    0x0000000000200002,
+                    0x0000000004000004,
+                    0x0000000000000021,
+                    0x0000000000000008,
+                    0x0000000000000040,
+                ]),
+                PieceArray::new([
+                    0x00EF001000000000,
+                    0x0000240000000000,
+                    0x2400000000000000,
+                    0x8100000000000000,
+                    0x0800000000000000,
+                    0x1000000000000000,
+                ])
+            ])
+        );
+
         assert_eq!(state.turn, Color::Black);
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Pawn],
-            0x000000001000EF00
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Knight],
-            0x0000000000200002
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Bishop],
-            0x0000000004000004
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Rook],
-            0x0000000000000021
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::Queen],
-            0x0000000000000008
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::White][Piece::King],
-            0x0000000000000040
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Pawn],
-            0x00EF001000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Knight],
-            0x0000240000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Bishop],
-            0x2400000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Rook],
-            0x8100000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::Queen],
-            0x0800000000000000
-        );
-        assert_eq!(
-            state.piece_bitboards[Color::Black][Piece::King],
-            0x1000000000000000
-        );
         assert_eq!(state.side_bitboards[Color::White], 0x000000001420EF6F);
         assert_eq!(state.side_bitboards[Color::Black], 0xBDEF241000000000);
         assert_eq!(state.castling_rights, 0b00001100);
         assert_eq!(state.enpassant, None);
         assert_eq!(state.half_moves, 5);
+
         Ok(())
     }
 }
