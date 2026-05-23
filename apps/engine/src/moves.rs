@@ -244,4 +244,11 @@ impl State {
             })
             .collect()
     }
+
+    pub fn in_check(&self, color: Color) -> bool {
+        self.is_square_attacked(
+            get_ls1b_index!(self.piece_bitboards[color][Piece::King]) as usize,
+            color,
+        )
+    }
 }

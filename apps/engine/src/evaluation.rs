@@ -109,7 +109,7 @@ const ENDGAME_POSITIONAL_SCORES: PieceArray<[i32; 64]> = PieceArray::new([
 
 impl State {
     #[inline(always)]
-    fn evaluate(&self, color: Color) -> i32 {
+    pub fn evaluate(&self, color: Color) -> i32 {
         let mut score = 0;
 
         for piece in Piece::iter() {

@@ -6,5 +6,6 @@ pub mod magics;
 pub mod movegen;
 pub mod moves;
 pub mod perft;
+pub mod search;
 pub mod state;
 pub mod uci;

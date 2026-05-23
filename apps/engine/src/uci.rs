@@ -111,12 +111,12 @@ impl State {
     pub fn go(&self, args: &[&str]) -> Result<Move, GoCmdError> {
         match args {
             ["depth", depth] => {
-                let _: u32 = depth
+                let depth: u32 = depth
                     .parse()
                     .map_err(|_| GoCmdError::InvalidDepth(depth.to_string()))?;
-                Ok(self.get_legal_moves()[0])
+                Ok(self.get_best_move(depth))
             }
-            ["infinite"] => Ok(self.get_legal_moves()[0]),
+            ["infinite"] => Ok(self.get_best_move(6)),
             [..] => Err(GoCmdError::InvalidArgs),
         }
     }
