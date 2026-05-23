@@ -3,6 +3,7 @@ pub mod evaluation;
 pub mod fen;
 pub mod macros;
 pub mod magics;
+pub mod move_ordering;
 pub mod movegen;
 pub mod moves;
 pub mod perft;

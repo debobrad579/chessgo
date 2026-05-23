@@ -1,6 +1,6 @@
 use std::cmp::max;
 
-use crate::{moves::Move, state::State};
+use crate::{move_ordering::sort_moves, moves::Move, state::State};
 
 impl State {
     pub fn negamax(&self, depth: u32, mut alpha: i32, beta: i32) -> i32 {
@@ -57,7 +57,8 @@ impl State {
     }
 
     pub fn get_best_move(&self, depth: u32) -> Move {
-        let moves = self.get_legal_moves();
+        let mut moves = self.get_legal_moves();
+        sort_moves(&mut moves);
 
         let mut best_score = -1000000000;
         let mut best_move = moves[0];

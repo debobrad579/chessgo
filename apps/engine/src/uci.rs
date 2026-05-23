@@ -116,7 +116,7 @@ impl State {
                     .map_err(|_| GoCmdError::InvalidDepth(depth.to_string()))?;
                 Ok(self.get_best_move(depth))
             }
-            ["infinite"] => Ok(self.get_best_move(1)),
+            ["infinite"] => Ok(self.get_best_move(3)),
             [..] => Err(GoCmdError::InvalidArgs),
         }
     }
