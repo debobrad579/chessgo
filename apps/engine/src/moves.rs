@@ -135,6 +135,7 @@ impl Move {
 pub struct MoveUndo {
     pub castling_rights: u8,
     pub enpassant: Option<u8>,
+    pub half_moves: u16,
 }
 
 impl State {
@@ -142,8 +143,10 @@ impl State {
         let undo = MoveUndo {
             castling_rights: self.castling_rights,
             enpassant: self.enpassant,
+            half_moves: self.half_moves,
         };
 
+        self.half_moves += 1;
         let opp_color = !self.turn;
         let source = mv.source();
         let source_piece = mv.piece();
@@ -165,15 +168,20 @@ impl State {
 
         pop_piece!(self.turn, source_piece, source);
 
+        if let Some(capture) = mv.capture() {
+            self.half_moves = 0;
+            pop_piece!(opp_color, capture, target);
+        }
+
+        if source_piece == Piece::Pawn {
+            self.half_moves = 0;
+        }
+
         if let Some(promoted) = mv.promotion() {
             let piece = unsafe { std::mem::transmute::<u8, Piece>(promoted as u8) };
             set_piece!(self.turn, piece, target);
         } else {
             set_piece!(self.turn, source_piece, target);
-        }
-
-        if let Some(capture) = mv.capture() {
-            pop_piece!(opp_color, capture, target);
         }
 
         let square_behind = match self.turn {
@@ -308,6 +316,7 @@ impl State {
 
         self.castling_rights = undo.castling_rights;
         self.enpassant = undo.enpassant;
+        self.half_moves = undo.half_moves;
         self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[opp_color];
         self.ply -= 1;
     }

@@ -30,7 +30,14 @@ impl TryFrom<&str> for State {
     type Error = FENError;
 
     fn try_from(fen: &str) -> Result<Self, Self::Error> {
-        let [pieces, turn, castling_rights, enpassant, ply, _full_moves]: [&str; 6] = fen
+        let [
+            pieces,
+            turn,
+            castling_rights,
+            enpassant,
+            half_moves,
+            _full_moves,
+        ]: [&str; 6] = fen
             .split_whitespace()
             .collect::<Vec<_>>()
             .try_into()
@@ -156,9 +163,9 @@ impl TryFrom<&str> for State {
             }
         }
 
-        state.ply = ply
+        state.half_moves = half_moves
             .parse()
-            .map_err(|_| Self::Error::InvalidHalfMoves(ply.to_string()))?;
+            .map_err(|_| Self::Error::InvalidHalfMoves(half_moves.to_string()))?;
 
         Ok(state)
     }
@@ -202,7 +209,7 @@ mod test {
         assert_eq!(state.side_bitboards[Color::Black], 0xFFFF000000000000);
         assert_eq!(state.castling_rights, 0b00001111);
         assert_eq!(state.enpassant, None);
-        assert_eq!(state.ply, 0);
+        assert_eq!(state.half_moves, 0);
 
         Ok(())
     }
@@ -239,7 +246,7 @@ mod test {
         assert_eq!(state.side_bitboards[Color::Black], 0xFFF7000800000000);
         assert_eq!(state.castling_rights, 0b00001111);
         assert_eq!(state.enpassant, Some(43));
-        assert_eq!(state.ply, 0);
+        assert_eq!(state.half_moves, 0);
 
         Ok(())
     }
@@ -276,7 +283,7 @@ mod test {
         assert_eq!(state.side_bitboards[Color::Black], 0xBDEF241000000000);
         assert_eq!(state.castling_rights, 0b00001100);
         assert_eq!(state.enpassant, None);
-        assert_eq!(state.ply, 5);
+        assert_eq!(state.half_moves, 5);
 
         Ok(())
     }

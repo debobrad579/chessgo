@@ -107,11 +107,12 @@ pub struct State {
     pub turn: Color,
     pub castling_rights: u8,
     pub enpassant: Option<u8>,
+    pub half_moves: u16,
     pub ply: u16,
     pub occupancy: u64,
     pub side_bitboards: ColorArray<u64>,
     pub piece_bitboards: ColorArray<PieceArray<u64>>,
-    pub killer_moves: Box<[[Option<Move>; 2]; 64]>,
+    pub killer_moves: Box<[[Option<Move>; 2]; 256]>,
     pub history_moves: Box<ColorArray<[[u32; 64]; 64]>>,
 }
 
@@ -121,11 +122,12 @@ impl Default for State {
             turn: Default::default(),
             castling_rights: Default::default(),
             enpassant: Default::default(),
+            half_moves: Default::default(),
             ply: Default::default(),
             occupancy: Default::default(),
             side_bitboards: Default::default(),
             piece_bitboards: Default::default(),
-            killer_moves: Box::new([[None; 2]; 64]),
+            killer_moves: Box::new([[None; 2]; 256]),
             history_moves: Box::new(ColorArray::new([[[0; 64]; 64], [[0; 64]; 64]])),
         }
     }
