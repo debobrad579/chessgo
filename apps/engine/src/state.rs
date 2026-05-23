@@ -19,6 +19,14 @@ impl Not for Color {
     }
 }
 
+impl Color {
+    pub const ALL: [Self; 2] = [Self::White, Self::Black];
+
+    pub fn iter() -> impl Iterator<Item = Self> {
+        Self::ALL.into_iter()
+    }
+}
+
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct ColorArray<T>([T; 2]);
 
