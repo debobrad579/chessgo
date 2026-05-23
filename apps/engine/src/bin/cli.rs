@@ -38,7 +38,7 @@ fn main() {
                 }
             }
             ["go", args @ ..] => {
-                if let Some(game_state) = game_state {
+                if let Some(ref mut game_state) = game_state {
                     let best_move = match game_state.go(args) {
                         Ok(best_move) => best_move,
                         Err(e) => {

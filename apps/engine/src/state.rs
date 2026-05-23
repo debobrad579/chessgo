@@ -100,7 +100,7 @@ impl<T> PieceArray<T> {
     }
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub struct State {
     pub turn: Color,
     pub castling_rights: u8,

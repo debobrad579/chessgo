@@ -45,7 +45,7 @@ pub enum GoCmdError {
 }
 
 impl State {
-    pub fn parse_move(&self, move_str: &str) -> Result<Move, MoveError> {
+    pub fn parse_move(&mut self, move_str: &str) -> Result<Move, MoveError> {
         let (source, target, promotion) = match move_str.as_bytes() {
             [file, rank, target_file, target_rank] => (
                 (file - b'a') + (rank - b'1') * 8,
@@ -66,15 +66,23 @@ impl State {
             [..] => return Err(MoveError::InvalidMoveFormat(move_str.to_string())),
         };
 
-        Ok(*self
-            .get_legal_moves()
-            .iter()
+        Ok(self
+            .generate_pseudolegal_moves(self.turn)
+            .into_iter()
             .find(|mv| {
-                mv.source() == (source as u32)
-                    && mv.target() == (target as u32)
-                    && mv.promotion() == promotion
+                if mv.source() != source as u32
+                    || mv.target() != target as u32
+                    || mv.promotion() != promotion
+                {
+                    return false;
+                }
+
+                let undo = self.make_move(*mv);
+                let legal = !self.in_check(!self.turn);
+                self.undo_move(*mv, undo);
+                legal
             })
-            .ok_or(MoveError::IllegalMove(move_str.to_string()))?)
+            .ok_or_else(|| MoveError::IllegalMove(move_str.to_string())))?
     }
 
     pub fn from_position_cmd(args: &[&str]) -> Result<Self, PositionCmdError> {
@@ -83,7 +91,8 @@ impl State {
             ["startpos", "moves", moves @ ..] => {
                 let mut state = State::try_from(STARTPOS)?;
                 for mv in moves {
-                    state.make_move(state.parse_move(mv)?);
+                    let mv = state.parse_move(mv)?;
+                    state.make_move(mv);
                 }
                 Ok(state)
             }
@@ -98,7 +107,8 @@ impl State {
                 let mut state = State::try_from(fen)?;
                 if let Some(moves) = moves {
                     for mv in moves {
-                        state.make_move(state.parse_move(mv)?);
+                        let mv = state.parse_move(mv)?;
+                        state.make_move(mv);
                     }
                 }
 
@@ -108,7 +118,7 @@ impl State {
         }
     }
 
-    pub fn go(&self, args: &[&str]) -> Result<Move, GoCmdError> {
+    pub fn go(&mut self, args: &[&str]) -> Result<Move, GoCmdError> {
         match args {
             ["depth", depth] => {
                 let depth: u32 = depth
@@ -116,7 +126,7 @@ impl State {
                     .map_err(|_| GoCmdError::InvalidDepth(depth.to_string()))?;
                 Ok(self.get_best_move(depth))
             }
-            ["infinite"] => Ok(self.get_best_move(3)),
+            ["infinite"] => Ok(self.get_best_move(6)),
             [..] => Err(GoCmdError::InvalidArgs),
         }
     }
@@ -131,7 +141,8 @@ mod test {
     #[test]
     fn parse_starting_pos_moves() {
         let state =
-            State::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1").unwrap();
+            &mut State::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+                .unwrap();
 
         let mv = state.parse_move("e2e4").unwrap();
         assert_eq!(mv.source(), 12);
@@ -156,7 +167,7 @@ mod test {
 
     #[test]
     fn parse_promotion() {
-        let state = State::try_from("6k1/R1P5/8/8/8/6K1/8/8 w - - 0 30").unwrap();
+        let state = &mut State::try_from("6k1/R1P5/8/8/8/6K1/8/8 w - - 0 30").unwrap();
 
         let mv = state.parse_move("c7c8q").unwrap();
         assert_eq!(mv.source(), 50);

@@ -9,9 +9,9 @@ fn main() -> Result<(), FENError> {
     } else {
         args[1].parse().unwrap_or(6)
     };
-    let state = State::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
+    let mut state = State::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
 
-    perft_divide(&state, depth);
+    perft_divide(&mut state, depth);
 
     Ok(())
 }
