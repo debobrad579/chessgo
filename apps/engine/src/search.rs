@@ -1,5 +1,7 @@
 use crate::{moves::Move, pv::PVTable, state::State};
 
+pub const MAX_PLY: usize = 128;
+
 impl State {
     pub fn negamax(
         &mut self,
@@ -17,6 +19,10 @@ impl State {
 
         if depth == 0 {
             return self.quiescence_search(alpha, beta);
+        }
+
+        if ply >= MAX_PLY {
+            return self.evaluation(self.turn);
         }
 
         let mut moves = self.generate_pseudolegal_moves(self.turn);

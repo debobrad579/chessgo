@@ -1,6 +1,6 @@
 use std::ops::{Index, IndexMut, Not};
 
-use crate::moves::Move;
+use crate::{moves::Move, search::MAX_PLY};
 
 #[repr(u8)]
 #[derive(Copy, Clone, PartialEq, Default, Debug)]
@@ -111,7 +111,7 @@ pub struct State {
     pub occupancy: u64,
     pub side_bitboards: ColorArray<u64>,
     pub piece_bitboards: ColorArray<PieceArray<u64>>,
-    pub killer_moves: Box<[[Option<Move>; 2]; 128]>,
+    pub killer_moves: Box<[[Option<Move>; 2]; MAX_PLY]>,
     pub history_moves: Box<ColorArray<[[u32; 64]; 64]>>,
 }
 
@@ -125,7 +125,7 @@ impl Default for State {
             occupancy: Default::default(),
             side_bitboards: Default::default(),
             piece_bitboards: Default::default(),
-            killer_moves: Box::new([[None; 2]; 128]),
+            killer_moves: Box::new([[None; 2]; MAX_PLY]),
             history_moves: Box::new(ColorArray::new([[[0; 64]; 64], [[0; 64]; 64]])),
         }
     }

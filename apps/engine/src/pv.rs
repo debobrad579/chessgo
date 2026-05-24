@@ -1,18 +1,16 @@
-use crate::moves::Move;
-
-const MAX_DEPTH: usize = 64;
+use crate::{moves::Move, search::MAX_PLY};
 
 #[derive(Debug, PartialEq)]
 pub struct PVTable {
-    table: [[Option<Move>; MAX_DEPTH]; MAX_DEPTH],
-    length: [usize; MAX_DEPTH],
+    table: [[Option<Move>; MAX_PLY]; MAX_PLY],
+    length: [usize; MAX_PLY],
 }
 
 impl Default for PVTable {
     fn default() -> Self {
         Self {
-            table: [[None; MAX_DEPTH]; MAX_DEPTH],
-            length: [0; MAX_DEPTH],
+            table: [[None; MAX_PLY]; MAX_PLY],
+            length: [0; MAX_PLY],
         }
     }
 }
