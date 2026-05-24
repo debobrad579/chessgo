@@ -17,19 +17,19 @@ const MVV_LVA: PieceArray<PieceArray<u32>> = PieceArray::new([
 ]);
 
 impl State {
-    pub fn move_score(&self, mv: Move) -> u32 {
+    pub fn move_score(&self, mv: Move, ply: usize) -> u32 {
         if let Some(victim) = mv.capture() {
             MVV_LVA[mv.piece()][victim] + 10000
-        } else if Some(mv) == self.killer_moves[self.ply as usize][0] {
+        } else if Some(mv) == self.killer_moves[ply][0] {
             9000
-        } else if Some(mv) == self.killer_moves[self.ply as usize][1] {
+        } else if Some(mv) == self.killer_moves[ply][1] {
             8000
         } else {
             self.history_moves[self.turn][mv.source() as usize][mv.target() as usize]
         }
     }
 
-    pub fn sort_moves(&self, moves: &mut ArrayVec<Move, 256>) {
-        moves.sort_by_key(|&mv| Reverse(self.move_score(mv)));
+    pub fn sort_moves(&self, moves: &mut ArrayVec<Move, 256>, ply: usize) {
+        moves.sort_by_key(|&mv| Reverse(self.move_score(mv, ply)));
     }
 }

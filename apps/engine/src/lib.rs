@@ -7,6 +7,7 @@ pub mod move_ordering;
 pub mod movegen;
 pub mod moves;
 pub mod perft;
+pub mod pv;
 pub mod search;
 pub mod state;
 pub mod uci;

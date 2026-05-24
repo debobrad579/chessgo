@@ -1,13 +1,26 @@
-use crate::{moves::Move, state::State};
+use crate::{moves::Move, pv::PVTable, state::State};
 
 impl State {
-    pub fn negamax(&mut self, depth: u32, mut alpha: i32, beta: i32) -> i32 {
+    pub fn negamax(
+        &mut self,
+        pv: &mut PVTable,
+        depth: u32,
+        mut alpha: i32,
+        beta: i32,
+        ply: usize,
+    ) -> i32 {
+        pv.init_ply(ply);
+
+        if self.half_moves >= 100 {
+            return 0;
+        }
+
         if depth == 0 {
             return self.quiescence_search(alpha, beta);
         }
 
         let mut moves = self.generate_pseudolegal_moves(self.turn);
-        self.sort_moves(&mut moves);
+        self.sort_moves(&mut moves, ply);
 
         let mut legal_move_count = 0;
 
@@ -19,14 +32,13 @@ impl State {
             }
 
             legal_move_count += 1;
-            let evaluation = -self.negamax(depth - 1, -beta, -alpha);
+            let evaluation = -self.negamax(pv, depth - 1, -beta, -alpha, ply + 1);
             self.undo_move(mv, undo);
 
             if evaluation >= beta {
                 if mv.capture().is_none() {
-                    self.killer_moves[self.ply as usize][1] =
-                        self.killer_moves[self.ply as usize][0];
-                    self.killer_moves[self.ply as usize][0] = Some(mv);
+                    self.killer_moves[ply][1] = self.killer_moves[ply][0];
+                    self.killer_moves[ply][0] = Some(mv);
                     self.history_moves[self.turn][mv.source() as usize][mv.target() as usize] +=
                         depth * depth;
                 }
@@ -34,12 +46,15 @@ impl State {
                 return beta;
             }
 
-            alpha = alpha.max(evaluation);
+            if evaluation > alpha {
+                alpha = evaluation;
+                pv.update(ply, mv);
+            }
         }
 
         if legal_move_count == 0 {
             return if self.in_check(self.turn) {
-                -1_000_000_000 - (self.ply as i32)
+                -1_000_000_000 - (ply as i32)
             } else {
                 0
             };
@@ -57,7 +72,7 @@ impl State {
         alpha = alpha.max(stand_pat);
 
         let mut captures = self.generate_pseudolegal_captures(self.turn);
-        self.sort_moves(&mut captures);
+        self.sort_moves(&mut captures, 0);
 
         for capture in captures {
             let undo = self.make_move(capture);
@@ -80,29 +95,9 @@ impl State {
     }
 
     pub fn get_best_move(&mut self, depth: u32) -> Move {
-        let mut moves = self.generate_pseudolegal_moves(self.turn);
-        self.sort_moves(&mut moves);
-
-        let mut best_score = -2_000_000_000;
-        let mut best_move = None;
-
-        for mv in moves {
-            let undo = self.make_move(mv);
-            if self.in_check(!self.turn) {
-                self.undo_move(mv, undo);
-                continue;
-            }
-
-            let score = -self.negamax(depth - 1, -2_000_000_000, 2_000_000_000);
-            self.undo_move(mv, undo);
-
-            if score > best_score {
-                best_score = score;
-                best_move = Some(mv);
-            }
-        }
-
-        best_move.expect("no legal moves")
+        let mut pv = PVTable::default();
+        self.negamax(&mut pv, depth, -2_000_000_000, 2_000_000_000, 0);
+        pv.best_move().expect("no legal moves")
     }
 }
 
