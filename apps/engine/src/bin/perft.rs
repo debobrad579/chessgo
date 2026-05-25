@@ -1,6 +1,6 @@
 use std::env;
 
-use oxchess::{fen::FENError, perft::perft_divide, state::State};
+use oxchess::{movegen::perft::perft_divide, position::Position, position::fen::FENError};
 
 fn main() -> Result<(), FENError> {
     let args: Vec<String> = env::args().collect();
@@ -9,9 +9,10 @@ fn main() -> Result<(), FENError> {
     } else {
         args[1].parse().unwrap_or(6)
     };
-    let mut state = State::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
+    let mut position =
+        Position::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")?;
 
-    perft_divide(&mut state, depth);
+    perft_divide(&mut position, depth);
 
     Ok(())
 }

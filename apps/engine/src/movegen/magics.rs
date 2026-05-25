@@ -1,6 +1,6 @@
 use crate::{
-    attacks::{BISHOP_MASKS, ROOK_MASKS, compute_bishop_attacks, compute_rook_attacks},
     compute_table,
+    movegen::attacks::{BISHOP_MASKS, ROOK_MASKS, compute_bishop_attacks, compute_rook_attacks},
 };
 
 const RANDOM_SEED: u32 = 0x12345678;

@@ -1,13 +1,7 @@
-pub mod attacks;
-pub mod evaluation;
-pub mod fen;
+pub mod eval;
 pub mod macros;
-pub mod magics;
-pub mod move_ordering;
 pub mod movegen;
-pub mod moves;
-pub mod perft;
-pub mod pv;
+pub mod position;
 pub mod search;
-pub mod state;
+pub mod types;
 pub mod uci;

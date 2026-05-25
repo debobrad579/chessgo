@@ -3,8 +3,8 @@ use std::cmp::Reverse;
 use arrayvec::ArrayVec;
 
 use crate::{
-    moves::Move,
-    state::{PieceArray, State},
+    search::Search,
+    types::{Color, Move, PieceArray},
 };
 
 const MVV_LVA: PieceArray<PieceArray<u32>> = PieceArray::new([
@@ -16,8 +16,8 @@ const MVV_LVA: PieceArray<PieceArray<u32>> = PieceArray::new([
     PieceArray::new([100, 200, 300, 400, 500, 600]),
 ]);
 
-impl State {
-    pub fn move_score(&self, mv: Move, ply: usize) -> u32 {
+impl Search {
+    pub fn move_score(&self, mv: Move, turn: Color, ply: usize) -> u32 {
         if let Some(victim) = mv.capture() {
             MVV_LVA[mv.piece()][victim] + 10000
         } else if Some(mv) == self.killer_moves[ply][0] {
@@ -25,11 +25,11 @@ impl State {
         } else if Some(mv) == self.killer_moves[ply][1] {
             8000
         } else {
-            self.history_moves[self.turn][mv.source() as usize][mv.target() as usize]
+            self.history_moves[turn][mv.source() as usize][mv.target() as usize]
         }
     }
 
-    pub fn sort_moves(&self, moves: &mut ArrayVec<Move, 256>, ply: usize) {
-        moves.sort_by_key(|&mv| Reverse(self.move_score(mv, ply)));
+    pub fn sort_moves(&self, moves: &mut ArrayVec<Move, 256>, turn: Color, ply: usize) {
+        moves.sort_by_key(|&mv| Reverse(self.move_score(mv, turn, ply)));
     }
 }

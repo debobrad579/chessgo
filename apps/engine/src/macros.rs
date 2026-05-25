@@ -16,27 +16,28 @@ macro_rules! compute_table {
 #[macro_export]
 macro_rules! get_bishop_attacks {
     ($square:expr, $occupancy:expr) => {{
-        let attack_mask = $crate::attacks::BISHOP_MASKS[$square];
+        let attack_mask = $crate::movegen::attacks::BISHOP_MASKS[$square];
         let relevant_occupancy = $occupancy & attack_mask;
 
         let index = (relevant_occupancy
-            .wrapping_mul($crate::magics::BISHOP_MAGIC_NUMBERS[$square]))
+            .wrapping_mul($crate::movegen::magics::BISHOP_MAGIC_NUMBERS[$square]))
             >> (64 - attack_mask.count_ones());
 
-        $crate::magics::MAGIC_BISHOP_ATTACKS[$square][index as usize]
+        $crate::movegen::magics::MAGIC_BISHOP_ATTACKS[$square][index as usize]
     }};
 }
 
 #[macro_export]
 macro_rules! get_rook_attacks {
     ($square:expr, $occupancy:expr) => {{
-        let attack_mask = $crate::attacks::ROOK_MASKS[$square];
+        let attack_mask = $crate::movegen::attacks::ROOK_MASKS[$square];
         let relevant_occupancy = $occupancy & attack_mask;
 
-        let index = (relevant_occupancy.wrapping_mul($crate::magics::ROOK_MAGIC_NUMBERS[$square]))
+        let index = (relevant_occupancy
+            .wrapping_mul($crate::movegen::magics::ROOK_MAGIC_NUMBERS[$square]))
             >> (64 - attack_mask.count_ones());
 
-        $crate::magics::MAGIC_ROOK_ATTACKS[$square][index as usize]
+        $crate::movegen::magics::MAGIC_ROOK_ATTACKS[$square][index as usize]
     }};
 }
 

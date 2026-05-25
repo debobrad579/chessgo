@@ -257,7 +257,7 @@ pub static ROOK_MASKS: [u64; 64] = compute_table!(mask_rook_attacks);
 
 #[cfg(test)]
 mod test {
-    use crate::attacks::{
+    use crate::movegen::attacks::{
         compute_bishop_attacks, compute_black_pawn_attacks, compute_king_attacks,
         compute_knight_attacks, compute_rook_attacks, compute_white_pawn_attacks,
         mask_bishop_attacks, mask_rook_attacks,

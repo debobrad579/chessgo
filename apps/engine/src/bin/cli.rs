@@ -1,9 +1,12 @@
 use std::io;
 
-use oxchess::state::State;
+use oxchess::{
+    position::Position,
+    uci::{go::go_cmd, position::position_cmd},
+};
 
 fn main() {
-    let mut game_state: Option<State> = None;
+    let mut game_state: Option<Position> = None;
 
     loop {
         let mut input = String::new();
@@ -20,8 +23,8 @@ fn main() {
             }
             ["isready", ..] => println!("readyok"),
             ["ucinewgame", ..] => {
-                game_state = match State::from_position_cmd(&["startpos"]) {
-                    Ok(state) => Some(state),
+                game_state = match position_cmd(&["startpos"]) {
+                    Ok(position) => Some(position),
                     Err(e) => {
                         eprintln!("{}", e);
                         continue;
@@ -29,8 +32,8 @@ fn main() {
                 }
             }
             ["position", args @ ..] => {
-                game_state = match State::from_position_cmd(args) {
-                    Ok(state) => Some(state),
+                game_state = match position_cmd(args) {
+                    Ok(position) => Some(position),
                     Err(e) => {
                         eprintln!("{}", e);
                         continue;
@@ -39,7 +42,7 @@ fn main() {
             }
             ["go", args @ ..] => {
                 if let Some(ref mut game_state) = game_state {
-                    let best_move = match game_state.go(args) {
+                    let best_move = match go_cmd(game_state, args) {
                         Ok(best_move) => best_move,
                         Err(e) => {
                             eprintln!("{}", e);
