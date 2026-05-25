@@ -27,6 +27,8 @@ func startServer(cfg *handlers.Config, port int, appOrigin, wwwOrigin string) er
 	mux.HandleFunc("GET /live/{gameID}", cfg.ConnectToLiveGameHandler)
 	mux.HandleFunc("POST /live", cfg.CreateLiveGameHandler)
 
+	mux.HandleFunc("GET /bot", cfg.ConnectToBotHandler)
+
 	mux.Handle("GET /metrics", promhttp.Handler())
 
 	handler := middleware.Wrap(mux,

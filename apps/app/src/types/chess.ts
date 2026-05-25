@@ -186,3 +186,10 @@ export function assertLiveGame(game: unknown): asserts game is LiveGame {
   )
     throw new Error(`Invalid LiveGame: ${JSON.stringify(game)}`)
 }
+
+export function assertBotGame(game: unknown): asserts game is LiveGame {
+  assertGame(game)
+
+  if (!("result_reason" in game) || typeof game.result_reason !== "string")
+    throw new Error(`Invalid LiveGame: ${JSON.stringify(game)}`)
+}
