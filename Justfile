@@ -16,7 +16,7 @@ dev:
     "cd apps/api && DEV=true air" \
     "cd apps/app && pnpm run dev" \
     "cd apps/www && pnpm run dev" \
-    "cd apps/engine && cargo-watch -- cargo run --bin tcp"
+    "cd apps/engine && cargo-watch -- cargo run --bin tcp --release"
 
 # Lint Go and TypeScript
 [group("dev")]
@@ -33,6 +33,8 @@ lint:
 test:
   @echo "Testing Go..."
   @cd apps/api && go test ./...
+  @echo "Testing Rust..."
+  @cd apps/engine && cargo test
 
 # Regenerate sqlc query code
 [group("dev")]

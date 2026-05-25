@@ -62,7 +62,7 @@ impl Search {
 
         if legal_move_count == 0 {
             return if position.in_check(position.turn) {
-                -1_000_000_000 - (ply as i32)
+                -1_000_000_000 + (ply as i32)
             } else {
                 0
             };
@@ -74,13 +74,16 @@ impl Search {
 
 #[cfg(test)]
 mod test {
-    use crate::position::{Position, fen::FENError};
+    use crate::{
+        position::{Position, fen::FENError},
+        uci::go::go_cmd,
+    };
 
     #[test]
     fn mate_in_one_1() -> Result<(), FENError> {
         let mut position =
             Position::try_from("1rb5/4r3/3p1npb/3kp1P1/1P3P1P/5nR1/2Q1BK2/bN4NR w - - 3 61")?;
-        let mv = position.search(2);
+        let mv = go_cmd(&mut position, &["depth", "2"]).unwrap();
 
         assert_eq!(mv.source(), 10);
         assert_eq!(mv.target(), 26);
@@ -93,7 +96,7 @@ mod test {
         let mut position = Position::try_from(
             "rn1q2n1/b3k1pr/pp1pB1Qp/2p1p1P1/2P1PP2/5R1P/P2P4/RNB1K3 w - - 1 24",
         )?;
-        let mv = position.search(2);
+        let mv = go_cmd(&mut position, &["depth", "2"]).unwrap();
 
         assert_eq!(mv.source(), 46);
         assert_eq!(mv.target(), 53);
@@ -105,7 +108,7 @@ mod test {
     fn mate_in_one_3() -> Result<(), FENError> {
         let mut position =
             Position::try_from("8/3r3k/NP1p4/p2QP1P1/1BB3Pp/1R4n1/6K1/5R2 w - - 5 82")?;
-        let mv = position.search(2);
+        let mv = go_cmd(&mut position, &["depth", "2"]).unwrap();
 
         assert_eq!(mv.source(), 35);
         assert_eq!(mv.target(), 62);
@@ -116,7 +119,7 @@ mod test {
     #[test]
     fn morphy_mate_in_two() -> Result<(), FENError> {
         let mut position = Position::try_from("kbK5/pp6/1P6/8/8/8/8/R7 w - - 0 1")?;
-        let mv = position.search(4);
+        let mv = go_cmd(&mut position, &["depth", "4"]).unwrap();
 
         assert_eq!(mv.source(), 0);
         assert_eq!(mv.target(), 40);
@@ -127,7 +130,7 @@ mod test {
     #[test]
     fn long_castle_mate() -> Result<(), FENError> {
         let mut position = Position::try_from("8/8/8/2P3R1/5B2/2rP1p2/p1P1PP2/RnQ1K2k w Q - 5 3")?;
-        let mv = position.search(4);
+        let mv = go_cmd(&mut position, &["depth", "4"]).unwrap();
 
         assert_eq!(mv.source(), 2);
         assert_eq!(mv.target(), 9);
@@ -138,7 +141,7 @@ mod test {
     #[test]
     fn avoid_stalemate() -> Result<(), FENError> {
         let mut position = Position::try_from("8/8/2Q5/3B4/1K6/2P5/Nk6/2R5 w - - 0 1")?;
-        let mv = position.search(4);
+        let mv = go_cmd(&mut position, &["depth", "4"]).unwrap();
 
         assert_eq!(mv.source(), 35);
         assert_eq!(mv.target(), 7);

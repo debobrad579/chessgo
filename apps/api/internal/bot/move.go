@@ -12,8 +12,10 @@ import (
 )
 
 func parseMove(moveStr string) (*chess.Move, error) {
-	if len(moveStr) == 5 {
-		return &chess.Move{From: moveStr[:2], To: moveStr[2:4]}, nil
+	if len(moveStr) == 4 {
+		return &chess.Move{From: moveStr[:2], To: moveStr[2:]}, nil
+	} else if len(moveStr) == 5 {
+		return &chess.Move{From: moveStr[:2], To: moveStr[2:4], Promotion: chess.PieceType(moveStr[4])}, nil
 	}
 
 	return nil, errors.New("invalid move")
@@ -70,7 +72,7 @@ func (room *GameRoom) MakeMove(move chess.Move, color chess.Color) error {
 		return err
 	}
 
-	parts := strings.Split(message, " ")
+	parts := strings.Split(strings.TrimRight(message, "\n"), " ")
 	if len(parts) != 2 {
 		return errors.New("unexpected engine response")
 	}
