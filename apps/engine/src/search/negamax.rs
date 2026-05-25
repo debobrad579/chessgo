@@ -12,6 +12,7 @@ impl Search {
         beta: i32,
         ply: usize,
     ) -> i32 {
+        self.nodes += 1;
         self.init_pv_ply(ply);
 
         if position.half_moves >= 100 {

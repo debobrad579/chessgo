@@ -15,7 +15,7 @@ impl Search {
         self.pv_length[ply] = self.pv_length[ply + 1];
     }
 
-    pub fn best_move(&self) -> Option<Move> {
+    pub fn bestmove(&self) -> Option<Move> {
         self.pv_table[0][0]
     }
 }
