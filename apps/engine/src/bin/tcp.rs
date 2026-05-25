@@ -5,6 +5,11 @@ use std::{
     thread,
 };
 
+use oxchess::{
+    position::Position,
+    uci::{go::go_cmd, position::position_cmd},
+};
+
 fn main() {
     let addr = env::var("URL").unwrap_or("127.0.0.1:9000".to_string());
     let listener = TcpListener::bind(&addr).expect("Failed to bind to address");
@@ -30,6 +35,8 @@ fn handle_client(mut stream: TcpStream) {
     let reader_stream = stream.try_clone().unwrap();
     let mut reader = BufReader::new(reader_stream);
 
+    let mut game_state: Option<Position> = None;
+
     println!("Connected: {}", peer);
 
     loop {
@@ -40,27 +47,50 @@ fn handle_client(mut stream: TcpStream) {
                 println!("Client disconnected");
                 break;
             }
-            Ok(_) => {
-                let cmd = line.trim();
-
-                println!("UCI: {}", cmd);
-
-                match cmd {
-                    "uci" => {
-                        writeln!(stream, "id name OxChess").unwrap();
-                        writeln!(stream, "id author Brady DeBoer").unwrap();
-                        writeln!(stream, "uciok").unwrap();
-                    }
-                    "isready" => {
-                        writeln!(stream, "readyok").unwrap();
-                    }
-                    "quit" => {
-                        println!("Quit received");
-                        break;
-                    }
-                    _ => {}
+            Ok(_) => match line.split_whitespace().collect::<Vec<_>>().as_slice() {
+                ["quit"] => break,
+                ["uci"] => {
+                    writeln!(stream, "id name OxChess").unwrap();
+                    writeln!(stream, "id author Brady DeBoer").unwrap();
+                    writeln!(stream, "uciok").unwrap();
                 }
-            }
+                ["isready"] => {
+                    writeln!(stream, "readyok").unwrap();
+                }
+                ["ucinewgame", ..] => {
+                    game_state = match position_cmd(&["startpos"]) {
+                        Ok(position) => Some(position),
+                        Err(e) => {
+                            writeln!(stream, "{}", e).unwrap();
+                            continue;
+                        }
+                    }
+                }
+                ["position", args @ ..] => {
+                    game_state = match position_cmd(args) {
+                        Ok(position) => Some(position),
+                        Err(e) => {
+                            writeln!(stream, "{}", e).unwrap();
+                            continue;
+                        }
+                    }
+                }
+                ["go", args @ ..] => {
+                    if let Some(ref mut game_state) = game_state {
+                        let best_move = match go_cmd(game_state, args) {
+                            Ok(best_move) => best_move,
+                            Err(e) => {
+                                writeln!(stream, "{}", e).unwrap();
+                                continue;
+                            }
+                        };
+                        writeln!(stream, "bestmove {}", best_move).unwrap();
+                    } else {
+                        writeln!(stream, "game not initialized").unwrap();
+                    }
+                }
+                _ => writeln!(stream, "unknown command").unwrap(),
+            },
             Err(e) => {
                 eprintln!("Read error: {}", e);
                 break;
