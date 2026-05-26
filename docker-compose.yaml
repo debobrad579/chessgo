@@ -32,6 +32,8 @@ services:
     restart: unless-stopped
     networks:
       - engine
+    environment:
+      URL: 0.0.0.0:9000
 
   db:
     image: postgres:17-alpine

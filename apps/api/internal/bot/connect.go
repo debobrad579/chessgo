@@ -28,23 +28,31 @@ func Connect(w http.ResponseWriter, r *http.Request, userID uuid.UUID, color che
 		room = createGame(userID, color)
 	}
 
-	room.userConn = conn
-
+	room.mu.Lock()
+	room.connections = append(room.connections, conn)
 	room.stopDisconnectTimer()
 	room.sendGameData()
+	room.mu.Unlock()
 
 	return conn
 }
 
-func Disconnect(userID uuid.UUID) {
+func Disconnect(userID uuid.UUID, conn *websocket.Conn) {
 	room, ok := getRoom(userID)
+	room.mu.Lock()
+	defer room.mu.Unlock()
 
 	if ok {
-		room.startDisconnectTimer(60 * time.Second)
+		for i, connection := range room.connections {
+			if connection != nil && connection == conn {
+				connection.Close()
+				room.connections = append(room.connections[:i], room.connections[i+1:]...)
+				break
+			}
+		}
 
-		if room.userConn != nil {
-			room.userConn.Close()
-			room.userConn = nil
+		if len(room.connections) == 0 {
+			room.startDisconnectTimer(60 * time.Second)
 		}
 	}
 }

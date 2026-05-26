@@ -12,10 +12,11 @@ import (
 
 type gameRoom struct {
 	userID          uuid.UUID
-	userConn        *websocket.Conn
+	connections     []*websocket.Conn
 	game            *chess.Game
 	result          chess.GameOver
 	disconnectTimer *time.Timer
+	mu              sync.Mutex
 }
 
 type gamesRegistry struct {

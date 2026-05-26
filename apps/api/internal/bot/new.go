@@ -59,7 +59,12 @@ func createGame(userID uuid.UUID, color chess.Color) *gameRoom {
 }
 
 func NewGame(userID uuid.UUID, color chess.Color, conn *websocket.Conn) {
+	connections := []*websocket.Conn{}
+	if room, ok := getRoom(userID); ok {
+		connections = room.connections
+	}
+
 	room := createGame(userID, color)
-	room.userConn = conn
+	room.connections = connections
 	room.sendGameData()
 }

@@ -29,7 +29,7 @@ func (cfg *Config) ConnectToBotHandler(w http.ResponseWriter, r *http.Request) {
 	if conn == nil {
 		return
 	}
-	defer bot.Disconnect(user.ID)
+	defer bot.Disconnect(user.ID, conn)
 
 	cfg.Logger.Info("connected to bot game room",
 		slog.String("user_id", user.ID.String()),
@@ -70,7 +70,7 @@ func (cfg *Config) ConnectToBotHandler(w http.ResponseWriter, r *http.Request) {
 		case typeResign:
 			bot.Resign(user.ID)
 		case typeRematchRequest:
-			if cfg.RNG.Intn(2) == 1 {
+			if color == chess.Black {
 				color = chess.White
 			} else {
 				color = chess.Black

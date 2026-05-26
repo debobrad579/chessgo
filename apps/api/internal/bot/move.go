@@ -36,6 +36,9 @@ func MakeMove(userID uuid.UUID, move chess.Move) error {
 		return errors.New("room does not exist")
 	}
 
+	room.mu.Lock()
+	defer room.mu.Unlock()
+
 	if room.result.Result != chess.ResultGameOngoing {
 		return errors.New("game ended")
 	}

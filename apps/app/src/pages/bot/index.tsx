@@ -54,9 +54,7 @@ export default function BotPage() {
   }, [gameData?.result])
 
   useEffect(() => {
-    if (user.id === gameData?.white.id) {
-      setConnected(readyState === "Open")
-    }
+    setConnected(readyState === "Open")
   }, [readyState, gameData?.white.id, gameData?.black.id, user.id])
 
   return gameData != null ? (
@@ -81,6 +79,7 @@ export default function BotPage() {
         }}
       />
       <ChessGame
+        key={user.id === gameData.white.id ? "white" : "black"}
         ref={chessGameRef}
         gameData={gameData}
         onMove={(move) => {

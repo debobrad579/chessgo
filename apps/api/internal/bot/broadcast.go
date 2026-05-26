@@ -35,11 +35,9 @@ func (room *gameRoom) sendGameData() error {
 		return err
 	}
 
-	if room.userConn != nil {
-		if err := room.userConn.WriteMessage(websocket.TextMessage, data); err != nil {
-			room.userConn.Close()
-			room.userConn = nil
-			return err
+	for _, conn := range room.connections {
+		if conn != nil {
+			conn.WriteMessage(websocket.TextMessage, data)
 		}
 	}
 

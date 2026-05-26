@@ -13,6 +13,9 @@ func Resign(userID uuid.UUID) error {
 		return errors.New("room does not exist")
 	}
 
+	room.mu.Lock()
+	defer room.mu.Unlock()
+
 	if room.result.Result != chess.ResultGameOngoing {
 		return errors.New("game already ended")
 	}

@@ -26,6 +26,7 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 ├── apps/
 │   ├── api/                     # Go REST API + WebSocket server
 │   ├── app/                     # React SPA
+│   ├── engine/                  # Rust chess engine
 │   └── www/                     # Astro static site
 ├── packages/
 │   └── ui/                      # Shared shadcn/ui component library
@@ -36,60 +37,25 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 
 ## Getting Started
 
-**Clone the repository**
+**Prerequisites**
+
+- [Go 1.26+](https://go.dev/dl/)
+- [Node.js](https://nodejs.org/) and npm
+- [PostgreSQL](https://www.postgresql.org/)
+- [Rust 1.95+](https://rust-lang.org/tools/install/) - `curl https://sh.rustup.rs -sSf | sh -s -- -y`
+- [goose](https://github.com/pressly/goose) — `go install github.com/pressly/goose/v3/cmd/goose@latest`
+- [just](https://github.com/casey/just) (optional, required to run commands via `just`) - `cargo install just`
+- [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
+- [air](https://github.com/air-verse/air) (optional, required for `just dev`) — `go install github.com/air-verse/air@latest`
+
+1. **Clone the repository**
 
 ```bash
 git clone https://github.com/debobrad579/chessgo.git
 cd chessgo
 ```
 
-### Option 1: Run with Docker
-
-1. **Configure your environment variables**
-
-```bash
-cp .env.example .env
-```
-
-Then edit `.env` and set secure values for `POSTGRES_PASSWORD` and `TOKEN_SECRET`:
-
-```env
-POSTGRES_PASSWORD=changeme        # pick something strong
-TOKEN_SECRET=changeme             # generate with: openssl rand -base64 64
-
-# Cloudflare Tunnel (optional)
-CF_TUNNEL_TOKEN=
-```
-
-2. **Run Docker Compose**
-
-```bash
-docker compose up
-# or: docker compose --profile cloudflare up
-```
-
-Docker Compose will:
-- Start a PostgreSQL database
-- Run all database migrations
-- Start the ChessGo app
-
-Open the app at [http://localhost:80](http://localhost:80)
-
-To stop: `docker compose down`. To also remove the database volume: `docker compose down -v`.
-
-### Option 2: Manual Setup
-
-**Prerequisites**
-
-- [Go 1.26+](https://go.dev/dl/)
-- [Node.js](https://nodejs.org/) and npm
-- [PostgreSQL](https://www.postgresql.org/)
-- [goose](https://github.com/pressly/goose) — `go install github.com/pressly/goose/v3/cmd/goose@latest`
-- [just](https://github.com/casey/just) (optional, required to run commands via `just`) - `cargo install just`
-- [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
-- [air](https://github.com/air-verse/air) (optional, required for `just dev`) — `go install github.com/air-verse/air@latest`
-
-1. **Configure your environment variables**
+2. **Configure your environment variables**
 
 ```bash
 cp .env.example apps/api/.env
@@ -102,19 +68,19 @@ POSTGRES_PASSWORD=changeme        # pick something strong
 TOKEN_SECRET=changeme             # generate with: openssl rand -base64 64
 ```
 
-2. **Install dependencies**
+3. **Install dependencies**
 
 ```bash
 just install
 ```
 
-3. **Run database migrations**
+4. **Run database migrations**
 
 ```bash
 just migrate up
 ```
 
-4. **Run development environment** (with live reload and hot module replacement)
+5. **Run development environment** (with live reload and hot module replacement)
 
 ```bash
 just dev
@@ -124,7 +90,7 @@ just build
 just preview
 ```
 
-Open the app at [http://localhost:3000](http://localhost:3000)
+Open the app at [http://localhost:4321](http://localhost:4321)
 
 ## Available Just Targets
 
