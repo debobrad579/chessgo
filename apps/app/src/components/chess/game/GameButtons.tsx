@@ -119,7 +119,7 @@ export function GameButtons({
                 </TooltipContent>
               </Tooltip>
             )}
-        {result === "*" && handleResign != null && (
+        {handleResign != null && (
           <Tooltip>
             <Popover
               open={resignPopoverOpen}
@@ -130,7 +130,7 @@ export function GameButtons({
                   <Button
                     size="icon"
                     variant="ghost"
-                    disabled={moves.length === 0}
+                    disabled={moves.length === 0 || result !== "*"}
                   >
                     <Flag />
                   </Button>
@@ -153,7 +153,7 @@ export function GameButtons({
                       variant="destructive"
                       onClick={() => {
                         handleResign()
-                        setDrawOfferPopoverOpen(false)
+                        setResignPopoverOpen(false)
                       }}
                     >
                       Yes

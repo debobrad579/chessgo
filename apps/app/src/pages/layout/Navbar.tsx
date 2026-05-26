@@ -62,6 +62,9 @@ export function NavbarMobile() {
         {!user.email ? (
           <>
             <DropdownMenuItem asChild>
+              <Link to="/bot">Play Bot</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <a href={`${WWW_BASE}/login`}>Login</a>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
@@ -70,6 +73,9 @@ export function NavbarMobile() {
           </>
         ) : (
           <>
+            <DropdownMenuItem asChild>
+              <Link to="/bot">Play Bot</Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/games">My Games</Link>
             </DropdownMenuItem>
@@ -121,6 +127,9 @@ export function NavbarDesktop() {
       {!user.email ? (
         <>
           <Button asChild variant="ghost">
+            <Link to="/bot">Play Bot</Link>
+          </Button>
+          <Button asChild variant="ghost">
             <a href={`${WWW_BASE}/login`}>Login</a>
           </Button>
           <Button asChild variant="ghost">
@@ -129,6 +138,9 @@ export function NavbarDesktop() {
         </>
       ) : (
         <>
+          <Button asChild variant="ghost">
+            <Link to="/bot">Play Bot</Link>
+          </Button>
           <Button asChild variant="ghost">
             <Link to="/games">My Games</Link>
           </Button>

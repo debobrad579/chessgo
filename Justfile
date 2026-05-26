@@ -36,6 +36,11 @@ test:
   @echo "Testing Rust..."
   @cd apps/engine && cargo test
 
+# Run engine perft
+[group("dev")]
+perft:
+  @cd apps/engine && cargo run --bin perft --release
+
 # Regenerate sqlc query code
 [group("dev")]
 generate:

@@ -76,7 +76,9 @@ export default function BotPage() {
                 : "loss"
         }
         reason={resultReason}
-        timeControl={gameData.time_control}
+        handleRematch={() => {
+          sendJsonMessage({ type: "rematch_request" })
+        }}
       />
       <ChessGame
         ref={chessGameRef}
@@ -90,7 +92,9 @@ export default function BotPage() {
           }
         }}
         handleResign={() => sendJsonMessage({ type: "resign" })}
-        whiteConnected={connected}
+        whiteConnected={user.id === gameData.white.id ? connected : undefined}
+        blackConnected={user.id === gameData.black.id ? connected : undefined}
+        noClocks
       />
     </>
   ) : (

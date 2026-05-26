@@ -20,9 +20,9 @@ type LiveGame struct {
 	ResultReason chess.Reason      `json:"result_reason"`
 }
 
-func (room *GameRoom) sendGameData() error {
+func (room *gameRoom) sendGameData() error {
 	data, err := json.Marshal(LiveGame{
-		ID:           room.UserID,
+		ID:           room.userID,
 		Moves:        room.game.Moves,
 		TimeControl:  room.game.TimeControl,
 		ThinkTime:    0,

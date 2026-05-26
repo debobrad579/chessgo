@@ -15,6 +15,7 @@ export function Clock({ color }: { color: Color }) {
     black,
     whiteConnected,
     blackConnected,
+    noClocks,
   } = useChessGameContext()
 
   const won =
@@ -38,32 +39,33 @@ export function Clock({ color }: { color: Color }) {
           : "bg-gray-900 text-white hover:bg-gray-800",
       )}
     >
-      <div
-        className={
-          undoCount === 0 && won
-            ? "text-green-500"
-            : undoCount === 0 && lost
-              ? "text-red-500"
-              : undefined
-        }
-      >
-        {undoCount !== 0 || result === "*"
-          ? formatMilliseconds(
-              getPlayerTimestamp({
-                playerColor: color,
-                initialTime: timeControl.base,
-                moves,
-                undoCount,
-                thinkTime,
-              }),
-            )
-          : won
-            ? 1
-            : lost
-              ? 0
-              : "1/2"}
-      </div>
-
+      {!noClocks && (
+        <div
+          className={
+            undoCount === 0 && won
+              ? "text-green-500"
+              : undoCount === 0 && lost
+                ? "text-red-500"
+                : undefined
+          }
+        >
+          {undoCount !== 0 || result === "*"
+            ? formatMilliseconds(
+                getPlayerTimestamp({
+                  playerColor: color,
+                  initialTime: timeControl.base,
+                  moves,
+                  undoCount,
+                  thinkTime,
+                }),
+              )
+            : won
+              ? 1
+              : lost
+                ? 0
+                : "1/2"}
+        </div>
+      )}
       <div className="flex items-center gap-2">
         {connected != null && (
           <span

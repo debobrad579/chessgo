@@ -1,23 +1,43 @@
 package bot
 
 import (
-	"github.com/debobrad579/chessgo/internal/chess"
+	"sync"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+
+	"github.com/debobrad579/chessgo/internal/chess"
 )
 
-type GameRoom struct {
-	UserID      uuid.UUID
-	userConn    *websocket.Conn
-	playerColor chess.Color
-	game        *chess.Game
-	result      chess.GameOver
+type gameRoom struct {
+	userID          uuid.UUID
+	userConn        *websocket.Conn
+	game            *chess.Game
+	result          chess.GameOver
+	disconnectTimer *time.Timer
 }
 
 type gamesRegistry struct {
-	rooms map[uuid.UUID]*GameRoom
+	rooms map[uuid.UUID]*gameRoom
+	mu    sync.Mutex
 }
 
 var registry = gamesRegistry{
-	rooms: make(map[uuid.UUID]*GameRoom),
+	rooms: make(map[uuid.UUID]*gameRoom),
+}
+
+func getRoom(userID uuid.UUID) (*gameRoom, bool) {
+	registry.mu.Lock()
+	room, ok := registry.rooms[userID]
+	registry.mu.Unlock()
+	return room, ok
+}
+
+func (room *gameRoom) getUserColor(userID uuid.UUID) chess.Color {
+	if room.game.White.ID == userID {
+		return chess.White
+	}
+
+	return chess.Black
 }

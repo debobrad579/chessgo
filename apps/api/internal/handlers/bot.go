@@ -18,7 +18,14 @@ func (cfg *Config) ConnectToBotHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	conn, room := bot.Connect(w, r, user.ID)
+	var color chess.Color
+	if cfg.RNG.Intn(2) == 1 {
+		color = chess.White
+	} else {
+		color = chess.Black
+	}
+
+	conn := bot.Connect(w, r, user.ID, color)
 	if conn == nil {
 		return
 	}
@@ -43,7 +50,8 @@ func (cfg *Config) ConnectToBotHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		cfg.Logger.Info("recieved message",
-			slog.String("type", string(clientMessage.Type)),
+			slog.String("game_type", "bot"),
+			slog.String("message_type", string(clientMessage.Type)),
 			slog.String("player_id", user.ID.String()),
 		)
 
@@ -55,12 +63,20 @@ func (cfg *Config) ConnectToBotHandler(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			err := room.MakeMove(move, chess.White)
+			err := bot.MakeMove(user.ID, move)
 			if err != nil {
 				cfg.Logger.Error("error making move", slog.Any("error", err))
 			}
 		case typeResign:
-			// room.Resign(playerRole)
+			bot.Resign(user.ID)
+		case typeRematchRequest:
+			if cfg.RNG.Intn(2) == 1 {
+				color = chess.White
+			} else {
+				color = chess.Black
+			}
+
+			bot.NewGame(user.ID, color, conn)
 		case typePing:
 		default:
 			cfg.Logger.Error("invalid client message type", slog.Any("error", err), slog.Any("type", clientMessage.Type))

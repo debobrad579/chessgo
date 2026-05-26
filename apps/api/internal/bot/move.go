@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/debobrad579/chessgo/internal/chess"
+	"github.com/google/uuid"
 )
 
 func parseMove(moveStr string) (*chess.Move, error) {
@@ -29,12 +30,17 @@ func formatMove(move chess.Move) string {
 	return move.From + move.To + string(move.Promotion)
 }
 
-func (room *GameRoom) MakeMove(move chess.Move, color chess.Color) error {
+func MakeMove(userID uuid.UUID, move chess.Move) error {
+	room, ok := getRoom(userID)
+	if !ok {
+		return errors.New("room does not exist")
+	}
+
 	if room.result.Result != chess.ResultGameOngoing {
 		return errors.New("game ended")
 	}
 
-	if room.playerColor != room.game.Turn() {
+	if room.getUserColor(userID) != room.game.Turn() {
 		return errors.New("not your turn")
 	}
 
@@ -49,9 +55,21 @@ func (room *GameRoom) MakeMove(move chess.Move, color chess.Color) error {
 		return nil
 	}
 
-	conn, err := net.Dial("tcp", os.Getenv("ENGINE_HOST"))
+	engineMove, err := room.getEngineMove()
 	if err != nil {
 		return err
+	}
+
+	room.game.Move(*engineMove)
+	room.result = room.game.GetResult()
+
+	return room.sendGameData()
+}
+
+func (room *gameRoom) getEngineMove() (*chess.Move, error) {
+	conn, err := net.Dial("tcp", os.Getenv("ENGINE_HOST"))
+	if err != nil {
+		return nil, err
 	}
 	defer conn.Close()
 
@@ -69,22 +87,18 @@ func (room *GameRoom) MakeMove(move chess.Move, color chess.Color) error {
 
 	message, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	parts := strings.Split(strings.TrimRight(message, "\n"), " ")
 	if len(parts) != 2 {
-		return errors.New("unexpected engine response")
+		return nil, errors.New("unexpected engine response")
 	}
 
 	engineMove, err := parseMove(parts[1])
 	if err != nil {
-		return errors.New("unexpected engine response")
+		return nil, errors.New("unexpected engine response")
 	}
 
-	room.game.Move(*engineMove)
-	room.result = room.game.GetResult()
-
-	room.sendGameData()
-	return nil
+	return engineMove, nil
 }

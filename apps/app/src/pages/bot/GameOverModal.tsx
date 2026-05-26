@@ -7,29 +7,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@chessgo/ui/dialog"
-import { formatTimeControl } from "@/lib/formatters"
-import type { TimeControl } from "@/types/chess"
 import type { Dispatch, SetStateAction } from "react"
-import { Link, useNavigate } from "react-router"
-import { API_BASE } from "@/lib/api"
+import { Link } from "react-router"
 
 export function GameOverModal({
-  timeControl,
   result,
   reason,
   open,
   setOpen,
+  handleRematch,
 }: {
-  timeControl: TimeControl
   result: "win" | "loss" | "draw"
   reason: string
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
+  handleRematch: () => void
 }) {
-  const navigate = useNavigate()
-
-  const timeControlString = formatTimeControl(timeControl)
-
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogContent>
@@ -46,27 +39,9 @@ export function GameOverModal({
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-2">
-          <Button
-            className="flex-1"
-            onClick={() => {
-              fetch(`${API_BASE}/live`, {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  color: "random",
-                  time_control: timeControlString,
-                }),
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  navigate(`/live/${data?.game_id}`, { replace: true })
-                })
-            }}
-          >
-            New {timeControlString}
+          <Button className="flex-1" onClick={handleRematch}>
+            New Game
           </Button>
-          <Button className="flex-1">Rematch</Button>
         </div>
         <DialogFooter>
           <Button asChild variant="ghost">
