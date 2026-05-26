@@ -135,7 +135,8 @@ func (cfg *Config) ConnectToLiveGameHandler(w http.ResponseWriter, r *http.Reque
 		}
 
 		cfg.Logger.Info("recieved message",
-			slog.String("type", string(clientMessage.Type)),
+			slog.String("game_type", "live"),
+			slog.String("message_type", string(clientMessage.Type)),
 			slog.String("room_id", room.ID.String()),
 			slog.String("player", string(playerRole)),
 		)

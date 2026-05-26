@@ -133,6 +133,7 @@ Open the app at [http://localhost:3000](http://localhost:3000)
 | `just install` | Download Go modules and install npm packages |
 | `just dev` | Start development environment |
 | `just lint` | Lint Go and TypeScript |
+| `just perft` | Run engine perft |
 | `just test` | Run Go tests |
 | `just generate` | Regenerate sqlc query code |
 | `just migrate *args="up"` | Run database migrations via goose |

@@ -16,8 +16,9 @@ export type ChessGameProps = {
   setUndoCount: Dispatch<SetStateAction<number>>
   white: Player
   black: Player
-  timeControl: TimeControl
   game: Chess
+  timeControl: TimeControl
+  noClocks: boolean
   onMove?: (move: Move) => void
   handleResign?: () => void
   handleOfferDraw?: () => void
@@ -37,6 +38,7 @@ export const ChessGame = forwardRef<
   ChessGameHandle,
   {
     gameData: Game
+    noClocks?: boolean
     onMove?: ChessboardProps["onMove"]
     handleResign?: () => void
     handleOfferDraw?: () => void
@@ -50,6 +52,7 @@ export const ChessGame = forwardRef<
 >(function Game(
   {
     gameData,
+    noClocks,
     onMove,
     handleResign,
     handleOfferDraw,
@@ -81,6 +84,7 @@ export const ChessGame = forwardRef<
         white: gameData.white,
         black: gameData.black,
         timeControl: gameData.time_control,
+        noClocks: noClocks ?? false,
         undoCount,
         setUndoCount,
         game,

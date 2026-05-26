@@ -7,6 +7,7 @@ import { TooltipProvider } from "@chessgo/ui/tooltip"
 import Layout from "@/pages/layout"
 import HomePage from "@/pages/home"
 import LivePage from "@/pages/live"
+import BotPage from "@/pages/bot"
 import GamesPage from "@/pages/games"
 import GamePage from "@/pages/game"
 import { NotFound } from "@/components/errors/NotFound"
@@ -21,6 +22,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/live/:gameID" element={<LivePage />} />
+          <Route path="/bot" element={<BotPage />} />
           <Route path="/games" element={<GamesPage />} />
           <Route path="/games/:gameID" element={<GamePage />} />
           <Route path="*" element={<NotFound />} />
