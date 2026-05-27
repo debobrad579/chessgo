@@ -27,7 +27,7 @@ impl Search {
             return position.evaluation(position.turn);
         }
 
-        let mut moves = position.generate_pseudolegal_moves(position.turn);
+        let mut moves = position.generate_pseudolegal_moves();
         self.sort_moves(&mut moves, position.turn, ply);
 
         let mut legal_move_count = 0;

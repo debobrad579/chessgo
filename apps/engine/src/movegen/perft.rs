@@ -6,7 +6,7 @@ pub fn perft(position: &mut Position, depth: u32) -> u64 {
         return 1;
     }
 
-    let moves = position.generate_pseudolegal_moves(position.turn);
+    let moves = position.generate_pseudolegal_moves();
     let mut result = 0;
 
     for mv in moves {
@@ -21,7 +21,7 @@ pub fn perft(position: &mut Position, depth: u32) -> u64 {
 }
 
 pub fn perft_divide(position: &mut Position, depth: u32) {
-    let moves = position.generate_pseudolegal_moves(position.turn);
+    let moves = position.generate_pseudolegal_moves();
     let mut total = 0;
     let start = Instant::now();
 

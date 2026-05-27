@@ -11,7 +11,7 @@ impl Search {
 
         alpha = alpha.max(stand_pat);
 
-        let mut captures = position.generate_pseudolegal_captures(position.turn);
+        let mut captures = position.generate_pseudolegal_captures();
         self.sort_moves(&mut captures, position.turn, 0);
 
         for capture in captures {
