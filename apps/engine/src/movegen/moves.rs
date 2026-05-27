@@ -1,7 +1,6 @@
 use crate::{
-    get_ls1b_index, pop_bit,
+    bitboard::BitboardOperations,
     position::Position,
-    set_bit,
     types::{Color, Move, Piece},
 };
 
@@ -21,22 +20,21 @@ impl Position {
         };
 
         self.half_moves += 1;
-        let opp_color = !self.turn;
         let source = mv.source();
         let source_piece = mv.piece();
         let target = mv.target();
 
         macro_rules! set_piece {
             ($color:expr, $piece:expr, $square:expr) => {{
-                set_bit!(self.piece_bitboards[$color][$piece], $square);
-                set_bit!(self.side_bitboards[$color], $square);
+                self.piece_bitboards[$color][$piece].set($square);
+                self.side_bitboards[$color].set($square);
             }};
         }
 
         macro_rules! pop_piece {
             ($color:expr, $piece:expr, $square:expr) => {{
-                pop_bit!(self.piece_bitboards[$color][$piece], $square);
-                pop_bit!(self.side_bitboards[$color], $square);
+                self.piece_bitboards[$color][$piece].pop($square);
+                self.side_bitboards[$color].pop($square);
             }};
         }
 
@@ -44,7 +42,7 @@ impl Position {
 
         if let Some(capture) = mv.capture() {
             self.half_moves = 0;
-            pop_piece!(opp_color, capture, target);
+            pop_piece!(!self.turn, capture, target);
         }
 
         if source_piece == Piece::Pawn {
@@ -64,7 +62,7 @@ impl Position {
         };
 
         if mv.is_enpassant() {
-            pop_piece!(opp_color, Piece::Pawn, square_behind);
+            pop_piece!(!self.turn, Piece::Pawn, square_behind);
         }
 
         self.enpassant = if mv.is_double_pawn_push() {
@@ -98,33 +96,32 @@ impl Position {
         if mv.is_castling() || source_piece == Piece::King {
             match self.turn {
                 Color::White => {
-                    pop_bit!(self.castling_rights, 0);
-                    pop_bit!(self.castling_rights, 1);
+                    self.castling_rights &= 0b11111110;
+                    self.castling_rights &= 0b11111101;
                 }
                 Color::Black => {
-                    pop_bit!(self.castling_rights, 2);
-                    pop_bit!(self.castling_rights, 3);
+                    self.castling_rights &= 0b11111011;
+                    self.castling_rights &= 0b11110111;
                 }
             }
         } else if source_piece == Piece::Rook {
             match source {
-                7 => pop_bit!(self.castling_rights, 0),
-                0 => pop_bit!(self.castling_rights, 1),
-                63 => pop_bit!(self.castling_rights, 2),
-                56 => pop_bit!(self.castling_rights, 3),
+                7 => self.castling_rights &= 0b11111110,
+                0 => self.castling_rights &= 0b11111101,
+                63 => self.castling_rights &= 0b11111011,
+                56 => self.castling_rights &= 0b11110111,
                 _ => {}
             }
         }
 
-        self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[opp_color];
-        self.turn = opp_color;
+        self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[!self.turn];
+        self.turn = !self.turn;
 
         undo
     }
 
     pub fn undo_move(&mut self, mv: Move, undo: MoveUndo) {
         self.turn = !self.turn;
-        let opp_color = !self.turn;
 
         let source = mv.source();
         let source_piece = mv.piece();
@@ -132,15 +129,15 @@ impl Position {
 
         macro_rules! set_piece {
             ($color:expr, $piece:expr, $square:expr) => {{
-                set_bit!(self.piece_bitboards[$color][$piece], $square);
-                set_bit!(self.side_bitboards[$color], $square);
+                self.piece_bitboards[$color][$piece].set($square);
+                self.side_bitboards[$color].set($square);
             }};
         }
 
         macro_rules! pop_piece {
             ($color:expr, $piece:expr, $square:expr) => {{
-                pop_bit!(self.piece_bitboards[$color][$piece], $square);
-                pop_bit!(self.side_bitboards[$color], $square);
+                self.piece_bitboards[$color][$piece].pop($square);
+                self.side_bitboards[$color].pop($square);
             }};
         }
 
@@ -153,7 +150,7 @@ impl Position {
         set_piece!(self.turn, source_piece, source);
 
         if let Some(capture) = mv.capture() {
-            set_piece!(opp_color, capture, target);
+            set_piece!(!self.turn, capture, target);
         }
 
         let square_behind = match self.turn {
@@ -162,7 +159,7 @@ impl Position {
         };
 
         if mv.is_enpassant() {
-            set_piece!(opp_color, Piece::Pawn, square_behind);
+            set_piece!(!self.turn, Piece::Pawn, square_behind);
         }
 
         if mv.is_castling() {
@@ -190,12 +187,12 @@ impl Position {
         self.castling_rights = undo.castling_rights;
         self.enpassant = undo.enpassant;
         self.half_moves = undo.half_moves;
-        self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[opp_color];
+        self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[!self.turn];
     }
 
     pub fn in_check(&self, color: Color) -> bool {
         self.is_square_attacked(
-            get_ls1b_index!(self.piece_bitboards[color][Piece::King]) as usize,
+            self.piece_bitboards[color][Piece::King].trailing_zeros() as usize,
             !color,
         )
     }

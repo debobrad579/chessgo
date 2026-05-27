@@ -1,7 +1,6 @@
 use crate::{
-    get_bit,
+    bitboard::BitboardOperations,
     position::Position,
-    set_bit,
     types::{Color, Piece},
 };
 
@@ -79,8 +78,8 @@ impl TryFrom<&str> for Position {
                         _ => return Err(Self::Error::InvalidPieces(pieces.to_string())),
                     };
 
-                    set_bit!(position.piece_bitboards[color][piece], square);
-                    set_bit!(position.side_bitboards[color], square);
+                    position.piece_bitboards[color][piece].set(square);
+                    position.side_bitboards[color].set(square);
 
                     file += 1;
                 }
@@ -128,11 +127,7 @@ impl TryFrom<&str> for Position {
                 }
             };
 
-            if get_bit!(
-                position.piece_bitboards[!position.turn][Piece::Pawn],
-                pawn_square
-            ) != 0
-            {
+            if position.piece_bitboards[!position.turn][Piece::Pawn].contains(pawn_square as u32) {
                 position.enpassant = Some(square);
             } else {
                 return Err(Self::Error::InvalidEnpassant(enpassant.to_string()));
@@ -141,25 +136,25 @@ impl TryFrom<&str> for Position {
 
         for c in castling_rights.chars() {
             match c {
-                'K' if get_bit!(position.piece_bitboards[Color::White][Piece::King], 4) != 0
-                    && get_bit!(position.piece_bitboards[Color::White][Piece::Rook], 7) != 0 =>
+                'K' if position.piece_bitboards[Color::White][Piece::King].contains(4)
+                    && position.piece_bitboards[Color::White][Piece::Rook].contains(7) =>
                 {
-                    set_bit!(position.castling_rights, 0)
+                    position.castling_rights |= 0b00000001;
                 }
-                'Q' if get_bit!(position.piece_bitboards[Color::White][Piece::King], 4) != 0
-                    && get_bit!(position.piece_bitboards[Color::White][Piece::Rook], 0) != 0 =>
+                'Q' if position.piece_bitboards[Color::White][Piece::King].contains(4)
+                    && position.piece_bitboards[Color::White][Piece::Rook].contains(0) =>
                 {
-                    set_bit!(position.castling_rights, 1)
+                    position.castling_rights |= 0b00000010;
                 }
-                'k' if get_bit!(position.piece_bitboards[Color::Black][Piece::King], 60) != 0
-                    && get_bit!(position.piece_bitboards[Color::Black][Piece::Rook], 63) != 0 =>
+                'k' if position.piece_bitboards[Color::Black][Piece::King].contains(60)
+                    && position.piece_bitboards[Color::Black][Piece::Rook].contains(63) =>
                 {
-                    set_bit!(position.castling_rights, 2)
+                    position.castling_rights |= 0b00000100;
                 }
-                'q' if get_bit!(position.piece_bitboards[Color::Black][Piece::King], 60) != 0
-                    && get_bit!(position.piece_bitboards[Color::Black][Piece::Rook], 56) != 0 =>
+                'q' if position.piece_bitboards[Color::Black][Piece::King].contains(60)
+                    && position.piece_bitboards[Color::Black][Piece::Rook].contains(56) =>
                 {
-                    set_bit!(position.castling_rights, 3)
+                    position.castling_rights |= 0b00001000;
                 }
                 '-' => {}
                 _ => {

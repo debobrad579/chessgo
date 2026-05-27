@@ -1,3 +1,4 @@
+pub mod bitboard;
 pub mod eval;
 pub mod macros;
 pub mod movegen;

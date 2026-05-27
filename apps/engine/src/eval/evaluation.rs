@@ -1,6 +1,6 @@
 use crate::{
+    bitboard::BitboardOperations,
     eval::scores::{ENDGAME_POSITIONAL_SCORES, MATERIAL_SCORES, MIDDLEGAME_POSITIONAL_SCORES},
-    get_ls1b_index, pop_bit,
     position::Position,
     types::{Color, Piece},
 };
@@ -11,10 +11,7 @@ impl Position {
         let mut score = 0;
 
         for piece in Piece::iter() {
-            let mut bitboard = self.piece_bitboards[color][piece];
-            while bitboard != 0 {
-                let square = get_ls1b_index!(bitboard);
-
+            self.piece_bitboards[color][piece].foreach(|square| {
                 score += MATERIAL_SCORES[piece];
                 let relative_square = match color {
                     Color::White => square,
@@ -25,9 +22,7 @@ impl Position {
                 } else {
                     MIDDLEGAME_POSITIONAL_SCORES[piece][relative_square as usize]
                 };
-
-                pop_bit!(bitboard, square);
-            }
+            });
         }
 
         score

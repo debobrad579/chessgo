@@ -12,31 +12,3 @@ macro_rules! compute_table {
         table
     }};
 }
-
-#[macro_export]
-macro_rules! set_bit {
-    ($bitboard:expr, $square:expr) => {
-        $bitboard |= (1 << ($square))
-    };
-}
-
-#[macro_export]
-macro_rules! pop_bit {
-    ($bitboard:expr, $square:expr) => {
-        $bitboard &= !(1 << $square)
-    };
-}
-
-#[macro_export]
-macro_rules! get_bit {
-    ($bitboard:expr, $square:expr) => {
-        ($bitboard) & (1 << ($square))
-    };
-}
-
-#[macro_export]
-macro_rules! get_ls1b_index {
-    ($bitboard:expr) => {
-        $bitboard.trailing_zeros()
-    };
-}
