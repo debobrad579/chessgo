@@ -18,4 +18,10 @@ impl Search {
     pub fn bestmove(&self) -> Option<Move> {
         self.pv_table[0][0]
     }
+
+    pub fn pv(&self) -> Vec<Move> {
+        (0..self.pv_length[0])
+            .filter_map(|i| self.pv_table[0][i])
+            .collect()
+    }
 }

@@ -22,7 +22,7 @@ fn main() {
                 println!("uciok");
             }
             ["isready", ..] => println!("readyok"),
-            ["ucinewgame", ..] => {
+            ["ucinewgame"] => {
                 game_state = match position_cmd(&["startpos"]) {
                     Ok(position) => Some(position),
                     Err(e) => {
@@ -42,14 +42,20 @@ fn main() {
             }
             ["go", args @ ..] => {
                 if let Some(ref mut game_state) = game_state {
-                    let best_move = match go_cmd(game_state, args) {
-                        Ok(best_move) => best_move,
+                    let search = match go_cmd(game_state, args) {
+                        Ok(search) => search,
                         Err(e) => {
                             eprintln!("{}", e);
                             continue;
                         }
                     };
-                    println!("bestmove {}", best_move);
+                    println!("nodes {}", search.nodes());
+
+                    if let Some(bestmove) = search.bestmove() {
+                        println!("bestmove {}", bestmove);
+                    } else {
+                        eprintln!("no legal moves")
+                    }
                 } else {
                     eprintln!("game not initialized");
                 }
