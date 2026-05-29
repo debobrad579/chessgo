@@ -80,6 +80,7 @@ impl TryFrom<&str> for Position {
 
                     position.piece_bitboards[color][piece].set(square);
                     position.side_bitboards[color].set(square);
+                    position.toggle_zobrist_piece(square, color, piece);
 
                     file += 1;
                 }
@@ -105,7 +106,10 @@ impl TryFrom<&str> for Position {
 
         position.turn = match turn {
             "w" => Color::White,
-            "b" => Color::Black,
+            "b" => {
+                position.toggle_zobrist_turn();
+                Color::Black
+            }
             _ => return Err(Self::Error::InvalidTurn(turn.to_string())),
         };
 
@@ -129,6 +133,7 @@ impl TryFrom<&str> for Position {
 
             if position.piece_bitboards[!position.turn][Piece::Pawn].contains(pawn_square as u32) {
                 position.enpassant = Some(square);
+                position.toggle_zobrist_enpassant(square);
             } else {
                 return Err(Self::Error::InvalidEnpassant(enpassant.to_string()));
             }
@@ -164,6 +169,8 @@ impl TryFrom<&str> for Position {
                 }
             }
         }
+
+        position.toggle_zobrist_castling_rights(position.castling_rights);
 
         position.half_moves = half_moves
             .parse()

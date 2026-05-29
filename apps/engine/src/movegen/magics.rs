@@ -1,24 +1,8 @@
 use crate::{
     compute_table,
     movegen::attacks::{BISHOP_MASKS, ROOK_MASKS, compute_bishop_attacks, compute_rook_attacks},
+    random::{RANDOM_SEED, generate_pseudorandom_u64},
 };
-
-const RANDOM_SEED: u32 = 0x12345678;
-
-const fn xorshift_u32(state: &mut u32) -> u32 {
-    *state ^= *state << 13;
-    *state ^= *state >> 17;
-    *state ^= *state << 5;
-    return *state;
-}
-
-const fn generate_pseudorandom_u64(state: &mut u32) -> u64 {
-    let n1 = (xorshift_u32(state) as u64) & 0xFFFF;
-    let n2 = (xorshift_u32(state) as u64) & 0xFFFF;
-    let n3 = (xorshift_u32(state) as u64) & 0xFFFF;
-    let n4 = (xorshift_u32(state) as u64) & 0xFFFF;
-    return n1 | (n2 << 16) | (n3 << 32) | (n4 << 48);
-}
 
 const fn generate_magic_number_candidate(state: &mut u32) -> u64 {
     generate_pseudorandom_u64(state)

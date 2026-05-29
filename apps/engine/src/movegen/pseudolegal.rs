@@ -196,7 +196,6 @@ impl Position {
         gen_moves!(King);
 
         if self.castling_rights & (1 << castling_bit) != 0
-            && self.piece_bitboards[self.turn][Piece::Rook].contains(castling_source + 3)
             && !self.occupancy.contains(castling_source + 1)
             && !self.occupancy.contains(castling_source + 2)
             && !self.is_square_attacked(castling_source as usize, !self.turn)
@@ -215,7 +214,6 @@ impl Position {
         }
 
         if self.castling_rights & (1 << (castling_bit + 1)) != 0
-            && self.piece_bitboards[self.turn][Piece::Rook].contains(castling_source - 4)
             && !self.occupancy.contains(castling_source - 1)
             && !self.occupancy.contains(castling_source - 2)
             && !self.occupancy.contains(castling_source - 3)

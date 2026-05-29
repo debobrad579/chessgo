@@ -28,6 +28,7 @@ impl Position {
             ($color:expr, $piece:expr, $square:expr) => {{
                 self.piece_bitboards[$color][$piece].set($square);
                 self.side_bitboards[$color].set($square);
+                self.toggle_zobrist_piece($square, $color, $piece)
             }};
         }
 
@@ -35,6 +36,7 @@ impl Position {
             ($color:expr, $piece:expr, $square:expr) => {{
                 self.piece_bitboards[$color][$piece].pop($square);
                 self.side_bitboards[$color].pop($square);
+                self.toggle_zobrist_piece($square, $color, $piece)
             }};
         }
 
@@ -43,6 +45,17 @@ impl Position {
         if let Some(capture) = mv.capture() {
             self.half_moves = 0;
             pop_piece!(!self.turn, capture, target);
+            if capture == Piece::Rook {
+                self.toggle_zobrist_castling_rights(self.castling_rights);
+                match target {
+                    7 => self.castling_rights &= 0b11111110,
+                    0 => self.castling_rights &= 0b11111101,
+                    63 => self.castling_rights &= 0b11111011,
+                    56 => self.castling_rights &= 0b11110111,
+                    _ => {}
+                }
+                self.toggle_zobrist_castling_rights(self.castling_rights);
+            }
         }
 
         if source_piece == Piece::Pawn {
@@ -65,7 +78,12 @@ impl Position {
             pop_piece!(!self.turn, Piece::Pawn, square_behind);
         }
 
+        if let Some(enpassant) = self.enpassant {
+            self.toggle_zobrist_enpassant(enpassant);
+        }
+
         self.enpassant = if mv.is_double_pawn_push() {
+            self.toggle_zobrist_enpassant(square_behind as u8);
             Some(square_behind as u8)
         } else {
             None
@@ -94,6 +112,7 @@ impl Position {
         }
 
         if mv.is_castling() || source_piece == Piece::King {
+            self.toggle_zobrist_castling_rights(self.castling_rights);
             match self.turn {
                 Color::White => {
                     self.castling_rights &= 0b11111110;
@@ -104,7 +123,9 @@ impl Position {
                     self.castling_rights &= 0b11110111;
                 }
             }
+            self.toggle_zobrist_castling_rights(self.castling_rights);
         } else if source_piece == Piece::Rook {
+            self.toggle_zobrist_castling_rights(self.castling_rights);
             match source {
                 7 => self.castling_rights &= 0b11111110,
                 0 => self.castling_rights &= 0b11111101,
@@ -112,16 +133,19 @@ impl Position {
                 56 => self.castling_rights &= 0b11110111,
                 _ => {}
             }
+            self.toggle_zobrist_castling_rights(self.castling_rights);
         }
 
         self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[!self.turn];
         self.turn = !self.turn;
+        self.toggle_zobrist_turn();
 
         undo
     }
 
     pub fn undo_move(&mut self, mv: Move, undo: MoveUndo) {
         self.turn = !self.turn;
+        self.toggle_zobrist_turn();
 
         let source = mv.source();
         let source_piece = mv.piece();
@@ -131,6 +155,7 @@ impl Position {
             ($color:expr, $piece:expr, $square:expr) => {{
                 self.piece_bitboards[$color][$piece].set($square);
                 self.side_bitboards[$color].set($square);
+                self.toggle_zobrist_piece($square, $color, $piece)
             }};
         }
 
@@ -138,6 +163,7 @@ impl Position {
             ($color:expr, $piece:expr, $square:expr) => {{
                 self.piece_bitboards[$color][$piece].pop($square);
                 self.side_bitboards[$color].pop($square);
+                self.toggle_zobrist_piece($square, $color, $piece)
             }};
         }
 
@@ -184,8 +210,16 @@ impl Position {
             }
         }
 
+        self.toggle_zobrist_castling_rights(self.castling_rights);
         self.castling_rights = undo.castling_rights;
+        self.toggle_zobrist_castling_rights(self.castling_rights);
+        if let Some(enpassant) = self.enpassant {
+            self.toggle_zobrist_enpassant(enpassant);
+        }
         self.enpassant = undo.enpassant;
+        if let Some(enpassant) = self.enpassant {
+            self.toggle_zobrist_enpassant(enpassant);
+        }
         self.half_moves = undo.half_moves;
         self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[!self.turn];
     }
