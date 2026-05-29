@@ -1,5 +1,6 @@
 use crate::{
     bitboard::BitboardOperations,
+    movegen::attacks::{BLACK_PAWN_ATTACKS, WHITE_PAWN_ATTACKS},
     position::Position,
     types::{Color, Move, Piece},
 };
@@ -82,7 +83,19 @@ impl Position {
             self.toggle_zobrist_enpassant(enpassant);
         }
 
-        self.enpassant = if mv.is_double_pawn_push() {
+        self.enpassant = if mv.is_double_pawn_push()
+            && match self.turn {
+                Color::White => {
+                    WHITE_PAWN_ATTACKS[square_behind as usize]
+                        & self.piece_bitboards[Color::Black][Piece::Pawn]
+                        != 0
+                }
+                Color::Black => {
+                    BLACK_PAWN_ATTACKS[square_behind as usize]
+                        & self.piece_bitboards[Color::White][Piece::Pawn]
+                        != 0
+                }
+            } {
             self.toggle_zobrist_enpassant(square_behind as u8);
             Some(square_behind as u8)
         } else {
