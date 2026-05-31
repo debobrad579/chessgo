@@ -49,7 +49,7 @@ func createGame(userID uuid.UUID, color chess.Color) *gameRoom {
 	registry.mu.Unlock()
 
 	if color == chess.Black {
-		engineMove, err := room.getEngineMove()
+		engineMove, err := room.getEngineMove(&room.game.State)
 		if err == nil {
 			room.game.Move(*engineMove)
 		}

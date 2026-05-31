@@ -6,7 +6,7 @@ import (
 	"github.com/debobrad579/chessgo/internal/chess"
 )
 
-func GenerateZobristKey(state *chess.GameState) (key uint64) {
+func GetZobristKey(state *chess.GameState) (key uint64) {
 	for row := range 8 {
 		for file := range 8 {
 			piece := state.Board[row][file]

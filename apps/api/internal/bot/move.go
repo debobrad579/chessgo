@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/debobrad579/chessgo/internal/chess"
+	"github.com/debobrad579/chessgo/internal/polyglot"
 	"github.com/google/uuid"
 )
 
@@ -58,7 +59,7 @@ func MakeMove(userID uuid.UUID, move chess.Move) error {
 		return nil
 	}
 
-	engineMove, err := room.getEngineMove()
+	engineMove, err := room.getEngineMove(&room.game.State)
 	if err != nil {
 		return err
 	}
@@ -69,7 +70,12 @@ func MakeMove(userID uuid.UUID, move chess.Move) error {
 	return room.sendGameData()
 }
 
-func (room *gameRoom) getEngineMove() (*chess.Move, error) {
+func (room *gameRoom) getEngineMove(state *chess.GameState) (*chess.Move, error) {
+	bookMove := polyglot.GetBookMove(state)
+	if bookMove != nil {
+		return bookMove, nil
+	}
+
 	conn, err := net.Dial("tcp", os.Getenv("ENGINE_HOST"))
 	if err != nil {
 		return nil, err
