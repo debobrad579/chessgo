@@ -1,6 +1,6 @@
 use crate::{
+    attacks::{BLACK_PAWN_ATTACKS, WHITE_PAWN_ATTACKS},
     bitboard::BitboardOperations,
-    movegen::attacks::{BLACK_PAWN_ATTACKS, WHITE_PAWN_ATTACKS},
     position::Position,
     types::{Color, Piece},
 };
@@ -81,7 +81,7 @@ impl TryFrom<&str> for Position {
 
                     position.piece_bitboards[color][piece].set(square);
                     position.side_bitboards[color].set(square);
-                    position.toggle_zobrist_piece(square, color, piece);
+                    position.zobrist_key.toggle_piece(square, color, piece);
 
                     file += 1;
                 }
@@ -108,7 +108,7 @@ impl TryFrom<&str> for Position {
         position.turn = match turn {
             "w" => Color::White,
             "b" => {
-                position.toggle_zobrist_turn();
+                position.zobrist_key.toggle_turn();
                 Color::Black
             }
             _ => return Err(Self::Error::InvalidTurn(turn.to_string())),
@@ -145,7 +145,7 @@ impl TryFrom<&str> for Position {
                             != 0
                     }
                 } {
-                    position.toggle_zobrist_enpassant(square);
+                    position.zobrist_key.toggle_enpassant(square);
                     position.enpassant = Some(square);
                 }
             } else {
@@ -184,7 +184,9 @@ impl TryFrom<&str> for Position {
             }
         }
 
-        position.toggle_zobrist_castling_rights(position.castling_rights);
+        position
+            .zobrist_key
+            .toggle_castling_rights(position.castling_rights);
 
         position.half_moves = half_moves
             .parse()

@@ -1,8 +1,5 @@
+pub mod attacks;
 pub mod bitboard;
-pub mod eval;
-pub mod hash;
-pub mod macros;
-pub mod movegen;
 pub mod position;
 pub mod random;
 pub mod search;

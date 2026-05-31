@@ -15,7 +15,7 @@ impl Search {
         self.nodes += 1;
         self.init_pv_ply(ply);
 
-        if position.half_moves >= 100 {
+        if position.half_moves() >= 100 {
             return 0;
         }
 
@@ -24,18 +24,18 @@ impl Search {
         }
 
         if ply >= MAX_PLY {
-            return position.evaluation(position.turn);
+            return position.evaluation(position.turn());
         }
 
         let mut moves = position.generate_pseudolegal_moves();
 
-        self.sort_moves(&mut moves, position.turn, ply);
+        self.sort_moves(&mut moves, position.turn(), ply);
 
         let mut legal_move_count = 0;
 
         for mv in moves {
             let undo = position.make_move(mv);
-            if position.in_check(!position.turn) {
+            if position.in_check(!position.turn()) {
                 position.undo_move(mv, undo);
                 continue;
             }
@@ -58,7 +58,7 @@ impl Search {
                 if mv.capture().is_none() {
                     self.killer_moves[ply][1] = self.killer_moves[ply][0];
                     self.killer_moves[ply][0] = Some(mv);
-                    self.history_moves[position.turn][mv.source() as usize]
+                    self.history_moves[position.turn()][mv.source() as usize]
                         [mv.target() as usize] += depth * depth;
                 }
 
@@ -72,7 +72,7 @@ impl Search {
         }
 
         if legal_move_count == 0 {
-            return if position.in_check(position.turn) {
+            return if position.in_check(position.turn()) {
                 -1_000_000_000 + (ply as i32)
             } else {
                 0

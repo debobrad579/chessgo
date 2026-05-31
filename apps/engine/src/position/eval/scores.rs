@@ -1,6 +1,6 @@
 use crate::types::PieceArray;
 
-pub(super) const MATERIAL_SCORES: PieceArray<i32> =
+pub(in crate::position::eval) const MATERIAL_SCORES: PieceArray<i32> =
     PieceArray::new([100, 320, 350, 500, 950, 20000]);
 
 #[rustfmt::skip]
@@ -87,20 +87,22 @@ const KING_ENDGAME_POSITIONAL_SCORES: [i32; 64] = [
     -50, -40, -30, -20, -20, -30, -40, -50,
 ];
 
-pub(super) const MIDDLEGAME_POSITIONAL_SCORES: PieceArray<[i32; 64]> = PieceArray::new([
-    PAWN_POSITIONAL_SCORES,
-    KNIGHT_POSITIONAL_SCORES,
-    BISHOP_POSITIONAL_SCORES,
-    ROOK_POSITIONAL_SCORES,
-    QUEEN_POSITIONAL_SCORES,
-    KING_MIDDLEGAME_POSITIONAL_SCORES,
-]);
+pub(in crate::position::eval) const MIDDLEGAME_POSITIONAL_SCORES: PieceArray<[i32; 64]> =
+    PieceArray::new([
+        PAWN_POSITIONAL_SCORES,
+        KNIGHT_POSITIONAL_SCORES,
+        BISHOP_POSITIONAL_SCORES,
+        ROOK_POSITIONAL_SCORES,
+        QUEEN_POSITIONAL_SCORES,
+        KING_MIDDLEGAME_POSITIONAL_SCORES,
+    ]);
 
-pub(super) const ENDGAME_POSITIONAL_SCORES: PieceArray<[i32; 64]> = PieceArray::new([
-    PAWN_POSITIONAL_SCORES,
-    KNIGHT_POSITIONAL_SCORES,
-    BISHOP_POSITIONAL_SCORES,
-    ROOK_POSITIONAL_SCORES,
-    QUEEN_POSITIONAL_SCORES,
-    KING_ENDGAME_POSITIONAL_SCORES,
-]);
+pub(in crate::position::eval) const ENDGAME_POSITIONAL_SCORES: PieceArray<[i32; 64]> =
+    PieceArray::new([
+        PAWN_POSITIONAL_SCORES,
+        KNIGHT_POSITIONAL_SCORES,
+        BISHOP_POSITIONAL_SCORES,
+        ROOK_POSITIONAL_SCORES,
+        QUEEN_POSITIONAL_SCORES,
+        KING_ENDGAME_POSITIONAL_SCORES,
+    ]);

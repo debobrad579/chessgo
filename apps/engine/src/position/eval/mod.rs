@@ -1,9 +1,10 @@
 use crate::{
     bitboard::BitboardOperations,
-    eval::scores::{ENDGAME_POSITIONAL_SCORES, MATERIAL_SCORES, MIDDLEGAME_POSITIONAL_SCORES},
     position::Position,
     types::{Color, Piece},
 };
+
+mod scores;
 
 impl Position {
     #[inline(always)]
@@ -12,15 +13,15 @@ impl Position {
 
         for piece in Piece::iter() {
             self.piece_bitboards[color][piece].foreach(|square| {
-                score += MATERIAL_SCORES[piece];
+                score += scores::MATERIAL_SCORES[piece];
                 let relative_square = match color {
                     Color::White => square,
                     Color::Black => square ^ 56,
                 };
                 score += if self.is_endgame() {
-                    ENDGAME_POSITIONAL_SCORES[piece][relative_square as usize]
+                    scores::ENDGAME_POSITIONAL_SCORES[piece][relative_square as usize]
                 } else {
-                    MIDDLEGAME_POSITIONAL_SCORES[piece][relative_square as usize]
+                    scores::MIDDLEGAME_POSITIONAL_SCORES[piece][relative_square as usize]
                 };
             });
         }

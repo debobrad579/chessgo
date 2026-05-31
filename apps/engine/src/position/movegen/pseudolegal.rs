@@ -1,16 +1,11 @@
 use arrayvec::ArrayVec;
 
 use crate::{
-    bitboard::BitboardOperations,
-    movegen::{
-        attacks::{
-            BISHOP_MASKS, BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, ROOK_MASKS,
-            WHITE_PAWN_ATTACKS,
-        },
-        magics::{
-            BISHOP_MAGIC_NUMBERS, MAGIC_BISHOP_ATTACKS, MAGIC_ROOK_ATTACKS, ROOK_MAGIC_NUMBERS,
-        },
+    attacks::{
+        BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, WHITE_PAWN_ATTACKS, get_bishop_attacks,
+        get_queen_attacks, get_rook_attacks,
     },
+    bitboard::BitboardOperations,
     position::Position,
     types::{Color, Move, Piece, PromotionPiece},
 };
@@ -26,18 +21,13 @@ macro_rules! get_attacks {
         KNIGHT_ATTACKS[$square]
     };
     (Bishop, $square:expr, $occupancy:expr) => {
-        MAGIC_BISHOP_ATTACKS[$square][((($occupancy & BISHOP_MASKS[$square])
-            .wrapping_mul(BISHOP_MAGIC_NUMBERS[$square]))
-            >> (64 - BISHOP_MASKS[$square].count_ones()))
-            as usize]
+        get_bishop_attacks($square, $occupancy)
     };
     (Rook, $square:expr, $occupancy:expr) => {
-        MAGIC_ROOK_ATTACKS[$square][((($occupancy & ROOK_MASKS[$square])
-            .wrapping_mul(ROOK_MAGIC_NUMBERS[$square]))
-            >> (64 - ROOK_MASKS[$square].count_ones())) as usize]
+        get_rook_attacks($square, $occupancy)
     };
     (Queen, $square:expr, $occupancy:expr) => {
-        get_attacks!(Bishop, $square, $occupancy) | get_attacks!(Rook, $square, $occupancy)
+        get_queen_attacks($square, $occupancy)
     };
     (King, $square:expr) => {
         KING_ATTACKS[$square]
@@ -321,7 +311,7 @@ impl Position {
 
 #[cfg(test)]
 mod test {
-    use crate::{movegen::perft::perft, position::Position, position::fen::FENError};
+    use crate::{position::Position, position::fen::FENError, position::movegen::perft};
 
     #[test]
     fn perft_startpos() -> Result<(), FENError> {
