@@ -13,6 +13,7 @@ import (
 	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/debobrad579/chessgo/internal/handlers"
 	"github.com/debobrad579/chessgo/internal/logging"
+	"github.com/debobrad579/chessgo/internal/polyglot"
 	"github.com/joho/godotenv"
 	"github.com/mattn/go-isatty"
 
@@ -21,6 +22,8 @@ import (
 
 func main() {
 	godotenv.Load()
+
+	polyglot.InitializeBookData(os.Getenv("POLYGLOT_BOOK_FILEPATH"))
 
 	dev, _ := strconv.ParseBool(os.Getenv("DEV"))
 

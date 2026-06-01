@@ -96,14 +96,21 @@ Open the app at [http://localhost:4321](http://localhost:4321)
 
 | Command | Description |
 |---|---|
-| `just install` | Download Go modules and install npm packages |
+| `just cargo [args...]` | Run arbitrary cargo commands |
+| `just go [args...]` | Run arbitrary go commands |
+| `just pnpm <app\|www> [args...]` | Run arbitrary pnpm commands |
+| `just install` | Install dependencies |
 | `just dev` | Start development environment |
-| `just lint` | Lint Go and TypeScript |
-| `just perft` | Run engine perft |
-| `just test` | Run Go tests |
+| `just lint <api\|app\|www>` | Lint application |
+| `just lint-all` | Lint all applications in parallel |
+| `just perft [depth=6]` | Run engine perft |
+| `just search [depth=6]` | Test engine search |
+| `just test <api\|bot>` | Run tests |
+| `just test-all` | Run all tests in parallel |
 | `just generate` | Regenerate sqlc query code |
-| `just migrate *args="up"` | Run database migrations via goose |
-| `just build target="all"` | Build services (api, app, www, ui) |
+| `just migrate [args...=up]` | Run database migrations via goose |
+| `just build <ui\|api\|app\|bot\|www>` | Build application |
+| `just build-all` | Build all applications in parallel |
 | `just preview` | Start production environment |
 
 ## Contributing

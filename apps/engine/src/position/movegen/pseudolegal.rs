@@ -1,61 +1,75 @@
 use arrayvec::ArrayVec;
 
 use crate::{
-    get_bishop_attacks, get_bit, get_ls1b_index, get_queen_attacks, get_rook_attacks,
-    movegen::attacks::{BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, WHITE_PAWN_ATTACKS},
-    pop_bit,
+    attacks::{
+        BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, WHITE_PAWN_ATTACKS, get_bishop_attacks,
+        get_queen_attacks, get_rook_attacks,
+    },
+    bitboard::BitboardOperations,
     position::Position,
-    types::{Color, Piece},
-    types::{Move, PromotionPiece},
+    types::{Color, Move, Piece, PromotionPiece},
 };
+
+macro_rules! get_attacks {
+    (Pawn, White, $square:expr) => {
+        WHITE_PAWN_ATTACKS[$square]
+    };
+    (Pawn, Black, $square:expr) => {
+        BLACK_PAWN_ATTACKS[$square]
+    };
+    (Knight, $square:expr) => {
+        KNIGHT_ATTACKS[$square]
+    };
+    (Bishop, $square:expr, $occupancy:expr) => {
+        get_bishop_attacks($square, $occupancy)
+    };
+    (Rook, $square:expr, $occupancy:expr) => {
+        get_rook_attacks($square, $occupancy)
+    };
+    (Queen, $square:expr, $occupancy:expr) => {
+        get_queen_attacks($square, $occupancy)
+    };
+    (King, $square:expr) => {
+        KING_ATTACKS[$square]
+    };
+}
 
 impl Position {
     #[inline(always)]
     pub fn is_square_attacked(&self, square: usize, color: Color) -> bool {
-        let opp_pawn_attacks = match color {
-            Color::White => &BLACK_PAWN_ATTACKS,
-            Color::Black => &WHITE_PAWN_ATTACKS,
-        };
-
-        opp_pawn_attacks[square] & self.piece_bitboards[color][Piece::Pawn] != 0
-            || KNIGHT_ATTACKS[square] & self.piece_bitboards[color][Piece::Knight] != 0
-            || KING_ATTACKS[square] & self.piece_bitboards[color][Piece::King] != 0
-            || get_bishop_attacks!(square, self.occupancy)
+        (match color {
+            Color::White => get_attacks!(Pawn, Black, square),
+            Color::Black => get_attacks!(Pawn, White, square),
+        }) & self.piece_bitboards[color][Piece::Pawn]
+            != 0
+            || get_attacks!(Knight, square) & self.piece_bitboards[color][Piece::Knight] != 0
+            || get_attacks!(King, square) & self.piece_bitboards[color][Piece::King] != 0
+            || get_attacks!(Bishop, square, self.occupancy)
                 & (self.piece_bitboards[color][Piece::Bishop]
                     | self.piece_bitboards[color][Piece::Queen])
                 != 0
-            || get_rook_attacks!(square, self.occupancy)
+            || get_attacks!(Rook, square, self.occupancy)
                 & (self.piece_bitboards[color][Piece::Rook]
                     | self.piece_bitboards[color][Piece::Queen])
                 != 0
     }
 
     #[inline(always)]
-    pub fn get_target_piece(&self, color: Color, square: u32) -> Option<Piece> {
-        for piece in Piece::iter() {
-            if get_bit!(self.piece_bitboards[color][piece], square) != 0 {
-                return Some(piece);
-            }
-        }
-
-        return None;
+    pub fn get_target_piece(&self, square: u32) -> Option<Piece> {
+        Piece::iter().find(|&piece| self.piece_bitboards[!self.turn][piece].contains(square))
     }
 
-    pub fn generate_pseudolegal_moves(&self, color: Color) -> ArrayVec<Move, 256> {
-        let own = self.side_bitboards[color];
-        let opp_color = !color;
-        let opp = self.side_bitboards[opp_color];
+    pub fn generate_pseudolegal_moves(&self) -> ArrayVec<Move, 256> {
+        let own = self.side_bitboards[self.turn];
+        let opp = self.side_bitboards[!self.turn];
         let (pawn_attacks, pawn_offset, second_rank, last_rank, castling_source, castling_bit) =
-            match color {
+            match self.turn {
                 Color::White => (&WHITE_PAWN_ATTACKS, 8, 8..16, 56..64, 4, 0),
                 Color::Black => (&BLACK_PAWN_ATTACKS, -8, 48..56, 0..8, 60, 2),
             };
         let mut moves = ArrayVec::<Move, 256>::new();
 
-        let mut bitboard = self.piece_bitboards[color][Piece::Pawn];
-        while bitboard != 0 {
-            let source = get_ls1b_index!(bitboard);
-
+        self.piece_bitboards[self.turn][Piece::Pawn].foreach(|source| {
             macro_rules! gen_promotions {
                 ($target:expr, $capture:expr) => {{
                     for piece in PromotionPiece::iter() {
@@ -75,7 +89,7 @@ impl Position {
 
             let target = ((source as i32) + pawn_offset) as u32;
 
-            if get_bit!(self.occupancy, target) == 0 {
+            if !self.occupancy.contains(target) {
                 if last_rank.contains(&target) {
                     gen_promotions!(target, None);
                 } else {
@@ -94,7 +108,7 @@ impl Position {
                 if second_rank.contains(&source) {
                     let double_target = ((source as i32) + pawn_offset * 2) as u32;
 
-                    if get_bit!(self.occupancy, double_target) == 0 {
+                    if !self.occupancy.contains(double_target) {
                         moves.push(Move::new(
                             source,
                             double_target,
@@ -109,20 +123,17 @@ impl Position {
                 }
             }
 
-            let mut attacks = pawn_attacks[source as usize];
-
-            while attacks != 0 {
-                let target = get_ls1b_index!(attacks);
-                if get_bit!(opp, target) != 0 {
+            pawn_attacks[source as usize].foreach(|target| {
+                if opp.contains(target) {
                     if last_rank.contains(&target) {
-                        gen_promotions!(target, self.get_target_piece(opp_color, target));
+                        gen_promotions!(target, self.get_target_piece(target));
                     } else {
                         moves.push(Move::new(
                             source,
                             target,
                             Piece::Pawn,
                             None,
-                            self.get_target_piece(opp_color, target),
+                            self.get_target_piece(target),
                             false,
                             false,
                             false,
@@ -140,73 +151,49 @@ impl Position {
                         false,
                     ));
                 }
-                pop_bit!(attacks, target);
-            }
-
-            pop_bit!(bitboard, source);
-        }
+            });
+        });
 
         macro_rules! gen_moves {
-            ($piece:expr, $get_attacks:expr) => {{
-                let mut board = self.piece_bitboards[color][$piece];
-                while board != 0 {
-                    let source = get_ls1b_index!(board);
-                    let mut attacks = $get_attacks(source) & !own;
-
-                    while attacks != 0 {
-                        let target = get_ls1b_index!(attacks);
+            ($piece:ident $(, $occ:expr)?) => {{
+                self.piece_bitboards[self.turn][Piece::$piece].foreach(|source| {
+                    (get_attacks!(
+                        $piece,
+                        source as usize
+                        $(, $occ )?
+                    ) & !own).foreach(|target| {
+                        let is_capture = self.side_bitboards[!self.turn].contains(target);
 
                         moves.push(Move::new(
                             source,
                             target,
-                            $piece,
+                            Piece::$piece,
                             None,
-                            self.get_target_piece(opp_color, target),
+                            if is_capture { self.get_target_piece(target) } else { None },
                             false,
                             false,
                             false,
                         ));
-
-                        pop_bit!(attacks, target);
-                    }
-
-                    pop_bit!(board, source);
-                }
+                    });
+                });
             }};
         }
 
-        gen_moves!(Piece::Knight, |source| KNIGHT_ATTACKS[source as usize]);
+        gen_moves!(Knight);
+        gen_moves!(Bishop, self.occupancy);
+        gen_moves!(Rook, self.occupancy);
+        gen_moves!(Queen, self.occupancy);
+        gen_moves!(King);
 
-        gen_moves!(Piece::Bishop, |source| get_bishop_attacks!(
-            source as usize,
-            self.occupancy
-        ));
-
-        gen_moves!(Piece::Rook, |source| get_rook_attacks!(
-            source as usize,
-            self.occupancy
-        ));
-
-        gen_moves!(Piece::Queen, |source| get_queen_attacks!(
-            source as usize,
-            self.occupancy
-        ));
-
-        gen_moves!(Piece::King, |source| KING_ATTACKS[source as usize]);
-
-        if get_bit!(self.castling_rights, castling_bit) != 0
-            && get_bit!(
-                self.piece_bitboards[color][Piece::Rook],
-                castling_source + 3
-            ) != 0
-            && get_bit!(self.occupancy, castling_source + 1) == 0
-            && get_bit!(self.occupancy, castling_source + 2) == 0
-            && !self.is_square_attacked(castling_source, !color)
-            && !self.is_square_attacked(castling_source + 1, !color)
+        if self.castling_rights & (1 << castling_bit) != 0
+            && !self.occupancy.contains(castling_source + 1)
+            && !self.occupancy.contains(castling_source + 2)
+            && !self.is_square_attacked(castling_source as usize, !self.turn)
+            && !self.is_square_attacked(castling_source as usize + 1, !self.turn)
         {
             moves.push(Move::new(
-                castling_source as u32,
-                (castling_source + 2) as u32,
+                castling_source,
+                castling_source + 2,
                 Piece::King,
                 None,
                 None,
@@ -216,20 +203,16 @@ impl Position {
             ));
         }
 
-        if get_bit!(self.castling_rights, castling_bit + 1) != 0
-            && get_bit!(
-                self.piece_bitboards[color][Piece::Rook],
-                castling_source - 4
-            ) != 0
-            && get_bit!(self.occupancy, castling_source - 1) == 0
-            && get_bit!(self.occupancy, castling_source - 2) == 0
-            && get_bit!(self.occupancy, castling_source - 3) == 0
-            && !self.is_square_attacked(castling_source, !color)
-            && !self.is_square_attacked(castling_source - 1, !color)
+        if self.castling_rights & (1 << (castling_bit + 1)) != 0
+            && !self.occupancy.contains(castling_source - 1)
+            && !self.occupancy.contains(castling_source - 2)
+            && !self.occupancy.contains(castling_source - 3)
+            && !self.is_square_attacked(castling_source as usize, !self.turn)
+            && !self.is_square_attacked(castling_source as usize - 1, !self.turn)
         {
             moves.push(Move::new(
-                castling_source as u32,
-                (castling_source - 2) as u32,
+                castling_source,
+                castling_source - 2,
                 Piece::King,
                 None,
                 None,
@@ -242,24 +225,17 @@ impl Position {
         return moves;
     }
 
-    pub fn generate_pseudolegal_captures(&self, color: Color) -> ArrayVec<Move, 256> {
-        let opp_color = !color;
-        let opp = self.side_bitboards[opp_color];
-        let (pawn_attacks, last_rank) = match color {
+    pub fn generate_pseudolegal_captures(&self) -> ArrayVec<Move, 256> {
+        let opp = self.side_bitboards[!self.turn];
+        let (pawn_attacks, last_rank) = match self.turn {
             Color::White => (&WHITE_PAWN_ATTACKS, 56..64),
             Color::Black => (&BLACK_PAWN_ATTACKS, 0..8),
         };
         let mut moves = ArrayVec::<Move, 256>::new();
 
-        let mut bitboard = self.piece_bitboards[color][Piece::Pawn];
-        while bitboard != 0 {
-            let source = get_ls1b_index!(bitboard);
-
-            let mut attacks = pawn_attacks[source as usize];
-
-            while attacks != 0 {
-                let target = get_ls1b_index!(attacks);
-                if get_bit!(opp, target) != 0 {
+        self.piece_bitboards[self.turn][Piece::Pawn].foreach(|source| {
+            pawn_attacks[source as usize].foreach(|target| {
+                if opp.contains(target) {
                     if last_rank.contains(&target) {
                         for piece in PromotionPiece::iter() {
                             moves.push(Move::new(
@@ -267,7 +243,7 @@ impl Position {
                                 target,
                                 Piece::Pawn,
                                 Some(piece),
-                                self.get_target_piece(opp_color, target),
+                                self.get_target_piece(target),
                                 false,
                                 false,
                                 false,
@@ -279,7 +255,7 @@ impl Position {
                             target,
                             Piece::Pawn,
                             None,
-                            self.get_target_piece(opp_color, target),
+                            self.get_target_piece(target),
                             false,
                             false,
                             false,
@@ -297,60 +273,37 @@ impl Position {
                         false,
                     ));
                 }
-
-                pop_bit!(attacks, target);
-            }
-
-            pop_bit!(bitboard, source);
-        }
+            });
+        });
 
         macro_rules! gen_moves {
-            ($piece:expr, $get_attacks:expr) => {{
-                let mut board = self.piece_bitboards[color][$piece];
-                while board != 0 {
-                    let source = get_ls1b_index!(board);
-                    let mut attacks = $get_attacks(source) & opp;
-
-                    while attacks != 0 {
-                        let target = get_ls1b_index!(attacks);
-
+            ($piece:ident $(, $occ:expr)?) => {{
+                self.piece_bitboards[self.turn][Piece::$piece].foreach(|source| {
+                    (get_attacks!(
+                        $piece,
+                        source as usize
+                        $(, $occ )?
+                    ) & opp).foreach(|target| {
                         moves.push(Move::new(
                             source,
                             target,
-                            $piece,
+                            Piece::$piece,
                             None,
-                            self.get_target_piece(opp_color, target),
+                            self.get_target_piece(target),
                             false,
                             false,
                             false,
                         ));
-
-                        pop_bit!(attacks, target);
-                    }
-
-                    pop_bit!(board, source);
-                }
+                    })
+                });
             }};
         }
 
-        gen_moves!(Piece::Knight, |source| KNIGHT_ATTACKS[source as usize]);
-
-        gen_moves!(Piece::Bishop, |source| get_bishop_attacks!(
-            source as usize,
-            self.occupancy
-        ));
-
-        gen_moves!(Piece::Rook, |source| get_rook_attacks!(
-            source as usize,
-            self.occupancy
-        ));
-
-        gen_moves!(Piece::Queen, |source| get_queen_attacks!(
-            source as usize,
-            self.occupancy
-        ));
-
-        gen_moves!(Piece::King, |source| KING_ATTACKS[source as usize]);
+        gen_moves!(Knight);
+        gen_moves!(Bishop, self.occupancy);
+        gen_moves!(Rook, self.occupancy);
+        gen_moves!(Queen, self.occupancy);
+        gen_moves!(King);
 
         return moves;
     }
@@ -358,7 +311,7 @@ impl Position {
 
 #[cfg(test)]
 mod test {
-    use crate::{movegen::perft::perft, position::Position, position::fen::FENError};
+    use crate::{position::Position, position::fen::FENError, position::movegen::perft};
 
     #[test]
     fn perft_startpos() -> Result<(), FENError> {

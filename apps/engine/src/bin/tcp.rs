@@ -77,14 +77,19 @@ fn handle_client(mut stream: TcpStream) {
                 }
                 ["go", args @ ..] => {
                     if let Some(ref mut game_state) = game_state {
-                        let best_move = match go_cmd(game_state, args) {
-                            Ok(best_move) => best_move,
+                        let search = match go_cmd(game_state, args) {
+                            Ok(search) => search,
                             Err(e) => {
                                 writeln!(stream, "{}", e).unwrap();
                                 continue;
                             }
                         };
-                        writeln!(stream, "bestmove {}", best_move).unwrap();
+
+                        if let Some(bestmove) = search.bestmove() {
+                            writeln!(stream, "bestmove {}", bestmove).unwrap();
+                        } else {
+                            writeln!(stream, "no legal moves").unwrap();
+                        }
                     } else {
                         writeln!(stream, "game not initialized").unwrap();
                     }

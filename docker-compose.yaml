@@ -21,11 +21,17 @@ services:
       APP_ORIGIN: https://app.chessgo.ca
       WWW_ORIGIN: https://www.chessgo.ca
       ENGINE_HOST: engine:9000
+      POLYGLOT_BOOK_FILEPATH: /book.bin
     networks:
       - engine
       - database
       - metrics
       - public
+    volumes:
+      - type: bind
+        source: ${POLYGLOT_BOOK_FILEPATH}
+        target: /book.bin
+        read_only: true
 
   engine:
     image: ghcr.io/debobrad579/chessgo/oxchess:latest

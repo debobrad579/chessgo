@@ -1,11 +1,28 @@
 set dotenv-load
 
-# Download Go modules and install npm packages
+# Run arbitrary cargo commands
+[group("cmd")]
+cargo *args:
+  @cd apps/engine && cargo {{args}}
+
+# Run arbitrary go commands
+[group("cmd")]
+go *args:
+  @cd apps/api && go {{args}}
+
+# Run arbitrary pnpm commands
+[group("cmd")]
+[arg("app", pattern="^(app|www)$")]
+pnpm app *args:
+  @cd apps/{{app}} && pnpm {{args}}
+
+# Install dependencies
 [group("install")]
 install:
   @echo "Installing dependencies..."
-  @go mod download
   @pnpm install
+  @cd apps/api && go mod download
+  @cd apps/engine && cargo check
 
 # Start development environment
 [group("dev")]
@@ -18,28 +35,53 @@ dev:
     "cd apps/www && pnpm run dev" \
     "cd apps/engine && cargo-watch -- cargo run --bin tcp --release"
 
-# Lint Go and TypeScript
+# Lint application
 [group("dev")]
-lint:
-  @echo "Linting API..."
-  @cd apps/api && go vet ./...
-  @echo "Linting App..."
-  @cd apps/app && pnpm lint
-  @echo "Checking types..."
-  @cd apps/app && pnpm exec tsc
+[arg("app", pattern="^(api|app|www)$")]
+lint app:
+  @case {{app}} in \
+    api) cd apps/api && go vet ./... ;; \
+    app) cd apps/app && pnpm lint && pnpm exec tsc ;; \
+    www) cd apps/www && pnpm lint && pnpm exec tsc ;; \
+  esac;
 
-# Run Go tests
+# Lint all applications in parallel
 [group("dev")]
-test:
-  @echo "Testing Go..."
-  @cd apps/api && go test ./...
-  @echo "Testing Rust..."
-  @cd apps/engine && cargo test
+lint-all:
+  @pnpm dlx concurrently \
+    -n API,APP,WWW \
+    -c blue,magenta,yellow \
+    "cd apps/api && go vet ./..." \
+    "cd apps/app && pnpm lint && pnpm exec tsc" \
+    "cd apps/www && pnpm lint && pnpm exec tsc"
+
+# Run tests
+[group("dev")]
+[arg("app", pattern="^(api|bot)$")]
+test app:
+  @case {{app}} in \
+    api) cd apps/api && go test ./... ;; \
+    bot) cd apps/engine && cargo test ;; \
+  esac;
+
+# Run all tests in parallel
+[group("dev")]
+test-all:
+  @pnpm dlx concurrently \
+    -n API,BOT \
+    -c blue,green \
+    "cd apps/api && go test ./..." \
+    "cd apps/engine && cargo test --color=always"
 
 # Run engine perft
 [group("dev")]
-perft:
-  @cd apps/engine && cargo run --bin perft --release
+perft depth="6":
+  @cd apps/engine && cargo run --bin perft --release -- {{depth}}
+
+# Test engine search
+[group("dev")]
+search depth="6":
+  @cd apps/engine && cargo run --bin search --release -- {{depth}}
 
 # Regenerate sqlc query code
 [group("dev")]
@@ -54,27 +96,30 @@ migrate *args="up":
     "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB?sslmode=disable" \
     {{args}}
 
-# Build applications
+# Build application
 [group("staging")]
-build target="all":
-  @set -e
-  @if [ "{{target}}" = "all" ]; then \
-    (echo "Building API..." && cd apps/api && go build -o dist/chessgo ./cmd/server) & \
-    (echo "Building APP..." && cd apps/app && pnpm run build --mode preview) & \
-    (echo "Building WWW..." && cd apps/www && pnpm run build --mode preview) & \
-    (echo "Building UI..." && cd packages/ui && pnpm run build) & \
-    (echo "Building Engine..." && cd apps/engine && cargo build --release) & \
-    wait; \
-  else \
-    case "{{target}}" in \
-      api)    echo "Building API..." && cd apps/api && go build -o dist/chessgo ./cmd/server ;; \
-      app)    echo "Building APP..." && cd apps/app && pnpm run build --mode preview ;; \
-      www)    echo "Building WWW..." && cd apps/www && pnpm run build --mode preview ;; \
-      ui)     echo "Building UI..." && cd packages/ui && pnpm run build ;; \
-      bot) echo "Building Engine..." && cd apps/engine && cargo build --release ;; \
-      *) echo "Unknown target: {{target}}. Use api|app|www|ui|all" && exit 1 ;; \
-    esac; \
-  fi
+[arg("app", pattern="^(ui|api|app|bot|www)$")]
+build app:
+  @case {{app}} in \
+    ui) cd packages/ui && pnpm run build ;; \
+    api) cd apps/api && go build -o dist/chessgo ./cmd/server ;; \
+    app) cd apps/app && pnpm run build --mode preview ;; \
+    bot) cd apps/engine && cargo build --release ;; \
+    www) cd apps/www && pnpm run build --mode preview ;; \
+  esac;
+
+# Build all applications in parallel
+[group("staging")]
+build-all:
+  @echo "Building UI..."
+  @cd packages/ui && pnpm run build
+  @pnpm dlx concurrently \
+    -n API,APP,WWW,BOT \
+    -c blue,magenta,yellow,green \
+    "cd apps/api && go build -o dist/chessgo ./cmd/server" \
+    "cd apps/app && pnpm run build --mode preview" \
+    "cd apps/www && pnpm run build --mode preview" \
+    "cd apps/engine && cargo build --release"
 
 # Start production environment
 [group("staging")]

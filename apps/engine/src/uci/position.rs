@@ -53,7 +53,7 @@ pub fn parse_move(position: &mut Position, move_str: &str) -> Result<Move, MoveE
     };
 
     Ok(position
-        .generate_pseudolegal_moves(position.turn)
+        .generate_pseudolegal_moves()
         .into_iter()
         .find(|mv| {
             if mv.source() != source as u32
@@ -64,7 +64,7 @@ pub fn parse_move(position: &mut Position, move_str: &str) -> Result<Move, MoveE
             }
 
             let undo = position.make_move(*mv);
-            let legal = !position.in_check(!position.turn);
+            let legal = !position.in_check(!position.turn());
             position.undo_move(*mv, undo);
             legal
         })

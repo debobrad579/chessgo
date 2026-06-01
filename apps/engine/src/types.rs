@@ -25,6 +25,7 @@ impl Not for Color {
 impl Color {
     pub const ALL: [Self; 2] = [Self::White, Self::Black];
 
+    #[inline(always)]
     pub fn iter() -> impl Iterator<Item = Self> {
         Self::ALL.into_iter()
     }
@@ -36,12 +37,14 @@ pub struct ColorArray<T>([T; 2]);
 impl<T> Index<Color> for ColorArray<T> {
     type Output = T;
 
+    #[inline(always)]
     fn index(&self, color: Color) -> &Self::Output {
         &self.0[color as usize]
     }
 }
 
 impl<T> IndexMut<Color> for ColorArray<T> {
+    #[inline(always)]
     fn index_mut(&mut self, color: Color) -> &mut Self::Output {
         &mut self.0[color as usize]
     }
@@ -86,12 +89,14 @@ pub struct PieceArray<T>([T; 6]);
 impl<T> Index<Piece> for PieceArray<T> {
     type Output = T;
 
+    #[inline(always)]
     fn index(&self, piece: Piece) -> &Self::Output {
         &self.0[piece as usize]
     }
 }
 
 impl<T> IndexMut<Piece> for PieceArray<T> {
+    #[inline(always)]
     fn index_mut(&mut self, piece: Piece) -> &mut Self::Output {
         &mut self.0[piece as usize]
     }

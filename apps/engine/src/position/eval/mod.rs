@@ -1,9 +1,10 @@
 use crate::{
-    eval::scores::{ENDGAME_POSITIONAL_SCORES, MATERIAL_SCORES, MIDDLEGAME_POSITIONAL_SCORES},
-    get_ls1b_index, pop_bit,
+    bitboard::BitboardOperations,
     position::Position,
     types::{Color, Piece},
 };
+
+mod scores;
 
 impl Position {
     #[inline(always)]
@@ -11,23 +12,18 @@ impl Position {
         let mut score = 0;
 
         for piece in Piece::iter() {
-            let mut bitboard = self.piece_bitboards[color][piece];
-            while bitboard != 0 {
-                let square = get_ls1b_index!(bitboard);
-
-                score += MATERIAL_SCORES[piece];
+            self.piece_bitboards[color][piece].foreach(|square| {
+                score += scores::MATERIAL_SCORES[piece];
                 let relative_square = match color {
                     Color::White => square,
                     Color::Black => square ^ 56,
                 };
                 score += if self.is_endgame() {
-                    ENDGAME_POSITIONAL_SCORES[piece][relative_square as usize]
+                    scores::ENDGAME_POSITIONAL_SCORES[piece][relative_square as usize]
                 } else {
-                    MIDDLEGAME_POSITIONAL_SCORES[piece][relative_square as usize]
+                    scores::MIDDLEGAME_POSITIONAL_SCORES[piece][relative_square as usize]
                 };
-
-                pop_bit!(bitboard, square);
-            }
+            });
         }
 
         score
@@ -36,9 +32,9 @@ impl Position {
     #[inline(always)]
     fn is_endgame(&self) -> bool {
         (self.occupancy
-            & self.piece_bitboards[Color::White][Piece::Pawn].wrapping_neg()
-            & self.piece_bitboards[Color::Black][Piece::Pawn].wrapping_neg())
-        .count_ones()
+            & !self.piece_bitboards[Color::White][Piece::Pawn]
+            & !self.piece_bitboards[Color::Black][Piece::Pawn])
+            .count_ones()
             < 8
     }
 
