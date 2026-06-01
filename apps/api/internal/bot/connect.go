@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"math/rand/v2"
 	"net/http"
 	"time"
 
@@ -16,7 +17,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func Connect(w http.ResponseWriter, r *http.Request, userID uuid.UUID, color chess.Color) *websocket.Conn {
+func Connect(w http.ResponseWriter, r *http.Request, userID uuid.UUID) *websocket.Conn {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, "failed to upgrade websocket", http.StatusBadRequest)
@@ -25,6 +26,11 @@ func Connect(w http.ResponseWriter, r *http.Request, userID uuid.UUID, color che
 
 	room, ok := getRoom(userID)
 	if !ok {
+		color := chess.White
+		if rand.IntN(2) == 1 {
+			color = chess.Black
+		}
+
 		room = createGame(userID, color)
 	}
 
@@ -52,7 +58,7 @@ func Disconnect(userID uuid.UUID, conn *websocket.Conn) {
 		}
 
 		if len(room.connections) == 0 {
-			room.startDisconnectTimer(60 * time.Second)
+			room.startDisconnectTimer(5 * time.Minute)
 		}
 	}
 }

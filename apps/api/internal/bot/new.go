@@ -1,8 +1,9 @@
 package bot
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 
 	"github.com/debobrad579/chessgo/internal/chess"
 )
@@ -58,13 +59,19 @@ func createGame(userID uuid.UUID, color chess.Color) *gameRoom {
 	return room
 }
 
-func NewGame(userID uuid.UUID, color chess.Color, conn *websocket.Conn) {
-	connections := []*websocket.Conn{}
-	if room, ok := getRoom(userID); ok {
-		connections = room.connections
+func NewGame(userID uuid.UUID) error {
+	room, ok := getRoom(userID)
+	if !ok {
+		return errors.New("game room does not exist")
 	}
 
-	room := createGame(userID, color)
+	connections := room.connections
+	color := chess.White
+	if room.getUserColor(userID) == chess.White {
+		color = chess.Black
+	}
+
+	room = createGame(userID, color)
 	room.connections = connections
-	room.sendGameData()
+	return room.sendGameData()
 }

@@ -18,14 +18,7 @@ func (cfg *Config) ConnectToBotHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var color chess.Color
-	if cfg.RNG.Intn(2) == 1 {
-		color = chess.White
-	} else {
-		color = chess.Black
-	}
-
-	conn := bot.Connect(w, r, user.ID, color)
+	conn := bot.Connect(w, r, user.ID)
 	if conn == nil {
 		return
 	}
@@ -70,13 +63,10 @@ func (cfg *Config) ConnectToBotHandler(w http.ResponseWriter, r *http.Request) {
 		case typeResign:
 			bot.Resign(user.ID)
 		case typeRematchRequest:
-			if color == chess.Black {
-				color = chess.White
-			} else {
-				color = chess.Black
+			err := bot.NewGame(user.ID)
+			if err != nil {
+				cfg.Logger.Error("error creating new game", slog.Any("error", err))
 			}
-
-			bot.NewGame(user.ID, color, conn)
 		case typePing:
 		default:
 			cfg.Logger.Error("invalid client message type", slog.Any("error", err), slog.Any("type", clientMessage.Type))

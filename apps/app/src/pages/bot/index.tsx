@@ -91,6 +91,8 @@ export default function BotPage() {
           }
         }}
         handleResign={() => sendJsonMessage({ type: "resign" })}
+        handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
+        rematchRequest={"n"}
         whiteConnected={user.id === gameData.white.id ? connected : undefined}
         blackConnected={user.id === gameData.black.id ? connected : undefined}
         noClocks

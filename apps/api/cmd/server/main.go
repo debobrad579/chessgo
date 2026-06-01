@@ -5,10 +5,8 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"math/rand"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/debobrad579/chessgo/internal/database"
 	"github.com/debobrad579/chessgo/internal/handlers"
@@ -79,7 +77,6 @@ func main() {
 	cfg := &handlers.Config{
 		DB:          database.New(db),
 		TokenSecret: os.Getenv("TOKEN_SECRET"),
-		RNG:         rand.New(rand.NewSource(time.Now().UnixNano())),
 		Logger:      logger,
 	}
 

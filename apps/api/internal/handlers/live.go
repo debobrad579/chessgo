@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math/rand/v2"
 	"net/http"
 	"strconv"
 	"strings"
@@ -55,7 +56,7 @@ func (cfg *Config) CreateLiveGameHandler(w http.ResponseWriter, r *http.Request)
 
 	playerColor := chess.White
 	if gameOptions.Color == "black" ||
-		(gameOptions.Color == "random" && cfg.RNG.Intn(2) == 1) {
+		(gameOptions.Color == "random" && rand.IntN(2) == 1) {
 		playerColor = chess.Black
 	}
 

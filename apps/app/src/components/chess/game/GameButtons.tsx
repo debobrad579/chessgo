@@ -119,7 +119,7 @@ export function GameButtons({
                 </TooltipContent>
               </Tooltip>
             )}
-        {handleResign != null && (
+        {result === "*" && handleResign != null && (
           <Tooltip>
             <Popover
               open={resignPopoverOpen}
