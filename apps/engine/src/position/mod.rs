@@ -24,16 +24,8 @@ impl Position {
         self.turn
     }
 
-    pub fn half_moves(&self) -> u16 {
-        self.half_moves
-    }
-
     pub fn zobrist_key(&self) -> u64 {
         self.zobrist_key.value()
-    }
-
-    pub fn history(&self) -> &Vec<u64> {
-        &self.history
     }
 
     pub fn in_check(&self, color: Color) -> bool {
@@ -41,5 +33,15 @@ impl Position {
             self.piece_bitboards[color][Piece::King].trailing_zeros() as usize,
             !color,
         )
+    }
+
+    pub fn is_draw(&self) -> bool {
+        self.half_moves >= 100
+            || self
+                .history
+                .iter()
+                .filter(|&&k| k == self.zobrist_key.value())
+                .count()
+                >= 3
     }
 }

@@ -38,14 +38,7 @@ impl Search {
         self.nodes += 1;
         self.init_pv_ply(ply);
 
-        if position.half_moves() >= 100
-            || position
-                .history()
-                .iter()
-                .filter(|&&k| k == position.zobrist_key())
-                .count()
-                >= 2
-        {
+        if position.is_draw() {
             return 0;
         }
 
