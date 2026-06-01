@@ -93,5 +93,7 @@ impl Position {
         }
         self.half_moves = undo.half_moves;
         self.occupancy = self.side_bitboards[self.turn] | self.side_bitboards[!self.turn];
+
+        self.history.pop();
     }
 }

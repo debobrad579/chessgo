@@ -78,6 +78,11 @@ test-all:
 perft depth="6":
   @cd apps/engine && cargo run --bin perft --release -- {{depth}}
 
+# Test engine search
+[group("dev")]
+search depth="6":
+  @cd apps/engine && cargo run --bin search --release -- {{depth}}
+
 # Regenerate sqlc query code
 [group("dev")]
 generate:

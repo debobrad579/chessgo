@@ -152,6 +152,8 @@ impl Position {
         self.turn = !self.turn;
         self.zobrist_key.toggle_turn();
 
+        self.history.push(self.zobrist_key.value());
+
         undo
     }
 }

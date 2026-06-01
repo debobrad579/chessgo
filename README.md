@@ -104,6 +104,7 @@ Open the app at [http://localhost:4321](http://localhost:4321)
 | `just lint <api\|app\|www>` | Lint application |
 | `just lint-all` | Lint all applications in parallel |
 | `just perft [depth=6]` | Run engine perft |
+| `just search [depth=6]` | Test engine search |
 | `just test <api\|bot>` | Run tests |
 | `just test-all` | Run all tests in parallel |
 | `just generate` | Regenerate sqlc query code |

@@ -16,6 +16,7 @@ pub struct Position {
     occupancy: u64,
     side_bitboards: ColorArray<u64>,
     piece_bitboards: ColorArray<PieceArray<u64>>,
+    history: Vec<u64>,
 }
 
 impl Position {
@@ -29,6 +30,10 @@ impl Position {
 
     pub fn zobrist_key(&self) -> u64 {
         self.zobrist_key.value()
+    }
+
+    pub fn history(&self) -> &Vec<u64> {
+        &self.history
     }
 
     pub fn in_check(&self, color: Color) -> bool {

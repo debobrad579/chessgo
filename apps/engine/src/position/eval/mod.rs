@@ -32,9 +32,9 @@ impl Position {
     #[inline(always)]
     fn is_endgame(&self) -> bool {
         (self.occupancy
-            & self.piece_bitboards[Color::White][Piece::Pawn].wrapping_neg()
-            & self.piece_bitboards[Color::Black][Piece::Pawn].wrapping_neg())
-        .count_ones()
+            & !self.piece_bitboards[Color::White][Piece::Pawn]
+            & !self.piece_bitboards[Color::Black][Piece::Pawn])
+            .count_ones()
             < 8
     }
 

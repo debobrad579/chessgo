@@ -1,6 +1,9 @@
 use crate::{
     position::Position,
-    search::{MAX_PLY, Search},
+    search::{
+        MAX_PLY, Search,
+        tt::{Entry, NodeType},
+    },
 };
 
 impl Search {
@@ -12,10 +15,37 @@ impl Search {
         beta: i32,
         ply: usize,
     ) -> i32 {
+        if let Some(entry) = self.tt.probe(position.zobrist_key())
+            && entry.depth >= depth
+        {
+            match entry.node_type {
+                NodeType::Exact => {
+                    return entry.evaluation;
+                }
+                NodeType::Beta => {
+                    if entry.evaluation >= beta {
+                        return entry.evaluation;
+                    }
+                }
+                NodeType::Alpha => {
+                    if entry.evaluation <= alpha {
+                        return alpha;
+                    }
+                }
+            }
+        }
+
         self.nodes += 1;
         self.init_pv_ply(ply);
 
-        if position.half_moves() >= 100 {
+        if position.half_moves() >= 100
+            || position
+                .history()
+                .iter()
+                .filter(|&&k| k == position.zobrist_key())
+                .count()
+                >= 2
+        {
             return 0;
         }
 
@@ -32,6 +62,8 @@ impl Search {
         self.sort_moves(&mut moves, position.turn(), ply);
 
         let mut legal_move_count = 0;
+        let original_alpha = alpha;
+        let mut exact = false;
 
         for mv in moves {
             let undo = position.make_move(mv);
@@ -41,10 +73,12 @@ impl Search {
             }
 
             let evaluation = if legal_move_count == 0 {
+                exact = true;
                 -self.negamax(position, depth - 1, -beta, -alpha, ply + 1)
             } else {
                 let nws = -self.negamax(position, depth - 1, -alpha - 1, -alpha, ply + 1);
                 if nws > alpha && nws < beta {
+                    exact = true;
                     -self.negamax(position, depth - 1, -beta, -alpha, ply + 1)
                 } else {
                     nws
@@ -62,6 +96,13 @@ impl Search {
                         [mv.target() as usize] += depth * depth;
                 }
 
+                self.tt.store(Entry {
+                    zobrist_key: position.zobrist_key(),
+                    depth,
+                    evaluation: beta,
+                    node_type: NodeType::Beta,
+                });
+
                 return beta;
             }
 
@@ -77,6 +118,19 @@ impl Search {
             } else {
                 0
             };
+        }
+
+        if alpha > original_alpha {
+            self.tt.store(Entry {
+                zobrist_key: position.zobrist_key(),
+                depth,
+                evaluation: alpha,
+                node_type: if exact {
+                    NodeType::Exact
+                } else {
+                    NodeType::Alpha
+                },
+            });
         }
 
         alpha
