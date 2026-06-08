@@ -1,5 +1,4 @@
 ---
-import "../tailwind.css"
 import Layout from "@/layouts/Layout.astro"
 import { Button } from "@chessgo/ui/button"
 
@@ -25,6 +24,12 @@ const APP_URL = import.meta.env.PUBLIC_APP_URL
     <a href="/login">
       <Button size="lg" variant="ghost">Sign in</Button>
     </a>
+    <noscript>
+      <div class="font-medium text-muted-foreground">
+        ChessGo requires JavaScript to run. Please enable it in your browser
+        settings to use the web app.
+      </div>
+    </noscript>
     <div class="absolute bottom-8 font-medium text-muted-foreground">
       An
       <a

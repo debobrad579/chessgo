@@ -42,9 +42,9 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 - [Go 1.26+](https://go.dev/dl/)
 - [Node.js](https://nodejs.org/) and npm
 - [PostgreSQL](https://www.postgresql.org/)
-- [Rust 1.95+](https://rust-lang.org/tools/install/) - `curl https://sh.rustup.rs -sSf | sh -s -- -y`
+- [Rust 1.95+](https://rust-lang.org/tools/install/) — `curl https://sh.rustup.rs -sSf | sh -s -- -y`
 - [goose](https://github.com/pressly/goose) — `go install github.com/pressly/goose/v3/cmd/goose@latest`
-- [just](https://github.com/casey/just) (optional, required to run commands via `just`) - `cargo install just`
+- [just](https://github.com/casey/just) (optional, required to run commands via `just`) — `cargo install just`
 - [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
 - [air](https://github.com/air-verse/air) (optional, required for `just dev`) — `go install github.com/air-verse/air@latest`
 
