@@ -31,6 +31,7 @@ func startServer(cfg *handlers.Config, port int, appOrigin, wwwOrigin string) er
 
 	mux.HandleFunc("POST /link-lichess-account", cfg.LinkLichessAccountHandler)
 	mux.HandleFunc("GET /lichess-callback", cfg.LichessCallbackHandler)
+	mux.HandleFunc("GET /lichess-account", cfg.GetLichessAccountHandler)
 
 	mux.Handle("GET /metrics", promhttp.Handler())
 

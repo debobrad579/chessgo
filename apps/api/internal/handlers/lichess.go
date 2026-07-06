@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"crypto/rand"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -112,13 +113,7 @@ func (cfg *Config) LichessCallbackHandler(w http.ResponseWriter, r *http.Request
 	}
 	json.NewDecoder(resp.Body).Decode(&account)
 
-	tokenBytes, err := json.Marshal(token)
-	if err != nil {
-		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to marshal token: %w", err))
-		return
-	}
-
-	encryptedToken, err := auth.EncryptToken(tokenBytes)
+	encryptedToken, err := auth.EncryptToken([]byte(token.AccessToken))
 	if err != nil {
 		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to encrypt token: %w", err))
 		return
@@ -130,8 +125,58 @@ func (cfg *Config) LichessCallbackHandler(w http.ResponseWriter, r *http.Request
 			ID:             account.ID,
 			Username:       account.Username,
 			EncryptedToken: encryptedToken,
+			ExpiresAt:      token.Expiry,
 		},
 	)
 
 	http.Redirect(w, r, os.Getenv("APP_ORIGIN"), http.StatusFound)
+}
+
+type lichessAccountResponse struct {
+	Connected   bool   `json:"connected"`
+	ID          string `json:"id,omitempty"`
+	Username    string `json:"username,omitempty"`
+	AccessToken string `json:"access_token,omitempty"`
+}
+
+func (cfg *Config) GetLichessAccountHandler(w http.ResponseWriter, r *http.Request) {
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(lichessAccountResponse{Connected: false})
+		return
+	}
+
+	account, err := cfg.DB.GetLichessAccount(r.Context(), userID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(lichessAccountResponse{Connected: false})
+		} else {
+			httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to get lichess account: %w", err))
+		}
+		return
+	}
+
+	if time.Now().After(account.ExpiresAt) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(lichessAccountResponse{Connected: false})
+		return
+	}
+
+	token, err := auth.DecryptToken(account.EncryptedToken)
+	if err != nil {
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to decrypt token: %w", err))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(
+		lichessAccountResponse{
+			Connected:   true,
+			ID:          account.ID,
+			Username:    account.Username,
+			AccessToken: string(token),
+		},
+	)
 }

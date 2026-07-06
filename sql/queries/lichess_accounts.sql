@@ -1,6 +1,6 @@
 -- name: LinkLichessAccount :one
-INSERT INTO lichess_accounts (user_id, linked_at, id, username, encrypted_token)
-    VALUES ($1, NOW(), $2, $3, $4)
+INSERT INTO lichess_accounts (user_id, id, username, encrypted_token, linked_at, expires_at)
+    VALUES ($1, $2, $3, $4, NOW(), $5)
 RETURNING
     *;
 

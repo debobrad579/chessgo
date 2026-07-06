@@ -7,13 +7,14 @@ package database
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
 
 const getLichessAccount = `-- name: GetLichessAccount :one
 SELECT
-    user_id, linked_at, id, username, encrypted_token
+    user_id, id, username, encrypted_token, linked_at, expires_at
 FROM
     lichess_accounts
 WHERE
@@ -25,19 +26,20 @@ func (q *Queries) GetLichessAccount(ctx context.Context, userID uuid.UUID) (Lich
 	var i LichessAccount
 	err := row.Scan(
 		&i.UserID,
-		&i.LinkedAt,
 		&i.ID,
 		&i.Username,
 		&i.EncryptedToken,
+		&i.LinkedAt,
+		&i.ExpiresAt,
 	)
 	return i, err
 }
 
 const linkLichessAccount = `-- name: LinkLichessAccount :one
-INSERT INTO lichess_accounts (user_id, linked_at, id, username, encrypted_token)
-    VALUES ($1, NOW(), $2, $3, $4)
+INSERT INTO lichess_accounts (user_id, id, username, encrypted_token, linked_at, expires_at)
+    VALUES ($1, $2, $3, $4, NOW(), $5)
 RETURNING
-    user_id, linked_at, id, username, encrypted_token
+    user_id, id, username, encrypted_token, linked_at, expires_at
 `
 
 type LinkLichessAccountParams struct {
@@ -45,6 +47,7 @@ type LinkLichessAccountParams struct {
 	ID             string    `json:"id"`
 	Username       string    `json:"username"`
 	EncryptedToken []byte    `json:"encrypted_token"`
+	ExpiresAt      time.Time `json:"expires_at"`
 }
 
 func (q *Queries) LinkLichessAccount(ctx context.Context, arg LinkLichessAccountParams) (LichessAccount, error) {
@@ -53,14 +56,16 @@ func (q *Queries) LinkLichessAccount(ctx context.Context, arg LinkLichessAccount
 		arg.ID,
 		arg.Username,
 		arg.EncryptedToken,
+		arg.ExpiresAt,
 	)
 	var i LichessAccount
 	err := row.Scan(
 		&i.UserID,
-		&i.LinkedAt,
 		&i.ID,
 		&i.Username,
 		&i.EncryptedToken,
+		&i.LinkedAt,
+		&i.ExpiresAt,
 	)
 	return i, err
 }

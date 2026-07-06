@@ -23,3 +23,30 @@ export function assertUser(user: unknown): asserts user is User {
   )
     throw new Error(`Invalid User: ${JSON.stringify(user)}`)
 }
+
+export type LichessAccount =
+  | { connected: false }
+  | { connected: true; id: string; username: string; access_token: string }
+
+export function assertLichessAccount(
+  account: unknown,
+): asserts account is LichessAccount {
+  if (
+    account == null ||
+    typeof account !== "object" ||
+    !("connected" in account) ||
+    typeof account.connected !== "boolean"
+  )
+    throw new Error(`Invalid Lichess Account: ${JSON.stringify(account)}`)
+
+  if (
+    account.connected &&
+    (!("id" in account) ||
+      typeof account.id !== "string" ||
+      !("username" in account) ||
+      typeof account.username !== "string" ||
+      !("access_token" in account) ||
+      typeof account.access_token !== "string")
+  )
+    throw new Error(`Invalid Lichess Account: ${JSON.stringify(account)}`)
+}

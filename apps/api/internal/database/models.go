@@ -26,10 +26,11 @@ type Game struct {
 
 type LichessAccount struct {
 	UserID         uuid.UUID `json:"user_id"`
-	LinkedAt       time.Time `json:"linked_at"`
 	ID             string    `json:"id"`
 	Username       string    `json:"username"`
 	EncryptedToken []byte    `json:"encrypted_token"`
+	LinkedAt       time.Time `json:"linked_at"`
+	ExpiresAt      time.Time `json:"expires_at"`
 }
 
 type RefreshToken struct {

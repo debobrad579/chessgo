@@ -12,8 +12,9 @@ import GamesPage from "@/pages/games"
 import GamePage from "@/pages/game"
 import { NotFound } from "@/components/errors/NotFound"
 import "./tailwind.css"
-import { ErrorBoundary } from "./components/errors/ErrorBoundary"
-import { ServiceUnavailable } from "./components/errors/ServiceUnavailable"
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
+import { ServiceUnavailable } from "@/components/errors/ServiceUnavailable"
+import { LichessAccountProvider } from "@/context/LichessContext"
 
 function App() {
   return (
@@ -38,7 +39,9 @@ createRoot(document.getElementById("app")!).render(
       <TooltipProvider>
         <ErrorBoundary fallback={<ServiceUnavailable />}>
           <UserProvider>
-            <App />
+            <LichessAccountProvider>
+              <App />
+            </LichessAccountProvider>
           </UserProvider>
         </ErrorBoundary>
       </TooltipProvider>
