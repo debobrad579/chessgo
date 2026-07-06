@@ -24,6 +24,14 @@ type Game struct {
 	Moves                json.RawMessage `json:"moves"`
 }
 
+type LichessAccount struct {
+	UserID         uuid.UUID `json:"user_id"`
+	LinkedAt       time.Time `json:"linked_at"`
+	ID             string    `json:"id"`
+	Username       string    `json:"username"`
+	EncryptedToken []byte    `json:"encrypted_token"`
+}
+
 type RefreshToken struct {
 	Token     string       `json:"token"`
 	CreatedAt time.Time    `json:"created_at"`

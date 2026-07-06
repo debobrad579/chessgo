@@ -61,11 +61,12 @@ cd chessgo
 cp .env.example apps/api/.env
 ```
 
-Then edit `apps/api/.env` and set secure values for `POSTGRES_PASSWORD` and `TOKEN_SECRET`:
+Then edit `apps/api/.env` and set secure values for `POSTGRES_PASSWORD`, `TOKEN_SECRET`, and `LICHESS_TOKEN_SECRET`:
 
 ```env
 POSTGRES_PASSWORD=changeme        # pick something strong
 TOKEN_SECRET=changeme             # generate with: openssl rand -base64 64
+LICHESS_TOKEN_SECRET=changeme     # generate with: openssl rand -base64 32
 ```
 
 3. **Install dependencies**

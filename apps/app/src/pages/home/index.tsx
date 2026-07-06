@@ -16,6 +16,7 @@ import { useUser } from "@/context/UserContext"
 import { HomeSkeleton } from "./HomeSkeleton"
 import { assertGameList } from "@/types/chess"
 import { API_BASE } from "@/lib/api"
+import { Button } from "@chessgo/ui/button"
 
 export default function HomePage() {
   const user = useUser()
@@ -45,6 +46,23 @@ export default function HomePage() {
         <HomeSkeleton />
       ) : (
         <div className="space-y-4">
+          <Button
+            onClick={() => {
+              fetch(`${API_BASE}/link-lichess-account`, {
+                method: "POST",
+                credentials: "include",
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  const authURL = data.authURL
+                  if (typeof authURL === "string") {
+                    window.location.href = authURL
+                  }
+                })
+            }}
+          >
+            Connect lichess account
+          </Button>
           <h2 className="text-center text-3xl font-bold">Lobby</h2>
           <CreateGameButton />
           <Table>

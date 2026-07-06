@@ -29,6 +29,9 @@ func startServer(cfg *handlers.Config, port int, appOrigin, wwwOrigin string) er
 
 	mux.HandleFunc("GET /bot", cfg.ConnectToBotHandler)
 
+	mux.HandleFunc("POST /link-lichess-account", cfg.LinkLichessAccountHandler)
+	mux.HandleFunc("GET /lichess-callback", cfg.LichessCallbackHandler)
+
 	mux.Handle("GET /metrics", promhttp.Handler())
 
 	handler := middleware.Wrap(mux,
