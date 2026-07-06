@@ -20,7 +20,11 @@ export function GamesPagination({
   pageNumber: number
   setPageNumber: Dispatch<SetStateAction<number>>
 }) {
-  const { data: gameCount } = useFetch(`${API_BASE}/games/count`, assertNumber)
+  const { data: gameCount } = useFetch(
+    `${API_BASE}/games/count`,
+    { credentials: "include" },
+    assertNumber,
+  )
 
   const { width } = useWindowSize()
   const VISIBLE_PAGES = Math.min(7, Math.max(3, Math.floor(width / 100)))

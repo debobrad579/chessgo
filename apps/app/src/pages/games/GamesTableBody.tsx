@@ -9,6 +9,7 @@ import { PAGE_SIZE } from "."
 export function GamesTableBody({ pageNumber }: { pageNumber: number }) {
   const { data } = useFetch(
     `${API_BASE}/games?page_number=${pageNumber}&page_size=${PAGE_SIZE}`,
+    { credentials: "include" },
     assertGameSummaryList,
   )
   const navigate = useNavigate()

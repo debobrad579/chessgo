@@ -4,13 +4,18 @@ const cache = new Map<string, unknown>()
 const pending = new Map<string, Promise<void>>()
 const errors = new Map<string, unknown>()
 
-export function useFetch(url: string): { data: unknown; refetch: () => void }
+export function useFetch(
+  url: string,
+  options?: RequestInit,
+): { data: unknown; refetch: () => void }
 export function useFetch<T = unknown>(
   url: string,
+  options: RequestInit,
   assert: (data: unknown) => asserts data is T,
 ): { data: T; refetch: () => void }
 export function useFetch<T = unknown>(
   url: string,
+  options?: RequestInit,
   assert?: (data: unknown) => asserts data is T,
 ): { data: unknown; refetch: () => void } {
   const [, rerender] = useState(0)
@@ -33,7 +38,7 @@ export function useFetch<T = unknown>(
   if (!pending.has(url)) {
     pending.set(
       url,
-      fetch(url, { credentials: "include" })
+      fetch(url, options)
         .then((res) => {
           if (!res.ok) throw new Error(`HTTP ${res.status}: ${res.statusText}`)
           return res.json()
