@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -24,7 +25,7 @@ func lichessConfig(r *http.Request) *oauth2.Config {
 	if r.TLS == nil && r.Header.Get("X-Forwarded-Proto") != "https" {
 		scheme = "http"
 	}
-	redirectURL := fmt.Sprintf("%s://%s/lichess-callback", scheme, r.Host)
+	redirectURL := fmt.Sprintf("%s://%s/lichess/callback", scheme, r.Host)
 
 	return &oauth2.Config{
 		ClientID: "chessgo-ca",
@@ -130,6 +131,50 @@ func (cfg *Config) LichessCallbackHandler(w http.ResponseWriter, r *http.Request
 	)
 
 	http.Redirect(w, r, os.Getenv("APP_ORIGIN"), http.StatusFound)
+}
+
+func (cfg *Config) UnlinkLichessAccountHandler(w http.ResponseWriter, r *http.Request) {
+	userID, ok := middleware.GetUserID(r.Context())
+	if !ok {
+		httperr.Write(r.Context(), w, http.StatusUnauthorized, errors.New("user not logged in"))
+		return
+	}
+
+	account, err := cfg.DB.GetLichessAccount(r.Context(), userID)
+	if err != nil {
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to get lichess account: %w", err))
+		return
+	}
+
+	tokenString, err := auth.DecryptToken(account.EncryptedToken)
+	if err != nil {
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to decrypt token: %w", err))
+		return
+	}
+
+	req, err := http.NewRequest(http.MethodDelete, "https://lichess.org/api/token", nil)
+	if err != nil {
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to create request: %w", err))
+		return
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", tokenString))
+	req.Header.Set("Accept", "application/json")
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to request lichess: %w", err))
+		return
+	}
+	defer resp.Body.Close()
+
+	cfg.DB.UnlinkLichessAccount(r.Context(), userID)
+
+	body, _ := io.ReadAll(resp.Body)
+	w.WriteHeader(resp.StatusCode)
+	w.Write(body)
 }
 
 type lichessAccountResponse struct {

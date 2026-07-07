@@ -69,3 +69,24 @@ func (q *Queries) LinkLichessAccount(ctx context.Context, arg LinkLichessAccount
 	)
 	return i, err
 }
+
+const unlinkLichessAccount = `-- name: UnlinkLichessAccount :one
+DELETE FROM lichess_accounts
+WHERE user_id = $1
+RETURNING
+    user_id, id, username, encrypted_token, linked_at, expires_at
+`
+
+func (q *Queries) UnlinkLichessAccount(ctx context.Context, userID uuid.UUID) (LichessAccount, error) {
+	row := q.db.QueryRowContext(ctx, unlinkLichessAccount, userID)
+	var i LichessAccount
+	err := row.Scan(
+		&i.UserID,
+		&i.ID,
+		&i.Username,
+		&i.EncryptedToken,
+		&i.LinkedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}

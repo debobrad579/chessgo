@@ -12,3 +12,9 @@ FROM
 WHERE
     user_id = $1;
 
+-- name: UnlinkLichessAccount :one
+DELETE FROM lichess_accounts
+WHERE user_id = $1
+RETURNING
+    *;
+

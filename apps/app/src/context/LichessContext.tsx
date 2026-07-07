@@ -7,7 +7,7 @@ const LichessContext = createContext<LichessAccount | null>(null)
 
 export function LichessAccountProvider({ children }: { children: ReactNode }) {
   const { data: account } = useFetch(
-    `${API_BASE}/lichess-account`,
+    `${API_BASE}/lichess/account`,
     { credentials: "include" },
     assertLichessAccount,
   )

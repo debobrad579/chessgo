@@ -29,9 +29,10 @@ func startServer(cfg *handlers.Config, port int, appOrigin, wwwOrigin string) er
 
 	mux.HandleFunc("GET /bot", cfg.ConnectToBotHandler)
 
-	mux.HandleFunc("POST /link-lichess-account", cfg.LinkLichessAccountHandler)
-	mux.HandleFunc("GET /lichess-callback", cfg.LichessCallbackHandler)
-	mux.HandleFunc("GET /lichess-account", cfg.GetLichessAccountHandler)
+	mux.HandleFunc("POST /lichess/tokens", cfg.LinkLichessAccountHandler)
+	mux.HandleFunc("GET /lichess/callback", cfg.LichessCallbackHandler)
+	mux.HandleFunc("DELETE /lichess/tokens", cfg.UnlinkLichessAccountHandler)
+	mux.HandleFunc("GET /lichess/account", cfg.GetLichessAccountHandler)
 
 	mux.Handle("GET /metrics", promhttp.Handler())
 

@@ -10,6 +10,7 @@ import LivePage from "@/pages/live"
 import BotPage from "@/pages/bot"
 import GamesPage from "@/pages/games"
 import GamePage from "@/pages/game"
+import SettingsPage from "@/pages/settings"
 import { NotFound } from "@/components/errors/NotFound"
 import "./tailwind.css"
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
@@ -26,6 +27,7 @@ function App() {
           <Route path="/bot" element={<BotPage />} />
           <Route path="/games" element={<GamesPage />} />
           <Route path="/games/:gameID" element={<GamePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

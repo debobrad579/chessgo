@@ -9,7 +9,15 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@chessgo/ui/popover"
 import { useUser } from "@/context/UserContext"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
-import { Menu } from "lucide-react"
+import {
+  Bot,
+  ChessPawn,
+  LogIn,
+  LogOut,
+  Menu,
+  Settings,
+  UserRoundPlus,
+} from "lucide-react"
 import { Suspense, useState } from "react"
 import { Link } from "react-router"
 import { API_BASE, WWW_BASE } from "@/lib/api"
@@ -29,7 +37,7 @@ function handleLogout() {
 }
 
 export function Navbar() {
-  const mobile = useMediaQuery("(max-width: 596px)")
+  const mobile = useMediaQuery("(max-width: 720px)")
 
   return (
     <nav className="flex items-center justify-between p-4">
@@ -59,25 +67,30 @@ export function NavbarMobile() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top">
+        <DropdownMenuItem asChild>
+          <Link to="/bot">
+            <Bot /> Play Bot
+          </Link>
+        </DropdownMenuItem>
         {!user.email ? (
           <>
             <DropdownMenuItem asChild>
-              <Link to="/bot">Play Bot</Link>
+              <a href={`${WWW_BASE}/login`}>
+                <LogIn /> Login
+              </a>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <a href={`${WWW_BASE}/login`}>Login</a>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <a href={`${WWW_BASE}/register`}>Register</a>
+              <a href={`${WWW_BASE}/register`}>
+                <UserRoundPlus /> Register
+              </a>
             </DropdownMenuItem>
           </>
         ) : (
           <>
             <DropdownMenuItem asChild>
-              <Link to="/bot">Play Bot</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link to="/games">My Games</Link>
+              <Link to="/games">
+                <ChessPawn /> My Games
+              </Link>
             </DropdownMenuItem>
             {!confirmLogout ? (
               <DropdownMenuItem
@@ -86,7 +99,7 @@ export function NavbarMobile() {
                   setConfirmLogout(true)
                 }}
               >
-                Logout
+                <LogOut /> LogOut
               </DropdownMenuItem>
             ) : (
               <div className="space-y-2 px-2 py-1.5">
@@ -110,6 +123,11 @@ export function NavbarMobile() {
                 </div>
               </div>
             )}
+            <DropdownMenuItem asChild>
+              <Link to="/settings">
+                <Settings />
+              </Link>
+            </DropdownMenuItem>
           </>
         )}
         <ThemeToggleMobile />
@@ -124,29 +142,36 @@ export function NavbarDesktop() {
 
   return (
     <div className="flex items-center gap-2">
+      <Button asChild variant="ghost">
+        <Link to="/bot">
+          <Bot /> Play Bot
+        </Link>
+      </Button>
       {!user.email ? (
         <>
           <Button asChild variant="ghost">
-            <Link to="/bot">Play Bot</Link>
+            <a href={`${WWW_BASE}/login`}>
+              <LogIn /> Login
+            </a>
           </Button>
           <Button asChild variant="ghost">
-            <a href={`${WWW_BASE}/login`}>Login</a>
-          </Button>
-          <Button asChild variant="ghost">
-            <a href={`${WWW_BASE}/register`}>Register</a>
+            <a href={`${WWW_BASE}/register`}>
+              <UserRoundPlus /> Register
+            </a>
           </Button>
         </>
       ) : (
         <>
           <Button asChild variant="ghost">
-            <Link to="/bot">Play Bot</Link>
-          </Button>
-          <Button asChild variant="ghost">
-            <Link to="/games">My Games</Link>
+            <Link to="/games">
+              <ChessPawn /> My Games
+            </Link>
           </Button>
           <Popover open={confirmLogout} onOpenChange={setConfirmLogout}>
             <PopoverTrigger asChild>
-              <Button variant="ghost">Logout</Button>
+              <Button variant="ghost">
+                <LogOut /> Logout
+              </Button>
             </PopoverTrigger>
             <PopoverContent>
               <div className="space-y-2">
@@ -171,6 +196,11 @@ export function NavbarDesktop() {
               </div>
             </PopoverContent>
           </Popover>
+          <Button asChild variant="ghost">
+            <Link to="/settings">
+              <Settings />
+            </Link>
+          </Button>
         </>
       )}
       <ThemeToggle />
