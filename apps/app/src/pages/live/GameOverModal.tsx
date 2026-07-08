@@ -53,13 +53,15 @@ export function GameOverModal({
           <Button
             className="flex-1"
             onClick={() => {
+              const plusIndex = timeControlString.indexOf("+")
               fetch(`${API_BASE}/live`, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   color: "random",
-                  time_control: timeControlString,
+                  time: timeControlString.slice(0, plusIndex),
+                  increment: timeControlString.slice(plusIndex + 1),
                 }),
               })
                 .then((res) => res.json())

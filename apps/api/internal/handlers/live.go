@@ -8,7 +8,6 @@ import (
 	"math/rand/v2"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/google/uuid"
 
@@ -18,8 +17,9 @@ import (
 )
 
 type newGameOptions struct {
-	Color       string `json:"color"`
-	TimeControl string `json:"time_control"`
+	Color     string `json:"color"`
+	Time      string `json:"time"`
+	Increment string `json:"increment"`
 }
 
 type clientMessageType string
@@ -60,25 +60,19 @@ func (cfg *Config) CreateLiveGameHandler(w http.ResponseWriter, r *http.Request)
 		playerColor = chess.Black
 	}
 
-	baseStr, incrementStr, found := strings.Cut(gameOptions.TimeControl, "+")
-	if !found {
-		httperr.Write(r.Context(), w, http.StatusBadRequest, errors.New("invalid time control"))
-		return
-	}
-
-	base, err := strconv.Atoi(baseStr)
+	time, err := strconv.Atoi(gameOptions.Time)
 	if err != nil {
 		httperr.Write(r.Context(), w, http.StatusBadRequest, errors.New("invalid time control"))
 		return
 	}
 
-	increment, err := strconv.Atoi(incrementStr)
+	increment, err := strconv.Atoi(gameOptions.Increment)
 	if err != nil {
 		httperr.Write(r.Context(), w, http.StatusBadRequest, errors.New("invalid time control"))
 		return
 	}
 
-	data, err := live.New(user, cfg.DB, playerColor, chess.TimeControl{Base: base * 60 * 1000, Increment: increment * 1000})
+	data, err := live.New(user, cfg.DB, playerColor, chess.TimeControl{Base: time * 60 * 1000, Increment: increment * 1000})
 	if err != nil {
 		httperr.Write(r.Context(), w, http.StatusInternalServerError, fmt.Errorf("failed to create live game room: %w", err))
 		return
