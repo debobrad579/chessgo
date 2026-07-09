@@ -12,6 +12,13 @@ import { Unauthorized } from "@/components/errors/Unauthorized"
 import type { GameState, LichessBoardStreamEvent } from "../types"
 import { Chess } from "chess.js"
 
+type CastlingRights = {
+  K: boolean
+  Q: boolean
+  k: boolean
+  q: boolean
+}
+
 export default function LichessLivePage() {
   const lichessAccount = useLichessAccount()
 
@@ -28,6 +35,12 @@ export default function LichessLivePage() {
   const [resultReason, setResultReason] = useState("")
   const [pendingDrawOffer, setPendingDrawOffer] = useState<"w" | "b" | "n">("n")
   const chessGameRef = useRef<ChessGameHandle>(null)
+  const castlingRights = useRef<CastlingRights>({
+    K: true,
+    Q: true,
+    k: true,
+    q: true,
+  })
 
   function updateGameState(state: GameState, white?: Player, black?: Player) {
     setGameData((prevGame) => {
@@ -81,6 +94,16 @@ export default function LichessLivePage() {
         tempGame.move(move)
         game.moves.push(move)
       })
+
+      const wCastling = tempGame.getCastlingRights("w")
+      const bCastling = tempGame.getCastlingRights("b")
+
+      castlingRights.current = {
+        K: wCastling.k,
+        Q: wCastling.q,
+        k: bCastling.k,
+        q: bCastling.q,
+      }
 
       return game
     })
@@ -179,8 +202,25 @@ export default function LichessLivePage() {
         gameData={gameData}
         onMove={(move) => {
           if (chessGameRef.current?.makeMove(move)) {
+            const from = move.from
+            let to = move.to
+
+            if (from === "e1") {
+              if (castlingRights.current.K && to === "g1") {
+                to = "h1"
+              } else if (castlingRights.current.Q && to === "c1") {
+                to = "a1"
+              }
+            } else if (from === "e8") {
+              if (castlingRights.current.k && to === "g8") {
+                to = "h8"
+              } else if (castlingRights.current.q && to === "c8") {
+                to = "a8"
+              }
+            }
+
             fetch(
-              `https://lichess.org/api/board/game/${gameID}/move/${move.from}${move.to}${move.promotion}`,
+              `https://lichess.org/api/board/game/${gameID}/move/${from}${to}${move.promotion}`,
               {
                 method: "POST",
                 headers: {
