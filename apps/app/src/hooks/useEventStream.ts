@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react"
 
-export function useEventStream(
+export function useEventStream<T = unknown>(
   url: string,
   options: RequestInit = {},
-  onMessage: (data: unknown) => void,
+  onMessage: (data: T) => void,
 ) {
   const [connected, setConnected] = useState(false)
   const onMessageRef = useRef(onMessage)

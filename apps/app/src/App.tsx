@@ -11,7 +11,8 @@ import BotPage from "@/pages/bot"
 import GamesPage from "@/pages/games"
 import GamePage from "@/pages/game"
 import SettingsPage from "@/pages/settings"
-import LichessSeekPage from "./pages/lichess/seek"
+import LichessSeekPage from "@/pages/lichess/seek"
+import LichessLivePage from "@/pages/lichess/live"
 import { NotFound } from "@/components/errors/NotFound"
 import "./tailwind.css"
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
@@ -30,6 +31,7 @@ function App() {
           <Route path="/games/:gameID" element={<GamePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/lichess/seek" element={<LichessSeekPage />} />
+          <Route path="/lichess/live/:gameID" element={<LichessLivePage />} />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

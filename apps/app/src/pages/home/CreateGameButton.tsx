@@ -208,12 +208,13 @@ export function CreateGameButton() {
                   break
                 case "lichess":
                   const timeNumber = Number(time)
-                  if (timeNumber < 10 && timeNumber > 2) {
-                    setTimeControlError("Cannot play blitz via Lichess API")
+                  const incrementNumber = Number(increment)
+                  if (60 * timeNumber + 40 * incrementNumber < 180) {
+                    setTimeControlError("Cannot play bullet via Lichess API")
                     return
                   }
-                  if (timeNumber < 3) {
-                    setTimeControlError("Cannot play bullet via Lichess API")
+                  if (60 * timeNumber + 40 * incrementNumber < 480) {
+                    setTimeControlError("Cannot play blitz via Lichess API")
                     return
                   }
 
