@@ -20,7 +20,7 @@ export function GameOverModal({
   setOpen,
 }: {
   timeControl: TimeControl
-  result: "win" | "loss" | "draw"
+  result: "win" | "loss" | "draw" | "aborted"
   reason: string
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
@@ -32,15 +32,19 @@ export function GameOverModal({
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-center">
-            {result === "win"
-              ? "You Won!"
-              : result === "loss"
-                ? "You Lost!"
-                : "Game Drawn!"}
+            {result === "aborted"
+              ? "Game Aborted"
+              : result === "win"
+                ? "You Won!"
+                : result === "loss"
+                  ? "You Lost!"
+                  : "Game Drawn!"}
           </DialogTitle>
-          <DialogDescription className="text-center">
-            by {reason}
-          </DialogDescription>
+          {result !== "aborted" && (
+            <DialogDescription className="text-center">
+              by {reason}
+            </DialogDescription>
+          )}
         </DialogHeader>
         <div className="flex gap-2">
           <Button className="flex-1" onClick={() => {}}>

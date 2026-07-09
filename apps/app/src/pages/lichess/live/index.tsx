@@ -2,14 +2,14 @@ import { useParams } from "react-router"
 import { GameOverModal } from "./GameOverModal"
 import { NotFound } from "@/components/errors/NotFound"
 import { useEffect, useRef, useState } from "react"
-import type { Player, Game, Move } from "@/types/chess"
+import type { Player, Game, Move, Result } from "@/types/chess"
 import { useUser } from "@/context/UserContext"
 import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { useEventStream } from "@/hooks/useEventStream"
 import { useLichessAccount } from "@/context/LichessContext"
 import { Unauthorized } from "@/components/errors/Unauthorized"
-import type { GameState, LichessBoardStreamEvent } from "../types"
+import type { GameState, GameStatus, LichessBoardStreamEvent } from "../types"
 import { Chess } from "chess.js"
 
 type CastlingRights = {
@@ -17,6 +17,51 @@ type CastlingRights = {
   Q: boolean
   k: boolean
   q: boolean
+}
+
+function getResult(state: GameState): Result {
+  if (
+    state.status === "stalemate" ||
+    state.status === "draw" ||
+    state.status === "insufficientMaterialClaim"
+  ) {
+    return "1/2-1/2"
+  }
+
+  if (
+    state.status === "mate" ||
+    state.status === "resign" ||
+    state.status === "timeout" ||
+    state.status === "outoftime" ||
+    state.status === "cheat" ||
+    state.status === "variantEnd" ||
+    state.status === "unknownFinish"
+  ) {
+    if (state.winner === "white") return "1-0"
+    if (state.winner === "black") return "0-1"
+  }
+
+  return "*"
+}
+
+function getResultReason(status: GameStatus) {
+  switch (status) {
+    case "stalemate":
+      return "Stalemate"
+    case "insufficientMaterialClaim":
+      return "Insufficient Materal"
+    case "draw":
+      return "Agreement"
+    case "mate":
+      return "Checkmate"
+    case "resign":
+      return "Resignation"
+    case "outoftime":
+    case "timeout":
+      return "Timeout"
+  }
+
+  return "Unknown Finish"
 }
 
 export default function LichessLivePage() {
@@ -41,8 +86,13 @@ export default function LichessLivePage() {
     k: true,
     q: true,
   })
+  const [aborted, setAborted] = useState(false)
 
   function updateGameState(state: GameState, white?: Player, black?: Player) {
+    if (state.status === "aborted") {
+      setAborted(true)
+    }
+
     setGameData((prevGame) => {
       const w = white ?? prevGame?.white
       const b = black ?? prevGame?.black
@@ -54,7 +104,7 @@ export default function LichessLivePage() {
         white: w,
         black: b,
         moves: [],
-        result: "*",
+        result: getResult(state),
         think_time: 0,
       }
 
@@ -107,7 +157,9 @@ export default function LichessLivePage() {
 
       return game
     })
-    setResultReason(state.status)
+
+    setPendingDrawOffer(state.wdraw ? "w" : state.bdraw ? "b" : "n")
+    setResultReason(getResultReason(state.status))
   }
 
   const connected = useEventStream<LichessBoardStreamEvent>(
@@ -129,6 +181,12 @@ export default function LichessLivePage() {
           break
         }
         case "opponentGone": {
+          if (gameData == null) return
+          if (gameData.white.id === user.id) {
+            setBlackConnected(!event.gone)
+          } else {
+            setWhiteConnected(!event.gone)
+          }
           break
         }
         default: {
@@ -163,8 +221,8 @@ export default function LichessLivePage() {
   )
 
   useEffect(() => {
-    setModalOpen(gameData?.result != null && gameData.result !== "*")
-  }, [gameData?.result])
+    setModalOpen(aborted || gameData?.result !== "*")
+  }, [gameData?.result, aborted])
 
   useEffect(() => {
     if (user.id === gameData?.white.id) {
@@ -184,15 +242,17 @@ export default function LichessLivePage() {
         open={modalOpen}
         setOpen={setModalOpen}
         result={
-          gameData.result === "1/2-1/2"
-            ? "draw"
-            : gameData.result === "1-0"
-              ? user.id === gameData.white.id
-                ? "win"
-                : "loss"
-              : user.id === gameData.black.id
-                ? "win"
-                : "loss"
+          aborted
+            ? "aborted"
+            : gameData.result === "1/2-1/2"
+              ? "draw"
+              : gameData.result === "1-0"
+                ? user.id === gameData.white.id
+                  ? "win"
+                  : "loss"
+                : user.id === gameData.black.id
+                  ? "win"
+                  : "loss"
         }
         reason={resultReason}
         timeControl={gameData.time_control}

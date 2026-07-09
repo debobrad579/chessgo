@@ -7,6 +7,7 @@ export type GameStatus =
   | "stalemate"
   | "timeout"
   | "draw"
+  | "insufficientMaterialClaim"
   | "outoftime"
   | "cheat"
   | "noStart"
