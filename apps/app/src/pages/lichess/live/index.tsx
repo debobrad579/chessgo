@@ -27,7 +27,6 @@ export default function LichessLivePage() {
   const [blackConnected, setBlackConnected] = useState(false)
   const [resultReason, setResultReason] = useState("")
   const [pendingDrawOffer, setPendingDrawOffer] = useState<"w" | "b" | "n">("n")
-  const [rematchRequest, setRematchRequest] = useState<"w" | "b" | "n">("n")
   const chessGameRef = useRef<ChessGameHandle>(null)
 
   function updateGameState(state: GameState, white?: Player, black?: Player) {
@@ -174,20 +173,6 @@ export default function LichessLivePage() {
         }
         reason={resultReason}
         timeControl={gameData.time_control}
-        rematchRequest={
-          rematchRequest === "n"
-            ? "n"
-            : rematchRequest === "w"
-              ? user.id === gameData.white.id
-                ? "outgoing"
-                : "incoming"
-              : user.id === gameData.black.id
-                ? "outgoing"
-                : "incoming"
-        }
-        handleRematch={() => {
-          //sendJsonMessage({ type: "rematch_request" })
-        }}
       />
       <ChessGame
         ref={chessGameRef}
@@ -205,12 +190,34 @@ export default function LichessLivePage() {
             )
           }
         }}
-        handleResign={() => {}}
-        handleOfferDraw={() => {}}
-        handleRespondToDrawOffer={() => {}}
-        handleRematch={() => {}}
+        handleResign={() => {
+          fetch(`https://lichess.org/api/board/game/${gameID}/resign`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${lichessAccount.access_token}`,
+            },
+          })
+        }}
+        handleOfferDraw={() => {
+          fetch(`https://lichess.org/api/board/game/${gameID}/draw/yes`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${lichessAccount.access_token}`,
+            },
+          })
+        }}
+        handleRespondToDrawOffer={(accept) => {
+          fetch(
+            `https://lichess.org/api/board/game/${gameID}/draw/${accept ? "yes" : "no"}`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${lichessAccount.access_token}`,
+              },
+            },
+          )
+        }}
         pendingDrawOffer={pendingDrawOffer}
-        rematchRequest={rematchRequest}
         whiteConnected={whiteConnected}
         blackConnected={blackConnected}
       />
