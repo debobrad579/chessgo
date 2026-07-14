@@ -39,7 +39,7 @@ export function CreateGameButton() {
   const [customTimeControl, setCustomTimeControl] = useState(false)
   const [timeControlError, setTimeControlError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const controllerRef = useRef(new AbortController())
+  const controllerRef = useRef<AbortController>(null)
 
   return (
     <Dialog>
@@ -187,8 +187,10 @@ export function CreateGameButton() {
         </div>
         <DialogFooter>
           <Button
-            variant={isLoading ? "secondary" : "default"}
+            disabled={isLoading}
             onClick={() => {
+              controllerRef.current = new AbortController()
+
               if (isLoading) {
                 controllerRef.current.abort()
                 setIsLoading(false)

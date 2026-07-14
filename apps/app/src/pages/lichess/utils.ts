@@ -17,7 +17,9 @@ export async function seekGame(
     })
 
     if (!response.ok || !response.body) {
-      controller.abort()
+      if (!controller.signal.aborted) {
+        controller.abort()
+      }
       return undefined
     }
 
@@ -70,7 +72,11 @@ export async function seekGame(
       color,
     }),
     signal: controller.signal,
-  }).catch(() => controller.abort())
+  }).catch(() => {
+    if (!controller.signal.aborted) {
+      controller.abort()
+    }
+  })
 
   return gamePromise
 }

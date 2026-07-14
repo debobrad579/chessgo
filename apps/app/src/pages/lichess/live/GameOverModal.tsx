@@ -34,7 +34,7 @@ export function GameOverModal({
 }) {
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
-  const controllerRef = useRef(new AbortController())
+  const controllerRef = useRef<AbortController>(null)
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
@@ -58,8 +58,10 @@ export function GameOverModal({
         <div className="flex gap-2">
           <Button
             className="flex-1"
-            variant={isLoading ? "secondary" : "default"}
+            disabled={isLoading}
             onClick={() => {
+              controllerRef.current = new AbortController()
+
               if (isLoading) {
                 controllerRef.current.abort()
                 setIsLoading(false)
@@ -67,6 +69,10 @@ export function GameOverModal({
               }
 
               setIsLoading(true)
+
+              if (!isLoading) {
+                return
+              }
 
               seekGame(
                 accessToken,
