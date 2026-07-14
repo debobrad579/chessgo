@@ -8,24 +8,33 @@ import {
   DialogTitle,
 } from "@chessgo/ui/dialog"
 import { formatTimeControl } from "@/lib/formatters"
-import type { TimeControl } from "@/types/chess"
-import type { Dispatch, SetStateAction } from "react"
-import { Link } from "react-router"
+import { useRef, useState, type Dispatch, type SetStateAction } from "react"
+import { Link, useNavigate } from "react-router"
+import { seekGame } from "../utils"
+import { Loader2 } from "lucide-react"
 
 export function GameOverModal({
-  timeControl,
   result,
   reason,
   open,
   setOpen,
+  rated,
+  time,
+  increment,
+  accessToken,
 }: {
-  timeControl: TimeControl
   result: "win" | "loss" | "draw" | "aborted"
   reason: string
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
+  rated: boolean
+  time: number
+  increment: number
+  accessToken: string
 }) {
-  const timeControlString = formatTimeControl(timeControl)
+  const navigate = useNavigate()
+  const [isLoading, setIsLoading] = useState(false)
+  const controllerRef = useRef(new AbortController())
 
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
@@ -47,8 +56,42 @@ export function GameOverModal({
           )}
         </DialogHeader>
         <div className="flex gap-2">
-          <Button className="flex-1" onClick={() => {}}>
-            New {timeControlString}
+          <Button
+            className="flex-1"
+            variant={isLoading ? "secondary" : "default"}
+            onClick={() => {
+              if (isLoading) {
+                controllerRef.current.abort()
+                setIsLoading(false)
+                return
+              }
+
+              setIsLoading(true)
+
+              seekGame(
+                accessToken,
+                {
+                  rated: String(rated),
+                  time: String(time),
+                  increment: String(increment),
+                  color: "random",
+                },
+                controllerRef.current,
+              )
+                .then((gameId) => {
+                  setIsLoading(false)
+
+                  if (gameId != null) {
+                    navigate(`/lichess/live/${gameId}`)
+                  }
+                })
+                .catch(() => setIsLoading(false))
+            }}
+          >
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading
+              ? "Seeking"
+              : `New ${formatTimeControl({ base: time, increment })}`}
           </Button>
         </div>
         <DialogFooter>

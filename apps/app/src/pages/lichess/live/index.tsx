@@ -47,21 +47,21 @@ function getResult(state: GameState): Result {
 function getResultReason(status: GameStatus) {
   switch (status) {
     case "stalemate":
-      return "Stalemate"
+      return "stalemate"
     case "insufficientMaterialClaim":
-      return "Insufficient Materal"
+      return "insufficient materal"
     case "draw":
-      return "Agreement"
+      return "agreement"
     case "mate":
-      return "Checkmate"
+      return "checkmate"
     case "resign":
-      return "Resignation"
+      return "resignation"
     case "outoftime":
     case "timeout":
-      return "Timeout"
+      return "timeout"
   }
 
-  return "Unknown Finish"
+  return "unknown"
 }
 
 export default function LichessLivePage() {
@@ -87,8 +87,15 @@ export default function LichessLivePage() {
     q: true,
   })
   const [aborted, setAborted] = useState(false)
+  const [rated, setRated] = useState(false)
 
-  function updateGameState(state: GameState, white?: Player, black?: Player) {
+  function updateGameState(
+    state: GameState,
+    white?: Player,
+    black?: Player,
+    initial?: number,
+    increment?: number,
+  ) {
     if (state.status === "aborted") {
       setAborted(true)
     }
@@ -96,11 +103,13 @@ export default function LichessLivePage() {
     setGameData((prevGame) => {
       const w = white ?? prevGame?.white
       const b = black ?? prevGame?.black
-      if (!w || !b) return prevGame
+      const time = initial ?? prevGame?.time_control.base
+      const inc = increment ?? prevGame?.time_control.increment
+      if (w == null || b == null || time == null || inc == null) return prevGame
 
       const game: Game = {
         id: gameID ?? "",
-        time_control: { base: 10, increment: 0 },
+        time_control: { base: time, increment: inc },
         white: w,
         black: b,
         moves: [],
@@ -170,8 +179,6 @@ export default function LichessLivePage() {
       },
     },
     (event) => {
-      console.log(event)
-
       switch (event.type) {
         case "gameState": {
           updateGameState(event)
@@ -213,7 +220,14 @@ export default function LichessLivePage() {
             }
             setWhiteConnected(true)
           }
-          updateGameState(event.state, white, black)
+          updateGameState(
+            event.state,
+            white,
+            black,
+            (event.clock?.initial ?? 600_000) / 60_000,
+            (event.clock?.increment ?? 0) / 1000,
+          )
+          setRated(event.rated)
           break
         }
       }
@@ -255,7 +269,10 @@ export default function LichessLivePage() {
                   : "loss"
         }
         reason={resultReason}
-        timeControl={gameData.time_control}
+        time={gameData.time_control.base}
+        increment={gameData.time_control.increment}
+        accessToken={lichessAccount.access_token}
+        rated={rated}
       />
       <ChessGame
         ref={chessGameRef}

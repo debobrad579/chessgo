@@ -18,11 +18,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@chessgo/ui/select"
-import { useState } from "react"
+import { useRef, useState } from "react"
 import { API_BASE } from "@/lib/api"
 import { useLichessAccount } from "@/context/LichessContext"
 import { Switch } from "@chessgo/ui/switch"
 import { Input } from "@chessgo/ui/input"
+import { seekGame } from "../lichess/utils"
+import { Loader2 } from "lucide-react"
 
 export function CreateGameButton() {
   const navigate = useNavigate()
@@ -36,6 +38,8 @@ export function CreateGameButton() {
   const [rated, setRated] = useState(lichessAccount.connected)
   const [customTimeControl, setCustomTimeControl] = useState(false)
   const [timeControlError, setTimeControlError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const controllerRef = useRef(new AbortController())
 
   return (
     <Dialog>
@@ -183,7 +187,16 @@ export function CreateGameButton() {
         </div>
         <DialogFooter>
           <Button
+            variant={isLoading ? "secondary" : "default"}
             onClick={() => {
+              if (isLoading) {
+                controllerRef.current.abort()
+                setIsLoading(false)
+                return
+              }
+
+              setIsLoading(true)
+
               if (Number(time) === 0) {
                 setTimeControlError("Invalid time control")
                 return
@@ -200,13 +213,21 @@ export function CreateGameButton() {
                       time,
                       increment,
                     }),
+                    signal: controllerRef.current.signal,
                   })
                     .then((res) => res.json())
                     .then((data) => {
+                      setIsLoading(false)
                       navigate(`/live/${data?.game_id}`, { replace: true })
                     })
+                    .catch(() => setIsLoading(false))
                   break
                 case "lichess":
+                  if (!lichessAccount.connected) {
+                    setTimeControlError("Lichess account not connected")
+                    return
+                  }
+
                   const timeNumber = Number(time)
                   const incrementNumber = Number(increment)
                   if (60 * timeNumber + 40 * incrementNumber < 180) {
@@ -218,15 +239,38 @@ export function CreateGameButton() {
                     return
                   }
 
-                  navigate(
-                    `/lichess/seek?color=${rated ? "random" : color}&time=${time}&increment=${increment}&rated=${rated}`,
+                  seekGame(
+                    lichessAccount.access_token,
+                    {
+                      rated: String(rated),
+                      time,
+                      increment,
+                      color,
+                    },
+                    controllerRef.current,
                   )
+                    .then((gameId) => {
+                      setIsLoading(false)
+
+                      if (gameId != null) {
+                        navigate(`/lichess/live/${gameId}`)
+                      }
+                    })
+                    .catch(() => setIsLoading(false))
+
                   break
               }
             }}
             className="w-full"
           >
-            Create
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {server === "lichess"
+              ? isLoading
+                ? "Seeking"
+                : "Seek"
+              : isLoading
+                ? "Creating"
+                : "Create"}
           </Button>
         </DialogFooter>
       </DialogContent>
