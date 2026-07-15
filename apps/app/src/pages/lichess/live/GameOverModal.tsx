@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@chessgo/ui/dialog"
-import { formatTimeControl } from "@/lib/formatters"
 import { useRef, useState, type Dispatch, type SetStateAction } from "react"
 import { Link, useNavigate } from "react-router"
 import { seekGame } from "../utils"
@@ -95,9 +94,7 @@ export function GameOverModal({
             }}
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isLoading
-              ? "Seeking"
-              : `New ${formatTimeControl({ base: time, increment })}`}
+            {isLoading ? "Seeking" : `New ${time}+${increment}`}
           </Button>
         </div>
         <DialogFooter>
