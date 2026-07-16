@@ -57,21 +57,20 @@ export function GameOverModal({
         <div className="flex gap-2">
           <Button
             className="flex-1"
-            disabled={isLoading}
+            variant={isLoading ? "secondary" : "default"}
             onClick={() => {
-              controllerRef.current = new AbortController()
-
-              if (isLoading) {
+              if (isLoading && controllerRef.current != null) {
                 controllerRef.current.abort()
-                setIsLoading(false)
                 return
               }
+
+              const controller = new AbortController()
+              controllerRef.current = controller
+              controller.signal.addEventListener("abort", () => {
+                setIsLoading(false)
+              })
 
               setIsLoading(true)
-
-              if (!isLoading) {
-                return
-              }
 
               seekGame(
                 accessToken,
@@ -81,7 +80,7 @@ export function GameOverModal({
                   increment: String(increment),
                   color: "random",
                 },
-                controllerRef.current,
+                controller,
               )
                 .then((gameId) => {
                   setIsLoading(false)

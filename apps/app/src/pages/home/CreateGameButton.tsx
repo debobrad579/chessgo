@@ -187,15 +187,18 @@ export function CreateGameButton() {
         </div>
         <DialogFooter>
           <Button
-            disabled={isLoading}
+            variant={isLoading ? "secondary" : "default"}
             onClick={() => {
-              controllerRef.current = new AbortController()
-
-              if (isLoading) {
+              if (isLoading && controllerRef.current != null) {
                 controllerRef.current.abort()
-                setIsLoading(false)
                 return
               }
+
+              const controller = new AbortController()
+              controllerRef.current = controller
+              controller.signal.addEventListener("abort", () => {
+                setIsLoading(false)
+              })
 
               setIsLoading(true)
 
@@ -215,7 +218,7 @@ export function CreateGameButton() {
                       time,
                       increment,
                     }),
-                    signal: controllerRef.current.signal,
+                    signal: controller.signal,
                   })
                     .then((res) => res.json())
                     .then((data) => {
@@ -249,7 +252,7 @@ export function CreateGameButton() {
                       increment,
                       color,
                     },
-                    controllerRef.current,
+                    controller,
                   )
                     .then((gameId) => {
                       setIsLoading(false)
