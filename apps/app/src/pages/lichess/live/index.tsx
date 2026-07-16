@@ -69,14 +69,16 @@ function getResultReason(state: GameState) {
 }
 
 export default function LichessLivePage() {
-  const lichessAccount = useLichessAccount()
+  const { gameID } = useParams()
+  if (gameID == null) return <NotFound />
+  return <LichessLiveGame key={gameID} gameID={gameID} />
+}
 
-  if (!lichessAccount.connected) {
-    return <Unauthorized />
-  }
+export function LichessLiveGame({ gameID }: { gameID: string }) {
+  const lichessAccount = useLichessAccount()
+  if (!lichessAccount.connected) return <Unauthorized />
 
   const user = useUser()
-  const { gameID } = useParams()
   const [modalOpen, setModalOpen] = useState(true)
   const [gameData, setGameData] = useState<Game | null>(null)
   const [whiteConnected, setWhiteConnected] = useState(false)
