@@ -16,8 +16,10 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 - **Spectator mode** — live viewing of any ongoing game
 - **Guest mode** — no account required to play or spectate
 - **Accounts** — persistent game history with registration and login
+- **Lichess integration** — lichess account integration to play in the lichess player pool
 - **Responsive UI** — works on desktop and mobile
 - **Dark/light mode** — dark mode first, with light mode support
+- **Bot** — a chess engine written from scratch in rust
 
 ## Project Structure
 
