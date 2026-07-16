@@ -8,6 +8,8 @@ import { DesktopGameView } from "./DesktopGameView"
 import { MobileGameView } from "./MobileGameView"
 import { ChessGameProvider } from "./ChessGameContext"
 
+type ClockType = "no-clocks" | "per-move" | "total-remaining"
+
 export type ChessGameProps = {
   moves: Move[]
   result: Result
@@ -18,7 +20,7 @@ export type ChessGameProps = {
   black: Player
   game: Chess
   timeControl: TimeControl
-  noClocks: boolean
+  clockType: ClockType
   onMove?: (move: Move) => void
   handleResign?: () => void
   handleOfferDraw?: () => void
@@ -38,7 +40,7 @@ export const ChessGame = forwardRef<
   ChessGameHandle,
   {
     gameData: Game
-    noClocks?: boolean
+    clockType?: ClockType
     onMove?: ChessboardProps["onMove"]
     handleResign?: () => void
     handleOfferDraw?: () => void
@@ -52,7 +54,7 @@ export const ChessGame = forwardRef<
 >(function Game(
   {
     gameData,
-    noClocks,
+    clockType,
     onMove,
     handleResign,
     handleOfferDraw,
@@ -84,7 +86,7 @@ export const ChessGame = forwardRef<
         white: gameData.white,
         black: gameData.black,
         timeControl: gameData.time_control,
-        noClocks: noClocks ?? false,
+        clockType: clockType ?? "per-move",
         undoCount,
         setUndoCount,
         game,

@@ -95,7 +95,7 @@ export default function BotPage() {
         rematchRequest={"n"}
         whiteConnected={user.id === gameData.white.id ? connected : undefined}
         blackConnected={user.id === gameData.black.id ? connected : undefined}
-        noClocks
+        clockType="no-clocks"
       />
     </>
   ) : (

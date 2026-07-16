@@ -74,7 +74,7 @@ export default function LichessLivePage() {
   return <LichessLiveGame key={gameID} gameID={gameID} />
 }
 
-export function LichessLiveGame({ gameID }: { gameID: string }) {
+function LichessLiveGame({ gameID }: { gameID: string }) {
   const lichessAccount = useLichessAccount()
   if (!lichessAccount.connected) return <Unauthorized />
 
@@ -109,9 +109,17 @@ export function LichessLiveGame({ gameID }: { gameID: string }) {
     setGameData((prevGame) => {
       const w = white ?? prevGame?.white
       const b = black ?? prevGame?.black
-      const time = initial ?? prevGame?.time_control.base
-      const inc = increment ?? prevGame?.time_control.increment
+      const time =
+        initial != null ? initial * 60_000 : prevGame?.time_control.base
+      const inc =
+        increment != null ? increment * 1000 : prevGame?.time_control.increment
       if (w == null || b == null || time == null || inc == null) return prevGame
+
+      const result = getResult(state)
+      if (result !== "*") {
+        setWhiteConnected(false)
+        setBlackConnected(false)
+      }
 
       const game: Game = {
         id: gameID ?? "",
@@ -119,7 +127,7 @@ export function LichessLiveGame({ gameID }: { gameID: string }) {
         white: w,
         black: b,
         moves: [],
-        result: getResult(state),
+        result: result,
         think_time: 0,
       }
 
@@ -275,8 +283,8 @@ export function LichessLiveGame({ gameID }: { gameID: string }) {
                   : "loss"
         }
         reason={resultReason}
-        time={gameData.time_control.base}
-        increment={gameData.time_control.increment}
+        time={gameData.time_control.base / 60_000}
+        increment={gameData.time_control.increment / 1000}
         accessToken={lichessAccount.access_token}
         rated={rated}
       />
@@ -343,6 +351,7 @@ export function LichessLiveGame({ gameID }: { gameID: string }) {
         pendingDrawOffer={pendingDrawOffer}
         whiteConnected={whiteConnected}
         blackConnected={blackConnected}
+        clockType="total-remaining"
       />
     </>
   ) : (

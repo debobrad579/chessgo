@@ -15,7 +15,7 @@ export function Clock({ color }: { color: Color }) {
     black,
     whiteConnected,
     blackConnected,
-    noClocks,
+    clockType,
   } = useChessGameContext()
 
   const won =
@@ -39,7 +39,7 @@ export function Clock({ color }: { color: Color }) {
           : "bg-gray-900 text-white hover:bg-gray-800",
       )}
     >
-      {!noClocks && (
+      {clockType != "no-clocks" && (
         <div
           className={
             undoCount === 0 && won
@@ -57,6 +57,8 @@ export function Clock({ color }: { color: Color }) {
                   moves,
                   undoCount,
                   thinkTime,
+                  result,
+                  totalRemaining: clockType === "total-remaining",
                 }),
               )
             : won

@@ -13,8 +13,13 @@ import { API_BASE } from "@/lib/api"
 const PING_TIMEOUT_MS = 90_000
 
 export default function LivePage() {
-  const user = useUser()
   const { gameID } = useParams()
+  if (gameID == null) return <NotFound />
+  return <LiveGame key={gameID} gameID={gameID} />
+}
+
+function LiveGame({ gameID }: { gameID: string }) {
+  const user = useUser()
   const navigate = useNavigate()
   const [modalOpen, setModalOpen] = useState(true)
   const [gameData, setGameData] = useState<Game | null>(null)

@@ -1,5 +1,5 @@
 import { Chess, type Color } from "chess.js"
-import type { Move, Player } from "@/types/chess"
+import type { Move, Player, Result } from "@/types/chess"
 
 export function moveToSan(fen: string, move: Move): string | null {
   const chess = new Chess(fen)
@@ -31,13 +31,19 @@ export function getPlayerTimestamp({
   playerColor,
   thinkTime,
   initialTime,
+  result,
+  totalRemaining = false,
 }: {
   moves: Move[]
   undoCount: number
   playerColor: Color
   thinkTime: number
   initialTime: number
+  result: Result
+  totalRemaining?: boolean
 }) {
+  if (totalRemaining) undoCount = 0
+
   const effectiveMoves = moves.slice(0, moves.length - undoCount)
 
   const currentTurn: Color = effectiveMoves.length % 2 === 0 ? "w" : "b"
@@ -55,7 +61,7 @@ export function getPlayerTimestamp({
     return initialTime
   }
 
-  if (currentTurn === playerColor && undoCount === 0) {
+  if (currentTurn === playerColor && result === "*" && undoCount === 0) {
     return lastMove.timestamp - thinkTime
   }
 
