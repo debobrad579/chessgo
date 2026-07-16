@@ -9,7 +9,7 @@ import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { useEventStream } from "@/hooks/useEventStream"
 import { useLichessAccount } from "@/context/LichessContext"
 import { Unauthorized } from "@/components/errors/Unauthorized"
-import type { GameState, GameStatus, LichessBoardStreamEvent } from "../types"
+import type { GameState, LichessBoardStreamEvent } from "../types"
 import { Chess } from "chess.js"
 
 type CastlingRights = {
@@ -21,18 +21,18 @@ type CastlingRights = {
 
 function getResult(state: GameState): Result {
   if (
-    state.status === "stalemate" ||
-    state.status === "draw" ||
-    state.status === "insufficientMaterialClaim"
+    state.winner == null &&
+    (state.status === "stalemate" ||
+      state.status === "draw" ||
+      state.status === "insufficientMaterialClaim" ||
+      state.status === "outoftime")
   ) {
     return "1/2-1/2"
-  }
-
-  if (
+  } else if (
     state.status === "mate" ||
     state.status === "resign" ||
-    state.status === "timeout" ||
     state.status === "outoftime" ||
+    state.status === "timeout" ||
     state.status === "cheat" ||
     state.status === "variantEnd" ||
     state.status === "unknownFinish"
@@ -44,19 +44,23 @@ function getResult(state: GameState): Result {
   return "*"
 }
 
-function getResultReason(status: GameStatus) {
-  switch (status) {
+function getResultReason(state: GameState) {
+  if (state.winner != null && state.status === "outoftime") {
+    return "timeout"
+  }
+
+  switch (state.status) {
     case "stalemate":
       return "stalemate"
+    case "outoftime":
     case "insufficientMaterialClaim":
-      return "insufficient materal"
+      return "insufficient material"
     case "draw":
       return "agreement"
     case "mate":
       return "checkmate"
     case "resign":
       return "resignation"
-    case "outoftime":
     case "timeout":
       return "timeout"
   }
@@ -168,7 +172,7 @@ export default function LichessLivePage() {
     })
 
     setPendingDrawOffer(state.wdraw ? "w" : state.bdraw ? "b" : "n")
-    setResultReason(getResultReason(state.status))
+    setResultReason(getResultReason(state))
   }
 
   const connected = useEventStream<LichessBoardStreamEvent>(
