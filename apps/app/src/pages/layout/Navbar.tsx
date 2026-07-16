@@ -1,4 +1,3 @@
-import { ThemeToggle, ThemeToggleMobile } from "./ThemeToggle"
 import { Button } from "@chessgo/ui/button"
 import {
   DropdownMenu,
@@ -15,12 +14,12 @@ import {
   LogIn,
   LogOut,
   Menu,
-  Settings,
   UserRoundPlus,
 } from "lucide-react"
 import { Suspense, useState } from "react"
 import { Link } from "react-router"
 import { API_BASE, WWW_BASE } from "@/lib/api"
+import { SettingsButton } from "./SettingsButton"
 
 function handleLogout() {
   fetch(`${API_BASE}/tokens`, {
@@ -123,14 +122,11 @@ export function NavbarMobile() {
                 </div>
               </div>
             )}
-            <DropdownMenuItem asChild>
-              <Link to="/settings">
-                <Settings />
-              </Link>
-            </DropdownMenuItem>
           </>
         )}
-        <ThemeToggleMobile />
+        <DropdownMenuItem asChild>
+          <SettingsButton mobile />
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -196,14 +192,9 @@ export function NavbarDesktop() {
               </div>
             </PopoverContent>
           </Popover>
-          <Button asChild variant="ghost">
-            <Link to="/settings">
-              <Settings />
-            </Link>
-          </Button>
         </>
       )}
-      <ThemeToggle />
+      <SettingsButton />
     </div>
   )
 }
