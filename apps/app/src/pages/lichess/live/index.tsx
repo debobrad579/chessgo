@@ -217,20 +217,24 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             white = {
               id: user.id,
               name: user.name,
+              rating: event.white.rating,
             }
             black = {
               id: event.black.id,
               name: event.black.name,
+              rating: event.black.rating,
             }
             setBlackConnected(true)
           } else {
             black = {
               id: user.id,
               name: user.name,
+              rating: event.black.rating,
             }
             white = {
               id: event.white.id,
               name: event.white.name,
+              rating: event.white.rating,
             }
             setWhiteConnected(true)
           }
@@ -351,7 +355,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
         pendingDrawOffer={pendingDrawOffer}
         whiteConnected={whiteConnected}
         blackConnected={blackConnected}
-        clockType="total-remaining"
+        clockType="lichess"
       />
     </>
   ) : (

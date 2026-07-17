@@ -30,6 +30,9 @@ export function Clock({ color }: { color: Color }) {
     connected = blackConnected
   }
 
+  const name = color === "w" ? white.name : black.name
+  const rating = color === "w" ? white.rating : black.rating
+
   return (
     <div
       className={cn(
@@ -58,7 +61,7 @@ export function Clock({ color }: { color: Color }) {
                   undoCount,
                   thinkTime,
                   result,
-                  totalRemaining: clockType === "total-remaining",
+                  lichessClocks: clockType === "lichess",
                 }),
               )
             : won
@@ -77,9 +80,8 @@ export function Clock({ color }: { color: Color }) {
             )}
           />
         )}
-        <div className="font-bold">
-          {color === "w" ? white.name || "White" : black.name || "Black"}
-        </div>
+        <div className="font-bold">{name}</div>
+        {rating != null && <div className="pb-1 text-sm">({rating})</div>}
       </div>
     </div>
   )

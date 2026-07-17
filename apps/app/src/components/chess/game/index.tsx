@@ -8,7 +8,7 @@ import { DesktopGameView } from "./DesktopGameView"
 import { MobileGameView } from "./MobileGameView"
 import { ChessGameProvider } from "./ChessGameContext"
 
-type ClockType = "no-clocks" | "per-move" | "total-remaining"
+type ClockType = "no-clocks" | "per-move" | "lichess"
 
 export type ChessGameProps = {
   moves: Move[]

@@ -32,7 +32,7 @@ export function getPlayerTimestamp({
   thinkTime,
   initialTime,
   result,
-  totalRemaining = false,
+  lichessClocks = false,
 }: {
   moves: Move[]
   undoCount: number
@@ -40,9 +40,18 @@ export function getPlayerTimestamp({
   thinkTime: number
   initialTime: number
   result: Result
-  totalRemaining?: boolean
+  lichessClocks?: boolean
 }) {
-  if (totalRemaining) undoCount = 0
+  if (lichessClocks) {
+    if (moves.length === 0) {
+      return initialTime
+    }
+    if (playerColor === "b" && moves.length === 1) {
+      return initialTime
+    }
+  }
+
+  if (lichessClocks) undoCount = 0
 
   const effectiveMoves = moves.slice(0, moves.length - undoCount)
 

@@ -37,6 +37,7 @@ function isResult(result: unknown): result is Result {
 export type Player = {
   id: string
   name: string
+  rating?: number
 }
 
 function isPlayer(player: unknown): player is Player {
