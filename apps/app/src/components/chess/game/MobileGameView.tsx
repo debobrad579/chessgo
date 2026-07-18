@@ -1,5 +1,5 @@
 import { Chessboard } from "@/components/chess/board"
-import { Clock } from "./Clock"
+import { BlackClock, WhiteClock } from "./Clock"
 import { NavigationButtons } from "./NavigationButtons"
 import { ScrollArea, ScrollBar } from "@chessgo/ui/scroll-area"
 import { MoveCell } from "./MoveCell"
@@ -24,7 +24,7 @@ export function MobileGameView() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Clock color={flipBoard ? "w" : "b"} />
+      {flipBoard ? <WhiteClock /> : <BlackClock />}
       <Chessboard
         fen={game.fen()}
         flipBoard={flipBoard}
@@ -49,7 +49,7 @@ export function MobileGameView() {
                 : "n"
         }
       />
-      <Clock color={flipBoard ? "b" : "w"} />
+      {flipBoard ? <BlackClock /> : <WhiteClock />}
       <ScrollArea
         ref={listScrollAreaRef}
         className="relative w-full text-nowrap"

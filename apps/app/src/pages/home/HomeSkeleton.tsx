@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@chessgo/ui/table"
-import { CreateGameButton } from "./CreateGameButton"
+import { NewGameButton } from "./NewGameButton"
 import { Timer } from "lucide-react"
 import { Skeleton } from "@chessgo/ui/skeleton"
 
@@ -30,7 +30,7 @@ export function HomeSkeleton() {
   return (
     <div className="space-y-4">
       <h2 className="text-center text-3xl font-bold">Lobby</h2>
-      <CreateGameButton />
+      <NewGameButton />
       <Table>
         <TableHeader>
           <TableRow>

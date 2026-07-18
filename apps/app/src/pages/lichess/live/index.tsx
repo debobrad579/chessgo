@@ -115,19 +115,13 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
         increment != null ? increment * 1000 : prevGame?.time_control.increment
       if (w == null || b == null || time == null || inc == null) return prevGame
 
-      const result = getResult(state)
-      if (result !== "*") {
-        setWhiteConnected(false)
-        setBlackConnected(false)
-      }
-
       const game: Game = {
         id: gameID ?? "",
         time_control: { base: time, increment: inc },
         white: w,
         black: b,
         moves: [],
-        result: result,
+        result: getResult(state),
         think_time: 0,
       }
 
@@ -353,8 +347,8 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
           )
         }}
         pendingDrawOffer={pendingDrawOffer}
-        whiteConnected={whiteConnected}
-        blackConnected={blackConnected}
+        whiteConnected={gameData.result === "*" ? whiteConnected : undefined}
+        blackConnected={gameData.result === "*" ? blackConnected : undefined}
         clockType="lichess"
       />
     </>

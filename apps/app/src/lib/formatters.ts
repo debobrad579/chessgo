@@ -1,7 +1,7 @@
 import type { TimeControl } from "@/types/chess"
 
-export function formatMilliseconds(ms: number | undefined) {
-  if (ms == null || ms <= 0) return "00:00"
+export function formatMilliseconds(ms: number) {
+  if (ms <= 0) return "00:00"
   const totalSeconds = Math.floor(ms / 1000)
   const minutes = Math.floor(totalSeconds / 60)
   const seconds = totalSeconds % 60

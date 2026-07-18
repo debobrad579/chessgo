@@ -2,7 +2,6 @@ import { Button } from "@chessgo/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -26,7 +25,7 @@ import { Input } from "@chessgo/ui/input"
 import { seekGame } from "../lichess/utils"
 import { Loader2 } from "lucide-react"
 
-export function CreateGameButton() {
+export function NewGameButton() {
   const navigate = useNavigate()
   const lichessAccount = useLichessAccount()
   const [color, setColor] = useState("random")
@@ -44,12 +43,11 @@ export function CreateGameButton() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full">Create Game</Button>
+        <Button className="w-full">New Game</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Game</DialogTitle>
-          <DialogDescription></DialogDescription>
+          <DialogTitle>New Game</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-[1fr_2fr] gap-4">
           <Label>Server:</Label>

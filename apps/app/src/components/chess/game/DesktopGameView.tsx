@@ -1,5 +1,5 @@
 import { Chessboard } from "@/components/chess/board"
-import { Clock } from "./Clock"
+import { BlackClock, WhiteClock } from "./Clock"
 import { useRef, useState } from "react"
 import { ScrollArea } from "@chessgo/ui/scroll-area"
 import {
@@ -59,7 +59,7 @@ export function DesktopGameView() {
         />
       </div>
       <div className="flex h-[calc(100vh-7rem-1px)] flex-1 flex-col gap-2">
-        <Clock color={flipBoard ? "w" : "b"} />
+        {flipBoard ? <WhiteClock /> : <BlackClock />}
         <NavigationButtons
           moveCount={moves.length}
           undoCount={undoCount}
@@ -124,7 +124,7 @@ export function DesktopGameView() {
           </Table>
         </ScrollArea>
         <GameButtons handleFlipBoard={() => setFlipBoard((prev) => !prev)} />
-        <Clock color={flipBoard ? "b" : "w"} />
+        {flipBoard ? <BlackClock /> : <WhiteClock />}
       </div>
     </div>
   )

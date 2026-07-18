@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@chessgo/ui/table"
-import { CreateGameButton } from "./CreateGameButton"
+import { NewGameButton } from "./NewGameButton"
 import { Timer } from "lucide-react"
 import { useEventSource } from "@/hooks/useEventSource"
 import { useNavigate } from "react-router"
@@ -46,7 +46,7 @@ export default function HomePage() {
       ) : (
         <div className="space-y-4">
           <h2 className="text-center text-3xl font-bold">Lobby</h2>
-          <CreateGameButton />
+          <NewGameButton />
           <Table>
             <TableHeader>
               <TableRow>
