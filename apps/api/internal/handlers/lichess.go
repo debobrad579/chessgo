@@ -20,20 +20,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
-func lichessConfig(r *http.Request) *oauth2.Config {
-	scheme := "https"
-	if r.TLS == nil && r.Header.Get("X-Forwarded-Proto") != "https" {
-		scheme = "http"
-	}
-	redirectURL := fmt.Sprintf("%s://%s/lichess/callback", scheme, r.Host)
-
+func lichessConfig() *oauth2.Config {
 	return &oauth2.Config{
 		ClientID: "chessgo-ca",
 		Endpoint: oauth2.Endpoint{
 			AuthURL:  "https://lichess.org/oauth",
 			TokenURL: "https://lichess.org/api/token",
 		},
-		RedirectURL: redirectURL,
+		RedirectURL: fmt.Sprintf("%s/lichess/callback", os.Getenv("API_ORIGIN")),
 		Scopes:      []string{"board:play"},
 	}
 }
@@ -68,7 +62,7 @@ func (cfg *Config) LinkLichessAccountHandler(w http.ResponseWriter, r *http.Requ
 		Expiry:   time.Now().Add(10 * time.Minute),
 	}
 
-	authURL := lichessConfig(r).AuthCodeURL(
+	authURL := lichessConfig().AuthCodeURL(
 		state,
 		oauth2.S256ChallengeOption(verifier),
 	)
@@ -88,7 +82,7 @@ func (cfg *Config) LichessCallbackHandler(w http.ResponseWriter, r *http.Request
 	}
 	delete(pendingLichessOAuth, state)
 
-	lichessOAuthConfig := lichessConfig(r)
+	lichessOAuthConfig := lichessConfig()
 
 	token, err := lichessOAuthConfig.Exchange(
 		r.Context(), code,
