@@ -53,7 +53,7 @@ export function WhiteClock() {
   }
 
   function getResult() {
-    if (undoCount !== 0 && clockType !== "lichess") {
+    if (undoCount !== 0 && clockType === "per-move") {
       return
     }
 
@@ -134,7 +134,7 @@ export function BlackClock() {
   }
 
   function getResult() {
-    if (undoCount !== 0 && clockType !== "lichess") {
+    if (undoCount !== 0 && clockType === "per-move") {
       return
     }
 
