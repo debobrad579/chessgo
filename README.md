@@ -42,8 +42,8 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 **Prerequisites**
 
 - [Go 1.26+](https://go.dev/dl/)
-- [Node.js](https://nodejs.org/) and npm
 - [PostgreSQL](https://www.postgresql.org/)
+- [pnpm](https://pnpm.io/) — `curl -fsSL https://get.pnpm.io/install.sh | sh -`
 - [Rust 1.95+](https://rust-lang.org/tools/install/) — `curl https://sh.rustup.rs -sSf | sh -s -- -y`
 - [goose](https://github.com/pressly/goose) — `go install github.com/pressly/goose/v3/cmd/goose@latest`
 - [just](https://github.com/casey/just) (optional, required to run commands via `just`) — `cargo install just`
@@ -60,10 +60,10 @@ cd chessgo
 2. **Configure your environment variables**
 
 ```bash
-cp .env.example apps/api/.env
+cp .env.example .env
 ```
 
-Then edit `apps/api/.env` and set secure values for `POSTGRES_PASSWORD`, `TOKEN_SECRET`, and `LICHESS_TOKEN_SECRET`:
+Then edit `.env` and set secure values for `POSTGRES_PASSWORD`, `TOKEN_SECRET`, and `LICHESS_TOKEN_SECRET`:
 
 ```env
 POSTGRES_PASSWORD=changeme        # pick something strong
