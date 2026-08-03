@@ -206,7 +206,7 @@ function Clock({
           />
         )}
         <div className="font-bold">{name}</div>
-        {rating != null && <div className="pb-1 text-sm">({rating})</div>}
+        {rating != null && <div className="text-sm">({rating})</div>}
       </div>
     </div>
   )
