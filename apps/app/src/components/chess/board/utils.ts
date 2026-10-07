@@ -1,3 +1,6 @@
+import type { Move } from "@/types/chess"
+import { Chess } from "chess.js"
+
 export function squareToInt(square: string) {
   const file = square.charCodeAt(0) - "a".charCodeAt(0)
   const rank = 8 - parseInt(square[1], 10)
@@ -33,4 +36,21 @@ export function squareToPosition(
   const row = flipBoard ? 7 - rank : rank
   const squareWidth = width / 8
   return { left: col * squareWidth, top: row * squareWidth, squareWidth }
+}
+
+export function isValidPremove(fen: string, premove: Move) {
+  const game = new Chess(fen)
+
+  for (const move of game.moves()) {
+    game.move(move)
+
+    try {
+      game.move(premove)
+      return true
+    } catch {}
+
+    game.undo()
+  }
+
+  return false
 }

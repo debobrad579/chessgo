@@ -45,6 +45,7 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 - [PostgreSQL](https://www.postgresql.org/)
 - [pnpm](https://pnpm.io/) — `curl -fsSL https://get.pnpm.io/install.sh | sh -`
 - [Rust 1.95+](https://rust-lang.org/tools/install/) — `curl https://sh.rustup.rs -sSf | sh -s -- -y`
+- [cargo-watch](https://github.com/watchexec/cargo-watch) — `cargo install cargo-watch`
 - [goose](https://github.com/pressly/goose) — `go install github.com/pressly/goose/v3/cmd/goose@latest`
 - [just](https://github.com/casey/just) (optional, required to run commands via `just`) — `cargo install just`
 - [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`

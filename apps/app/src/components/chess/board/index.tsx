@@ -7,6 +7,7 @@ import { useBoardWidth } from "./useBoardWidth"
 import { useDrag } from "./useDrag"
 import type { Move } from "@/types/chess"
 import { PromotionPopover } from "./PromotionPopover"
+import { useEffect } from "react"
 
 export type ChessboardProps = {
   fen: string
@@ -41,6 +42,8 @@ export function Chessboard({
     handleDragEnd,
     pendingPromotion,
     setPendingPromotion,
+    premove,
+    setPremove,
   } = useDrag({
     boardRef: ref,
     width,
@@ -49,6 +52,14 @@ export function Chessboard({
     onMove,
     flipBoard,
   })
+
+  useEffect(() => {
+    if (premove != null) {
+      setPremove(null)
+      onMove?.(premove)
+    }
+  }, [fen])
+
   const board = parseFEN(fen)
 
   const anchorPos = pendingPromotion
@@ -82,11 +93,25 @@ export function Chessboard({
               draggedPiece?.index !== displayIndex &&
               squareToInt(pendingPromotion?.from ?? "") !== displayIndex
             }
-            piece={piece}
-            isHighlighted={highlightedSquares
-              .filter((h) => h.fen === fen)
-              .map((h) => h.index)
-              .includes(displayIndex)}
+            piece={
+              premove == null
+                ? piece
+                : squareToInt(premove.from) === displayIndex
+                  ? null
+                  : squareToInt(premove.to) === displayIndex
+                    ? board.flat()[squareToInt(premove.from)]
+                    : piece
+            }
+            isHighlighted={
+              highlightedSquares
+                .filter((h) => h.fen === fen)
+                .map((h) => h.index)
+                .includes(displayIndex) ||
+              (premove != null &&
+                [squareToInt(premove.from), squareToInt(premove.to)].includes(
+                  displayIndex,
+                ))
+            }
             isYellow={
               selectedSquare?.index === displayIndex ||
               (previousMove != null &&

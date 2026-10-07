@@ -1,7 +1,8 @@
 import { type RefObject, useState } from "react"
-import { canDragPiece, intToSquare } from "./utils"
+import { canDragPiece, intToSquare, isValidPremove } from "./utils"
 import type { ChessboardProps } from "."
 import { Chess } from "chess.js"
+import type { Move } from "@/types/chess"
 
 export function useDrag({
   width,
@@ -33,6 +34,7 @@ export function useDrag({
     to: string
     timestamp: number
   } | null>(null)
+  const [premove, setPremove] = useState<Move | null>(null)
 
   function move(piece: string, from: number, to: number) {
     setSelectedSquare(null)
@@ -44,6 +46,15 @@ export function useDrag({
       timestamp: 0,
     }
 
+    const game = new Chess(fen)
+    const isPremove =
+      (draggablePieces === "b" && game.turn() === "w") ||
+      (draggablePieces === "w" && game.turn() === "b")
+    if (isPremove && isValidPremove(fen, { ...move, promotion: "q" })) {
+      setPremove({ ...move, promotion: "q" })
+      return
+    }
+
     let isPromotion = true
     try {
       const isPawn = piece === "P" || piece === "p"
@@ -52,8 +63,7 @@ export function useDrag({
       if (!isPawn || (!isWhitePromotion && !isBlackPromotion)) {
         isPromotion = false
       }
-      const chess = new Chess(fen)
-      chess.move({
+      game.move({
         ...move,
         promotion: "q",
       })
@@ -113,6 +123,8 @@ export function useDrag({
   }
 
   function handleDragEnd(index: number, piece: string, e: React.PointerEvent) {
+    setPremove(null)
+
     if (boardRef.current == null) return
 
     const rect = boardRef.current.getBoundingClientRect()
@@ -153,5 +165,7 @@ export function useDrag({
     handleDragEnd,
     pendingPromotion,
     setPendingPromotion,
+    premove,
+    setPremove,
   }
 }
