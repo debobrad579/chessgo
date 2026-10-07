@@ -46,24 +46,26 @@ export function useDrag({
       timestamp: 0,
     }
 
+    const isPawn = piece === "P" || piece === "p"
+    const isWhitePromotion = piece === "P" && Math.floor(to / 8) === 0
+    const isBlackPromotion = piece === "p" && Math.floor(to / 8) === 7
+    let isPromotion = isPawn && (isWhitePromotion || isBlackPromotion)
+
     const game = new Chess(fen)
-    const isPremove = false
-    // const isPremove =
-    //  (draggablePieces === "b" && game.turn() === "w") ||
-    //  (draggablePieces === "w" && game.turn() === "b")
-    if (isPremove && isValidPremove(fen, { ...move, promotion: "q" })) {
-      setPremove({ ...move, promotion: "q" })
+    const isPremove =
+      (draggablePieces === "b" && game.turn() === "w") ||
+      (draggablePieces === "w" && game.turn() === "b")
+    const premoveMove = isPromotion
+      ? ({ ...move, promotion: "q" } as Move)
+      : move
+    if (isPremove) {
+      if (isValidPremove(fen, premoveMove)) {
+        setPremove(premoveMove)
+      }
       return
     }
 
-    let isPromotion = true
     try {
-      const isPawn = piece === "P" || piece === "p"
-      const isWhitePromotion = piece === "P" && Math.floor(to / 8) === 0
-      const isBlackPromotion = piece === "p" && Math.floor(to / 8) === 7
-      if (!isPawn || (!isWhitePromotion && !isBlackPromotion)) {
-        isPromotion = false
-      }
       game.move({
         ...move,
         promotion: "q",
