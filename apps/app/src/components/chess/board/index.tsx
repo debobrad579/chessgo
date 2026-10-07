@@ -28,13 +28,6 @@ export function Chessboard({
 }: ChessboardProps) {
   const { width, ref } = useBoardWidth()
   const {
-    arrows,
-    highlightedSquares,
-    handleArrowStart,
-    handleArrowEnd,
-    handleBoardClick,
-  } = useArrows(fen)
-  const {
     draggedPiece,
     selectedSquare,
     handleDragStart,
@@ -52,6 +45,13 @@ export function Chessboard({
     onMove,
     flipBoard,
   })
+  const {
+    arrows,
+    highlightedSquares,
+    handleArrowStart,
+    handleArrowEnd,
+    handleBoardClick,
+  } = useArrows(fen)
 
   useEffect(() => {
     if (premove != null) {
@@ -76,7 +76,9 @@ export function Chessboard({
     <div
       ref={ref}
       className="relative grid aspect-square touch-none grid-cols-8 grid-rows-8"
-      onClick={handleBoardClick}
+      onPointerDown={(e) => {
+        if (e.button !== 2) handleBoardClick()
+      }}
       onPointerMove={handleDragMove}
     >
       {board.flat().map((_, i) => {

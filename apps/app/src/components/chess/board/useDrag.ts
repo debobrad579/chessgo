@@ -1,5 +1,5 @@
 import { type RefObject, useState } from "react"
-import { canDragPiece, intToSquare, isValidPremove } from "./utils"
+import { canDragPiece, intToSquare, isValidPremove, squareToInt } from "./utils"
 import type { ChessboardProps } from "."
 import { Chess } from "chess.js"
 import type { Move } from "@/types/chess"
@@ -86,11 +86,13 @@ export function useDrag({
     piece: string,
     e: React.PointerEvent,
   ) {
-    if (
-      selectedSquare != null &&
-      selectedSquare.index != index &&
-      !canDragPiece(piece, draggablePieces)
-    ) {
+    setPremove(null)
+
+    if (premove != null && index === squareToInt(premove.to)) {
+      return
+    }
+
+    if (selectedSquare != null && selectedSquare.index != index) {
       move(selectedSquare.piece, selectedSquare.index, index)
       return
     }
@@ -126,8 +128,6 @@ export function useDrag({
   }
 
   function handleDragEnd(index: number, piece: string, e: React.PointerEvent) {
-    setPremove(null)
-
     if (boardRef.current == null) return
 
     const rect = boardRef.current.getBoundingClientRect()
