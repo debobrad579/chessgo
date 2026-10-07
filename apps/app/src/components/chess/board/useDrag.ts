@@ -47,9 +47,10 @@ export function useDrag({
     }
 
     const game = new Chess(fen)
-    const isPremove =
-      (draggablePieces === "b" && game.turn() === "w") ||
-      (draggablePieces === "w" && game.turn() === "b")
+    const isPremove = false
+    // const isPremove =
+    //  (draggablePieces === "b" && game.turn() === "w") ||
+    //  (draggablePieces === "w" && game.turn() === "b")
     if (isPremove && isValidPremove(fen, { ...move, promotion: "q" })) {
       setPremove({ ...move, promotion: "q" })
       return
