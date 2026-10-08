@@ -86,6 +86,8 @@ export function useDrag({
     piece: string,
     e: React.PointerEvent,
   ) {
+    setPremove(null)
+
     if (premove != null && index === squareToInt(premove.to)) {
       return
     }
