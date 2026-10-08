@@ -80,3 +80,41 @@ export function getPlayerTimestamp({
 export function playerExists(player: Player) {
   return player.id !== "00000000-0000-0000-0000-000000000000"
 }
+
+export function getMaterialScore(fen: string): number {
+  let score = 0
+  const piecePlacement = fen.split(" ")[0]
+
+  for (const char of piecePlacement) {
+    switch (char) {
+      case "P":
+        score += 1
+        break
+      case "N":
+      case "B":
+        score += 3
+        break
+      case "R":
+        score += 5
+        break
+      case "Q":
+        score += 9
+        break
+      case "p":
+        score -= 1
+        break
+      case "n":
+      case "b":
+        score -= 3
+        break
+      case "r":
+        score -= 5
+        break
+      case "q":
+        score -= 9
+        break
+    }
+  }
+
+  return score
+}

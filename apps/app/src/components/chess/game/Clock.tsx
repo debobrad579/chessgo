@@ -1,6 +1,7 @@
 import { formatMilliseconds } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
 import { useChessGameContext } from "./ChessGameContext"
+import { getMaterialScore } from "./utils"
 
 export function WhiteClock() {
   const {
@@ -11,6 +12,7 @@ export function WhiteClock() {
     thinkTime,
     timeControl,
     result,
+    game,
     clockType,
   } = useChessGameContext()
 
@@ -67,6 +69,8 @@ export function WhiteClock() {
     }
   }
 
+  const materialScore = getMaterialScore(game.fen())
+
   return (
     <Clock
       name={white.name}
@@ -74,6 +78,7 @@ export function WhiteClock() {
       connected={whiteConnected}
       timestamp={getTimestamp()}
       result={getResult()}
+      materialScore={materialScore > 0 ? materialScore : undefined}
       className="bg-gray-100 text-black hover:bg-gray-200"
     />
   )
@@ -88,6 +93,7 @@ export function BlackClock() {
     thinkTime,
     timeControl,
     result,
+    game,
     clockType = false,
   } = useChessGameContext()
 
@@ -148,6 +154,8 @@ export function BlackClock() {
     }
   }
 
+  const materialScore = getMaterialScore(game.fen())
+
   return (
     <Clock
       name={black.name}
@@ -155,6 +163,7 @@ export function BlackClock() {
       connected={blackConnected}
       timestamp={getTimestamp()}
       result={getResult()}
+      materialScore={materialScore < 0 ? -materialScore : undefined}
       className="bg-gray-900 text-white hover:bg-gray-800"
     />
   )
@@ -166,6 +175,7 @@ function Clock({
   rating,
   timestamp,
   result,
+  materialScore,
   className,
 }: {
   name: string
@@ -173,6 +183,7 @@ function Clock({
   connected?: boolean
   rating?: number
   result?: "win" | "loss" | "draw"
+  materialScore?: number
   className?: string
 }) {
   return (
@@ -182,20 +193,23 @@ function Clock({
         className,
       )}
     >
-      {(() => {
-        switch (result) {
-          case "win":
-            return <div className="text-green-500">1</div>
-          case "loss":
-            return <div className="text-red-500">0</div>
-          case "draw":
-            return <div>1/2</div>
-          default:
-            return (
-              timestamp != null && <div>{formatMilliseconds(timestamp)}</div>
-            )
-        }
-      })()}
+      <div className="flex items-center gap-2">
+        {(() => {
+          switch (result) {
+            case "win":
+              return <div className="text-green-500">1</div>
+            case "loss":
+              return <div className="text-red-500">0</div>
+            case "draw":
+              return <div>1/2</div>
+            default:
+              return (
+                timestamp != null && <div>{formatMilliseconds(timestamp)}</div>
+              )
+          }
+        })()}
+        {materialScore != null && <div>+{materialScore}</div>}
+      </div>
       <div className="flex items-center gap-2">
         {connected != null && (
           <span
