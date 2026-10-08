@@ -77,6 +77,7 @@ export function Chessboard({
       ref={ref}
       className="relative grid aspect-square touch-none grid-cols-8 grid-rows-8"
       onPointerDown={(e) => {
+        setPremove(null)
         if (e.button !== 2) handleBoardClick()
       }}
       onPointerMove={handleDragMove}
