@@ -1,3 +1,4 @@
+import { useSettings } from "@/context/SettingsContext"
 import type { CSSProperties } from "react"
 
 type SquareProps = {
@@ -29,6 +30,8 @@ export function Square({
   showPiece = true,
   flipBoard = false,
 }: SquareProps) {
+  const { showBoardCoordinates } = useSettings()
+
   const isLight = (Math.floor(index / 8) + (index % 8)) % 2 === 0
   const rank = 8 - Math.floor(index / 8)
   const file = String.fromCharCode(97 + (index % 8))
@@ -98,21 +101,25 @@ export function Square({
       className={"relative aspect-square w-full leading-none"}
       style={getBackgroundStyle()}
     >
-      {showRank && (
-        <div
-          className={"absolute top-1 left-1"}
-          style={{ fontSize: squareWidth / 5 }}
-        >
-          {rank}
-        </div>
-      )}
-      {showFile && (
-        <div
-          className={"absolute right-1 bottom-1"}
-          style={{ fontSize: squareWidth / 5 }}
-        >
-          {file}
-        </div>
+      {showBoardCoordinates && (
+        <>
+          {showRank && (
+            <div
+              className={"absolute top-1 left-1"}
+              style={{ fontSize: squareWidth / 5 }}
+            >
+              {rank}
+            </div>
+          )}
+          {showFile && (
+            <div
+              className={"absolute right-1 bottom-1"}
+              style={{ fontSize: squareWidth / 5 }}
+            >
+              {file}
+            </div>
+          )}
+        </>
       )}
       {showPiece && piece != null && (
         <img

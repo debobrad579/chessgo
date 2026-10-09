@@ -7,8 +7,9 @@ import { useBoardWidth } from "./useBoardWidth"
 import { useDrag } from "./useDrag"
 import type { Move } from "@/types/chess"
 import { PromotionPopover } from "./PromotionPopover"
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { sounds } from "./sounds"
+import { useSettings } from "@/context/SettingsContext"
 
 export type ChessboardProps = {
   fen: string
@@ -29,6 +30,8 @@ export function Chessboard({
   flipBoard = false,
   draggablePieces = "n",
 }: ChessboardProps) {
+  const { playPieceSounds } = useSettings()
+
   const { width, ref } = useBoardWidth()
   const {
     draggedPiece,
@@ -55,23 +58,24 @@ export function Chessboard({
     handleArrowEnd,
     handleBoardClick,
   } = useArrows(fen)
+  const firstRenderRef = useRef(true)
 
   useEffect(() => {
+    if (playPieceSounds && !firstRenderRef.current) {
+      try {
+        void sounds.play(previousMoveIsCapture ? "capture" : "move")
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
     if (premove != null) {
       setPremove(null)
       onMove?.(premove)
     }
+
+    firstRenderRef.current = false
   }, [fen])
-
-  useEffect(() => {
-    if (previousMove == null) return
-
-    try {
-      void sounds.play(previousMoveIsCapture ? "capture" : "move")
-    } catch (e) {
-      console.error(e)
-    }
-  }, [previousMove?.from, previousMove?.to, previousMoveIsCapture])
 
   const board = parseFEN(fen)
 

@@ -16,6 +16,7 @@ import "./tailwind.css"
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary"
 import { ServiceUnavailable } from "@/components/errors/ServiceUnavailable"
 import { LichessAccountProvider } from "@/context/LichessContext"
+import { SettingsProvider } from "@/context/SettingsContext"
 
 function App() {
   return (
@@ -37,16 +38,18 @@ function App() {
 
 createRoot(document.getElementById("app")!).render(
   <StrictMode>
-    <ThemeProvider storageKey="ui-theme">
-      <TooltipProvider>
-        <ErrorBoundary fallback={<ServiceUnavailable />}>
-          <UserProvider>
-            <LichessAccountProvider>
-              <App />
-            </LichessAccountProvider>
-          </UserProvider>
-        </ErrorBoundary>
-      </TooltipProvider>
-    </ThemeProvider>
+    <SettingsProvider>
+      <ThemeProvider>
+        <TooltipProvider>
+          <ErrorBoundary fallback={<ServiceUnavailable />}>
+            <UserProvider>
+              <LichessAccountProvider>
+                <App />
+              </LichessAccountProvider>
+            </UserProvider>
+          </ErrorBoundary>
+        </TooltipProvider>
+      </ThemeProvider>
+    </SettingsProvider>
   </StrictMode>,
 )

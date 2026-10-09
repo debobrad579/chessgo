@@ -3,6 +3,7 @@ import { canDragPiece, intToSquare, isValidPremove, squareToInt } from "./utils"
 import type { ChessboardProps } from "."
 import { Chess } from "chess.js"
 import type { Move } from "@/types/chess"
+import { useSettings } from "@/context/SettingsContext"
 
 export function useDrag({
   width,
@@ -35,6 +36,7 @@ export function useDrag({
     timestamp: number
   } | null>(null)
   const [premove, setPremove] = useState<Move | null>(null)
+  const { allowPremoves } = useSettings()
 
   function move(piece: string, from: number, to: number) {
     setSelectedSquare(null)
@@ -52,17 +54,20 @@ export function useDrag({
     let isPromotion = isPawn && (isWhitePromotion || isBlackPromotion)
 
     const game = new Chess(fen)
-    const isPremove =
-      (draggablePieces === "b" && game.turn() === "w") ||
-      (draggablePieces === "w" && game.turn() === "b")
-    const premoveMove = isPromotion
-      ? ({ ...move, promotion: "q" } as Move)
-      : move
-    if (isPremove) {
-      if (isValidPremove(fen, premoveMove)) {
-        setPremove(premoveMove)
+
+    if (allowPremoves) {
+      const isPremove =
+        (draggablePieces === "b" && game.turn() === "w") ||
+        (draggablePieces === "w" && game.turn() === "b")
+      const premoveMove = isPromotion
+        ? ({ ...move, promotion: "q" } as Move)
+        : move
+      if (isPremove) {
+        if (isValidPremove(fen, premoveMove)) {
+          setPremove(premoveMove)
+        }
+        return
       }
-      return
     }
 
     try {
