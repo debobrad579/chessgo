@@ -208,7 +208,9 @@ function Clock({
               )
           }
         })()}
-        {materialScore != null && <div>+{materialScore}</div>}
+        {materialScore != null && (
+          <div className="text-sm">+{materialScore}</div>
+        )}
       </div>
       <div className="flex items-center gap-2">
         {connected != null && (
