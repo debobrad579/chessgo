@@ -30,6 +30,8 @@ export type ChessGameProps = {
   handleRematch?: () => void
   whiteConnected?: boolean
   blackConnected?: boolean
+  previousMove?: Move
+  previousMoveIsCapture?: boolean
 }
 
 export type ChessGameHandle = {
@@ -73,6 +75,8 @@ export const ChessGame = forwardRef<
     optimisticThinkTime,
     undoCount,
     setUndoCount,
+    previousMove,
+    previousMoveIsCapture,
   } = useChessGame(gameData, ref)
 
   const mobile = useMediaQuery("(orientation: portrait)")
@@ -99,6 +103,8 @@ export const ChessGame = forwardRef<
         pendingDrawOffer,
         whiteConnected,
         blackConnected,
+        previousMove: previousMove ?? undefined,
+        previousMoveIsCapture,
       }}
     >
       {mobile ? <MobileGameView /> : <DesktopGameView />}

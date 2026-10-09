@@ -8,10 +8,12 @@ import { useDrag } from "./useDrag"
 import type { Move } from "@/types/chess"
 import { PromotionPopover } from "./PromotionPopover"
 import { useEffect } from "react"
+import { sounds } from "./sounds"
 
 export type ChessboardProps = {
   fen: string
   previousMove?: Move
+  previousMoveIsCapture?: boolean
   check?: "w" | "b"
   onMove?: (move: Move) => void
   flipBoard?: boolean
@@ -21,6 +23,7 @@ export type ChessboardProps = {
 export function Chessboard({
   fen,
   previousMove,
+  previousMoveIsCapture,
   check,
   onMove,
   flipBoard = false,
@@ -59,6 +62,16 @@ export function Chessboard({
       onMove?.(premove)
     }
   }, [fen])
+
+  useEffect(() => {
+    if (previousMove == null) return
+
+    try {
+      void sounds.play(previousMoveIsCapture ? "capture" : "move")
+    } catch (e) {
+      console.error(e)
+    }
+  }, [previousMove?.from, previousMove?.to, previousMoveIsCapture])
 
   const board = parseFEN(fen)
 

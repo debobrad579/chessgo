@@ -11,16 +11,21 @@ import { GameButtons } from "./GameButtons"
 
 export function MobileGameView() {
   const user = useUser()
-  const { moves, result, undoCount, white, black, game, setUndoCount, onMove } =
-    useChessGameContext()
+  const {
+    moves,
+    result,
+    undoCount,
+    white,
+    black,
+    game,
+    setUndoCount,
+    onMove,
+    previousMove,
+    previousMoveIsCapture,
+  } = useChessGameContext()
 
   const [flipBoard, setFlipBoard] = useState(user.id === black.id)
   const listScrollAreaRef = useRef<HTMLDivElement>(null)
-
-  const previousMove =
-    moves.length >= 1 && undoCount !== moves.length
-      ? moves.at(moves.length - undoCount - 1)
-      : null
 
   return (
     <div className="flex flex-col gap-2">
@@ -37,6 +42,7 @@ export function MobileGameView() {
               }
             : undefined
         }
+        previousMoveIsCapture={previousMoveIsCapture}
         check={game.inCheck() ? game.turn() : undefined}
         onMove={onMove}
         draggablePieces={

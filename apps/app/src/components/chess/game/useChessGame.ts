@@ -2,6 +2,7 @@ import {
   useEffect,
   useImperativeHandle,
   useMemo,
+  useRef,
   useState,
   type Ref,
 } from "react"
@@ -17,17 +18,31 @@ export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
     gameData.think_time,
   )
   const [undoCount, setUndoCount] = useState(0)
+  const previousMoveRef = useRef<Move | null>(null)
+  const previousMoveIsCaptureRef = useRef<boolean>(false)
 
   const game = useMemo(() => {
-    const chess = new Chess()
+    const game = new Chess()
     const visibleMoves = optimisticMoves.slice(
       0,
       optimisticMoves.length - undoCount,
     )
-    for (const move of visibleMoves) {
-      chess.move(move)
+
+    if (visibleMoves.length === 0) {
+      previousMoveRef.current = null
     }
-    return chess
+
+    for (let i = 0; i < visibleMoves.length; i++) {
+      const move = visibleMoves[i]
+      const moveIsCapture = game.move(move).isCapture()
+
+      if (i == visibleMoves.length - 1) {
+        previousMoveRef.current = move
+        previousMoveIsCaptureRef.current = moveIsCapture
+      }
+    }
+
+    return game
   }, [optimisticMoves, undoCount])
 
   useEffect(() => {
@@ -104,5 +119,7 @@ export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
     game,
     undoCount,
     setUndoCount,
+    previousMove: previousMoveRef.current,
+    previousMoveIsCapture: previousMoveIsCaptureRef.current,
   }
 }

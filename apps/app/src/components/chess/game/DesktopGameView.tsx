@@ -19,16 +19,21 @@ import { useChessGameContext } from "./ChessGameContext"
 
 export function DesktopGameView() {
   const user = useUser()
-  const { moves, result, undoCount, white, black, game, setUndoCount, onMove } =
-    useChessGameContext()
+  const {
+    moves,
+    result,
+    undoCount,
+    white,
+    black,
+    game,
+    setUndoCount,
+    onMove,
+    previousMove,
+    previousMoveIsCapture,
+  } = useChessGameContext()
 
   const [flipBoard, setFlipBoard] = useState(user.id === black.id)
   const tableScrollAreaRef = useRef<HTMLDivElement>(null)
-
-  const previousMove =
-    moves.length >= 1 && undoCount !== moves.length
-      ? moves.at(moves.length - undoCount - 1)
-      : null
 
   return (
     <div className="flex h-full gap-2">
@@ -45,6 +50,7 @@ export function DesktopGameView() {
                 }
               : undefined
           }
+          previousMoveIsCapture={previousMoveIsCapture}
           check={game.inCheck() ? game.turn() : undefined}
           onMove={onMove}
           draggablePieces={
