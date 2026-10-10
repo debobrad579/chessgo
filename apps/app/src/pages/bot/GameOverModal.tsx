@@ -40,7 +40,7 @@ export function GameOverModal({
         </DialogHeader>
         <div className="flex gap-2">
           <Button className="flex-1" onClick={handleRematch}>
-            New Game
+            Rematch
           </Button>
         </div>
         <DialogFooter>

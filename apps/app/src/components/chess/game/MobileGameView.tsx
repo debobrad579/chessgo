@@ -28,7 +28,7 @@ export function MobileGameView() {
   const listScrollAreaRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="mx-auto flex w-full max-w-[min(100%,calc(100vh-19.6rem))] flex-col gap-2">
       {flipBoard ? <WhiteClock /> : <BlackClock />}
       <Chessboard
         fen={game.fen()}

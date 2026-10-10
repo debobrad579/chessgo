@@ -35,6 +35,8 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
     setAllowPremoves,
     playPieceSounds,
     setPlayPieceSounds,
+    showGameOverModal,
+    setShowGameOverModal,
   } = useSettings()
 
   return (
@@ -87,6 +89,12 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
               id="piece-sounds-switch"
               checked={playPieceSounds}
               onCheckedChange={setPlayPieceSounds}
+            />
+            <Label htmlFor="game-over-modal-switch">Game Over Modal:</Label>
+            <Switch
+              id="game-over-modal-switch"
+              checked={showGameOverModal}
+              onCheckedChange={setShowGameOverModal}
             />
           </TabsContent>
           <TabsContent value="account">

@@ -41,12 +41,12 @@ function GameButtonsSkeleton() {
   return (
     <div className="flex justify-between gap-2">
       <div className="flex gap-2">
-        <Skeleton className="h-9 w-9 rounded-md" />
-        <Skeleton className="h-9 w-9 rounded-md" />
+        <Skeleton className="h-7 w-7 rounded-md" />
+        <Skeleton className="h-7 w-7 rounded-md" />
       </div>
       <div className="flex gap-2">
-        <Skeleton className="h-9 w-9 rounded-md" />
-        <Skeleton className="h-9 w-9 rounded-md" />
+        <Skeleton className="h-7 w-7 rounded-md" />
+        <Skeleton className="h-7 w-7 rounded-md" />
       </div>
     </div>
   )
@@ -183,7 +183,7 @@ function DesktopGameSkeleton() {
 
 function MobileGameSkeleton() {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="mx-auto flex w-full max-w-[min(100%,calc(100vh-19.6rem))] flex-col gap-2">
       <ClockSkeleton black />
       <ChessboardSkeleton />
       <ClockSkeleton />
@@ -195,6 +195,6 @@ function MobileGameSkeleton() {
 }
 
 export function ChessGameSkeleton() {
-  const mobile = useMediaQuery("(orientation: portrait)")
+  const mobile = useMediaQuery("(max-aspect-ratio: 7/6)")
   return mobile ? <MobileGameSkeleton /> : <DesktopGameSkeleton />
 }

@@ -8,6 +8,8 @@ type SettingsContextType = {
   setAllowPremoves: (value: boolean) => void
   playPieceSounds: boolean
   setPlayPieceSounds: (value: boolean) => void
+  showGameOverModal: boolean
+  setShowGameOverModal: (value: boolean) => void
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null)
@@ -25,6 +27,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     "play-piece-sounds",
     true,
   )
+  const [showGameOverModal, setShowGameOverModal] = useLocalStorage(
+    "show-game-over-modal",
+    true,
+  )
 
   return (
     <SettingsContext.Provider
@@ -35,6 +41,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setAllowPremoves,
         playPieceSounds,
         setPlayPieceSounds,
+        showGameOverModal,
+        setShowGameOverModal,
       }}
     >
       {children}

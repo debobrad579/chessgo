@@ -9,9 +9,8 @@ import {
 } from "@chessgo/ui/dialog"
 import { formatTimeControl } from "@/lib/formatters"
 import type { TimeControl } from "@/types/chess"
-import type { Dispatch, SetStateAction } from "react"
-import { Link, useNavigate } from "react-router"
-import { API_BASE } from "@/lib/api"
+import { type Dispatch, type SetStateAction } from "react"
+import { Link } from "react-router"
 
 export function GameOverModal({
   timeControl,
@@ -21,6 +20,7 @@ export function GameOverModal({
   setOpen,
   rematchRequest,
   handleRematch,
+  handleNewGame,
 }: {
   timeControl: TimeControl
   result: "win" | "loss" | "draw"
@@ -29,11 +29,8 @@ export function GameOverModal({
   setOpen: Dispatch<SetStateAction<boolean>>
   rematchRequest: "incoming" | "outgoing" | "n"
   handleRematch: () => void
+  handleNewGame: () => void
 }) {
-  const navigate = useNavigate()
-
-  const timeControlString = formatTimeControl(timeControl)
-
   return (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogContent>
@@ -50,27 +47,8 @@ export function GameOverModal({
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-2">
-          <Button
-            className="flex-1"
-            onClick={() => {
-              const plusIndex = timeControlString.indexOf("+")
-              fetch(`${API_BASE}/live`, {
-                method: "POST",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  color: "random",
-                  time: timeControlString.slice(0, plusIndex),
-                  increment: timeControlString.slice(plusIndex + 1),
-                }),
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  navigate(`/live/${data?.game_id}`, { replace: true })
-                })
-            }}
-          >
-            New {timeControlString}
+          <Button className="flex-1" onClick={() => handleNewGame()}>
+            New {formatTimeControl(timeControl)}
           </Button>
           <Button
             className="flex-1"

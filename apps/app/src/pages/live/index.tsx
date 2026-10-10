@@ -9,6 +9,7 @@ import { useWebSocket } from "@/hooks/useWebSocket"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { playerExists } from "@/components/chess/game/utils"
 import { API_BASE } from "@/lib/api"
+import { useSettings } from "@/context/SettingsContext"
 
 const PING_TIMEOUT_MS = 90_000
 
@@ -20,8 +21,9 @@ export default function LivePage() {
 
 function LiveGame({ gameID }: { gameID: string }) {
   const user = useUser()
+  const { showGameOverModal } = useSettings()
   const navigate = useNavigate()
-  const [modalOpen, setModalOpen] = useState(true)
+  const [modalOpen, setModalOpen] = useState(false)
   const [gameData, setGameData] = useState<Game | null>(null)
   const [whiteConnected, setWhiteConnected] = useState(false)
   const [blackConnected, setBlackConnected] = useState(false)
@@ -86,7 +88,9 @@ function LiveGame({ gameID }: { gameID: string }) {
   }, [readyState, gameData])
 
   useEffect(() => {
-    setModalOpen(gameData?.result != null && gameData.result !== "*")
+    setModalOpen(
+      showGameOverModal && gameData != null && gameData.result !== "*",
+    )
   }, [gameData?.result])
 
   useEffect(() => {
@@ -99,6 +103,25 @@ function LiveGame({ gameID }: { gameID: string }) {
 
   if (gameID == null) {
     return <NotFound />
+  }
+
+  function handleNewGame() {
+    if (gameData == null) return
+
+    fetch(`${API_BASE}/live`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        color: "random",
+        time: String(Math.floor(gameData.time_control.base / 60000)),
+        increment: String(Math.floor(gameData.time_control.increment / 1000)),
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        navigate(`/live/${data?.game_id}`, { replace: true })
+      })
   }
 
   return gameData != null ? (
@@ -133,6 +156,7 @@ function LiveGame({ gameID }: { gameID: string }) {
         handleRematch={() => {
           sendJsonMessage({ type: "rematch_request" })
         }}
+        handleNewGame={handleNewGame}
       />
       <ChessGame
         ref={chessGameRef}
@@ -156,6 +180,7 @@ function LiveGame({ gameID }: { gameID: string }) {
         handleRematch={() => {
           sendJsonMessage({ type: "rematch_request" })
         }}
+        handleNewGame={handleNewGame}
         pendingDrawOffer={pendingDrawOffer}
         rematchRequest={rematchRequest}
         whiteConnected={whiteConnected}

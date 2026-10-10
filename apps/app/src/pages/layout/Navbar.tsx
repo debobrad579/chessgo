@@ -61,7 +61,7 @@ export function NavbarMobile() {
       }}
     >
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-lg">
+        <Button variant="ghost" size="icon-lg" className="-m-2">
           <Menu />
         </Button>
       </DropdownMenuTrigger>

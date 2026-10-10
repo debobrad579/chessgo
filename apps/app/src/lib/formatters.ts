@@ -8,9 +8,9 @@ export function formatMilliseconds(ms: number) {
   return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
 }
 
-export function formatTimeControl(tc: TimeControl): string {
-  const baseMinutes = Math.floor(tc.base / 60000)
-  const incrementSeconds = Math.floor(tc.increment / 1000)
+export function formatTimeControl(timeControl: TimeControl): string {
+  const baseMinutes = Math.floor(timeControl.base / 60000)
+  const incrementSeconds = Math.floor(timeControl.increment / 1000)
 
   return `${baseMinutes}+${incrementSeconds}`
 }

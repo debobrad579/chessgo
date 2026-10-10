@@ -6,12 +6,14 @@ import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { useWebSocket } from "@/hooks/useWebSocket"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { API_BASE } from "@/lib/api"
+import { useSettings } from "@/context/SettingsContext"
 
 const PING_TIMEOUT_MS = 90_000
 
 export default function BotPage() {
   const user = useUser()
-  const [modalOpen, setModalOpen] = useState(true)
+  const { showGameOverModal } = useSettings()
+  const [modalOpen, setModalOpen] = useState(false)
   const [gameData, setGameData] = useState<Game | null>(null)
   const [connected, setConnected] = useState(false)
   const [resultReason, setResultReason] = useState("")
@@ -50,7 +52,9 @@ export default function BotPage() {
   }, [readyState, gameData?.result])
 
   useEffect(() => {
-    setModalOpen(gameData?.result != null && gameData.result !== "*")
+    setModalOpen(
+      showGameOverModal && gameData != null && gameData.result !== "*",
+    )
   }, [gameData?.result])
 
   useEffect(() => {

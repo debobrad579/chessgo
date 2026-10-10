@@ -1,4 +1,4 @@
-import { useParams } from "react-router"
+import { useNavigate, useParams } from "react-router"
 import { GameOverModal } from "./GameOverModal"
 import { NotFound } from "@/components/errors/NotFound"
 import { useEffect, useRef, useState } from "react"
@@ -11,6 +11,8 @@ import { useLichessAccount } from "@/context/LichessContext"
 import { Unauthorized } from "@/components/errors/Unauthorized"
 import type { GameState, LichessBoardStreamEvent } from "../types"
 import { Chess } from "chess.js"
+import { useSettings } from "@/context/SettingsContext"
+import { seekGame } from "../utils"
 
 type CastlingRights = {
   K: boolean
@@ -79,7 +81,9 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   if (!lichessAccount.connected) return <Unauthorized />
 
   const user = useUser()
-  const [modalOpen, setModalOpen] = useState(true)
+  const navigate = useNavigate()
+  const { showGameOverModal } = useSettings()
+  const [modalOpen, setModalOpen] = useState(false)
   const [gameData, setGameData] = useState<Game | null>(null)
   const [whiteConnected, setWhiteConnected] = useState(false)
   const [blackConnected, setBlackConnected] = useState(false)
@@ -94,6 +98,8 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   })
   const [aborted, setAborted] = useState(false)
   const [rated, setRated] = useState(false)
+  const [isNewGameLoading, setIsNewGameLoading] = useState(false)
+  const abortControllerRef = useRef<AbortController>(null)
 
   function updateGameState(
     state: GameState,
@@ -247,7 +253,10 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   )
 
   useEffect(() => {
-    setModalOpen(aborted || gameData?.result !== "*")
+    setModalOpen(
+      showGameOverModal &&
+        (aborted || (gameData != null && gameData.result !== "*")),
+    )
   }, [gameData?.result, aborted])
 
   useEffect(() => {
@@ -260,6 +269,42 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
 
   if (gameID == null) {
     return <NotFound />
+  }
+
+  function handleNewGame() {
+    if (!lichessAccount.connected || gameData == null) return
+
+    if (isNewGameLoading && abortControllerRef.current != null) {
+      abortControllerRef.current.abort()
+      return
+    }
+
+    const controller = new AbortController()
+    abortControllerRef.current = controller
+    controller.signal.addEventListener("abort", () => {
+      setIsNewGameLoading(false)
+    })
+
+    setIsNewGameLoading(true)
+
+    seekGame(
+      lichessAccount.access_token,
+      {
+        rated: String(rated),
+        time: String(gameData.time_control.base / 60000),
+        increment: String(gameData.time_control.increment / 1000),
+        color: "random",
+      },
+      controller,
+    )
+      .then((gameId) => {
+        setIsNewGameLoading(false)
+
+        if (gameId != null) {
+          navigate(`/lichess/live/${gameId}`)
+        }
+      })
+      .catch(() => setIsNewGameLoading(false))
   }
 
   return gameData != null ? (
@@ -283,8 +328,8 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
         reason={resultReason}
         time={gameData.time_control.base / 60_000}
         increment={gameData.time_control.increment / 1000}
-        accessToken={lichessAccount.access_token}
-        rated={rated}
+        handleNewGame={handleNewGame}
+        isNewGameLoading={isNewGameLoading}
       />
       <ChessGame
         ref={chessGameRef}
@@ -346,6 +391,8 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             },
           )
         }}
+        handleNewGame={handleNewGame}
+        isNewGameLoading={isNewGameLoading}
         pendingDrawOffer={pendingDrawOffer}
         whiteConnected={gameData.result === "*" ? whiteConnected : undefined}
         blackConnected={gameData.result === "*" ? blackConnected : undefined}

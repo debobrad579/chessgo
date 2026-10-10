@@ -25,6 +25,8 @@ export type ChessGameProps = {
   handleResign?: () => void
   handleOfferDraw?: () => void
   handleRespondToDrawOffer?: (accept: boolean) => void
+  handleNewGame?: () => void
+  isNewGameLoading?: boolean
   pendingDrawOffer?: "w" | "b" | "n"
   rematchRequest?: "w" | "b" | "n"
   handleRematch?: () => void
@@ -47,6 +49,8 @@ export const ChessGame = forwardRef<
     handleResign?: () => void
     handleOfferDraw?: () => void
     handleRespondToDrawOffer?: (accept: boolean) => void
+    handleNewGame?: () => void
+    isNewGameLoading?: boolean
     pendingDrawOffer?: "w" | "b" | "n"
     rematchRequest?: "w" | "b" | "n"
     handleRematch?: () => void
@@ -61,6 +65,8 @@ export const ChessGame = forwardRef<
     handleResign,
     handleOfferDraw,
     handleRespondToDrawOffer,
+    handleNewGame,
+    isNewGameLoading,
     pendingDrawOffer,
     rematchRequest,
     handleRematch,
@@ -79,7 +85,7 @@ export const ChessGame = forwardRef<
     previousMoveIsCapture,
   } = useChessGame(gameData, ref)
 
-  const mobile = useMediaQuery("(orientation: portrait)")
+  const mobile = useMediaQuery("(max-aspect-ratio: 7/6)")
 
   return (
     <ChessGameProvider
@@ -98,6 +104,8 @@ export const ChessGame = forwardRef<
         handleResign,
         handleOfferDraw,
         handleRespondToDrawOffer,
+        handleNewGame,
+        isNewGameLoading,
         rematchRequest,
         handleRematch,
         pendingDrawOffer,

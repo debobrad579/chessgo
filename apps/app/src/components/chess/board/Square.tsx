@@ -35,8 +35,9 @@ export function Square({
   const isLight = (Math.floor(index / 8) + (index % 8)) % 2 === 0
   const rank = 8 - Math.floor(index / 8)
   const file = String.fromCharCode(97 + (index % 8))
-  const showRank = flipBoard ? file === "h" : file === "a"
-  const showFile = flipBoard ? rank === 8 : rank === 1
+  const showRank =
+    showBoardCoordinates && (flipBoard ? file === "h" : file === "a")
+  const showFile = showBoardCoordinates && (flipBoard ? rank === 8 : rank === 1)
 
   function getBackgroundStyle(): CSSProperties {
     let backgroundColor = "#ba8765"
@@ -101,25 +102,21 @@ export function Square({
       className={"relative aspect-square w-full leading-none"}
       style={getBackgroundStyle()}
     >
-      {showBoardCoordinates && (
-        <>
-          {showRank && (
-            <div
-              className={"absolute top-1 left-1"}
-              style={{ fontSize: squareWidth / 5 }}
-            >
-              {rank}
-            </div>
-          )}
-          {showFile && (
-            <div
-              className={"absolute right-1 bottom-1"}
-              style={{ fontSize: squareWidth / 5 }}
-            >
-              {file}
-            </div>
-          )}
-        </>
+      {showRank && (
+        <div
+          className={"absolute top-1 left-1"}
+          style={{ fontSize: squareWidth / 5 }}
+        >
+          {rank}
+        </div>
+      )}
+      {showFile && (
+        <div
+          className={"absolute right-1 bottom-1"}
+          style={{ fontSize: squareWidth / 5 }}
+        >
+          {file}
+        </div>
       )}
       {showPiece && piece != null && (
         <img
