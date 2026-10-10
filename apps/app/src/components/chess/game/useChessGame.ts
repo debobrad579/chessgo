@@ -34,7 +34,8 @@ export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
 
     for (let i = 0; i < visibleMoves.length; i++) {
       const move = visibleMoves[i]
-      const moveIsCapture = game.move(move).isCapture()
+      const chessMove = game.move(move)
+      const moveIsCapture = chessMove.isCapture() || chessMove.isEnPassant()
 
       if (i == visibleMoves.length - 1) {
         previousMoveRef.current = move

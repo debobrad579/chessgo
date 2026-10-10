@@ -12,13 +12,14 @@ const PING_TIMEOUT_MS = 90_000
 
 export default function BotPage() {
   const user = useUser()
-  const { showGameOverModal } = useSettings()
+  const { showGameOverModal, playGameOverSound } = useSettings()
   const [modalOpen, setModalOpen] = useState(false)
   const [gameData, setGameData] = useState<Game | null>(null)
   const [connected, setConnected] = useState(false)
   const [resultReason, setResultReason] = useState("")
   const chessGameRef = useRef<ChessGameHandle>(null)
   const pingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
 
   const { sendJsonMessage, readyState } = useWebSocket(
     `${API_BASE.replace(/^http/, "ws")}/bot`,
@@ -52,9 +53,15 @@ export default function BotPage() {
   }, [readyState, gameData?.result])
 
   useEffect(() => {
-    setModalOpen(
-      showGameOverModal && gameData != null && gameData.result !== "*",
-    )
+    if (showGameOverModal && gameData != null && gameData.result !== "*") {
+      setModalOpen(true)
+      if (
+        playGameOverSound &&
+        navigator.userActivation.hasBeenActive &&
+        audioRef.current != null
+      )
+        audioRef.current.play()
+    } else setModalOpen(false)
   }, [gameData?.result])
 
   useEffect(() => {
@@ -101,6 +108,7 @@ export default function BotPage() {
         blackConnected={user.id === gameData.black.id ? connected : undefined}
         clockType="no-clocks"
       />
+      <audio src="/sounds/notify.mp3" ref={audioRef} />
     </>
   ) : (
     <ChessGameSkeleton />

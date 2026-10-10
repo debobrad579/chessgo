@@ -2,6 +2,9 @@ import { formatMilliseconds } from "@/lib/formatters"
 import { cn } from "@/lib/utils"
 import { useChessGameContext } from "./ChessGameContext"
 import { getMaterialScore } from "./utils"
+import { useEffect, useRef } from "react"
+import { useSettings } from "@/context/SettingsContext"
+import { useUser } from "@/context/UserContext"
 
 export function WhiteClock() {
   const {
@@ -15,6 +18,7 @@ export function WhiteClock() {
     game,
     clockType,
   } = useChessGameContext()
+  const user = useUser()
 
   function getTimestamp() {
     switch (clockType) {
@@ -39,6 +43,17 @@ export function WhiteClock() {
         }
 
         return lastMove.timestamp
+      }
+      case "live": {
+        if (moves.length === 0) {
+          return timeControl.base - thinkTime
+        }
+
+        if (moves.length % 2 === 0 && result === "*") {
+          return moves[0].timestamp - thinkTime
+        }
+
+        return moves[0].timestamp
       }
       case "lichess": {
         if (moves.length === 0) {
@@ -74,6 +89,7 @@ export function WhiteClock() {
   return (
     <Clock
       name={white.name}
+      playerClock={user.id === white.id}
       rating={white.rating}
       connected={whiteConnected}
       timestamp={getTimestamp()}
@@ -96,6 +112,7 @@ export function BlackClock() {
     game,
     clockType = false,
   } = useChessGameContext()
+  const user = useUser()
 
   function getTimestamp() {
     switch (clockType) {
@@ -124,6 +141,21 @@ export function BlackClock() {
         }
 
         return lastMove.timestamp
+      }
+      case "live": {
+        if (moves.length === 0) {
+          return timeControl.base
+        }
+
+        if (moves.length === 1) {
+          return timeControl.base - thinkTime
+        }
+
+        if (moves.length % 2 !== 0 && result === "*") {
+          return moves[1].timestamp - thinkTime
+        }
+
+        return moves[1].timestamp
       }
       case "lichess": {
         if (moves.length <= 1) {
@@ -159,6 +191,7 @@ export function BlackClock() {
   return (
     <Clock
       name={black.name}
+      playerClock={user.id === black.id}
       rating={black.rating}
       connected={blackConnected}
       timestamp={getTimestamp()}
@@ -171,6 +204,7 @@ export function BlackClock() {
 
 function Clock({
   name,
+  playerClock = false,
   connected,
   rating,
   timestamp,
@@ -179,6 +213,7 @@ function Clock({
   className,
 }: {
   name: string
+  playerClock: boolean
   timestamp?: number
   connected?: boolean
   rating?: number
@@ -186,6 +221,29 @@ function Clock({
   materialScore?: number
   className?: string
 }) {
+  const { playLowTimeSound, lowTimeSoundThreshold } = useSettings()
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const soundPlayed = useRef(false)
+  const { result: globalResult } = useChessGameContext()
+
+  useEffect(() => {
+    if (
+      !playerClock ||
+      !playLowTimeSound ||
+      globalResult !== "*" ||
+      timestamp == null ||
+      audioRef.current == null
+    )
+      return
+
+    if (timestamp > (lowTimeSoundThreshold + 1) * 1000) {
+      soundPlayed.current = false
+    } else if (!soundPlayed.current) {
+      void audioRef.current.play()
+      soundPlayed.current = true
+    }
+  }, [timestamp])
+
   return (
     <div
       className={cn(
@@ -224,6 +282,7 @@ function Clock({
         <div className="font-bold">{name}</div>
         {rating != null && <div className="text-sm">({rating})</div>}
       </div>
+      <audio src="/sounds/lowtime.mp3" ref={audioRef} />
     </div>
   )
 }

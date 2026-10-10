@@ -21,7 +21,7 @@ export default function LivePage() {
 
 function LiveGame({ gameID }: { gameID: string }) {
   const user = useUser()
-  const { showGameOverModal } = useSettings()
+  const { showGameOverModal, playGameOverSound } = useSettings()
   const navigate = useNavigate()
   const [modalOpen, setModalOpen] = useState(false)
   const [gameData, setGameData] = useState<Game | null>(null)
@@ -32,6 +32,7 @@ function LiveGame({ gameID }: { gameID: string }) {
   const [rematchRequest, setRematchRequest] = useState<"w" | "b" | "n">("n")
   const chessGameRef = useRef<ChessGameHandle>(null)
   const pingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
 
   const { sendJsonMessage, readyState } = useWebSocket(
     `${API_BASE.replace(/^http/, "ws")}/live/${gameID}`,
@@ -88,9 +89,15 @@ function LiveGame({ gameID }: { gameID: string }) {
   }, [readyState, gameData])
 
   useEffect(() => {
-    setModalOpen(
-      showGameOverModal && gameData != null && gameData.result !== "*",
-    )
+    if (showGameOverModal && gameData != null && gameData.result !== "*") {
+      setModalOpen(true)
+      if (
+        playGameOverSound &&
+        navigator.userActivation.hasBeenActive &&
+        audioRef.current != null
+      )
+        audioRef.current.play()
+    } else setModalOpen(false)
   }, [gameData?.result])
 
   useEffect(() => {
@@ -185,7 +192,9 @@ function LiveGame({ gameID }: { gameID: string }) {
         rematchRequest={rematchRequest}
         whiteConnected={whiteConnected}
         blackConnected={blackConnected}
+        clockType={gameData.result === "*" ? "live" : "per-move"}
       />
+      <audio src="/sounds/notify.mp3" ref={audioRef} />
     </>
   ) : (
     <ChessGameSkeleton />

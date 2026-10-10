@@ -82,7 +82,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
 
   const user = useUser()
   const navigate = useNavigate()
-  const { showGameOverModal } = useSettings()
+  const { showGameOverModal, playGameOverSound } = useSettings()
   const [modalOpen, setModalOpen] = useState(false)
   const [gameData, setGameData] = useState<Game | null>(null)
   const [whiteConnected, setWhiteConnected] = useState(false)
@@ -100,6 +100,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   const [rated, setRated] = useState(false)
   const [isNewGameLoading, setIsNewGameLoading] = useState(false)
   const abortControllerRef = useRef<AbortController>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
 
   function updateGameState(
     state: GameState,
@@ -253,10 +254,18 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   )
 
   useEffect(() => {
-    setModalOpen(
+    if (
       showGameOverModal &&
-        (aborted || (gameData != null && gameData.result !== "*")),
-    )
+      (aborted || (gameData != null && gameData.result !== "*"))
+    ) {
+      setModalOpen(true)
+      if (
+        playGameOverSound &&
+        navigator.userActivation.hasBeenActive &&
+        audioRef.current != null
+      )
+        audioRef.current.play()
+    } else setModalOpen(false)
   }, [gameData?.result, aborted])
 
   useEffect(() => {
@@ -398,6 +407,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
         blackConnected={gameData.result === "*" ? blackConnected : undefined}
         clockType="lichess"
       />
+      <audio src="/sounds/notify.mp3" ref={audioRef} />
     </>
   ) : (
     <ChessGameSkeleton />

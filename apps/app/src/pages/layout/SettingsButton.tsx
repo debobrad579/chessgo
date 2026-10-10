@@ -23,6 +23,7 @@ import { useTheme } from "@/context/ThemeContext"
 import { Label } from "@chessgo/ui/label"
 import { Switch } from "@chessgo/ui/switch"
 import { useSettings } from "@/context/SettingsContext"
+import { Input } from "@chessgo/ui/input"
 
 export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
   const user = useUser()
@@ -33,10 +34,16 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
     setShowBoardCoordinates,
     allowPremoves,
     setAllowPremoves,
-    playPieceSounds,
-    setPlayPieceSounds,
     showGameOverModal,
     setShowGameOverModal,
+    playPieceSounds,
+    setPlayPieceSounds,
+    playGameOverSound,
+    setPlayGameOverSound,
+    playLowTimeSound,
+    setPlayLowTimeSound,
+    lowTimeSoundThreshold,
+    setLowTimeSoundThreshold,
   } = useSettings()
 
   return (
@@ -56,7 +63,10 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
             <TabsTrigger value="game">Game</TabsTrigger>
             {user.email && <TabsTrigger value="account">Account</TabsTrigger>}
           </TabsList>
-          <TabsContent value="ui" className="grid grid-cols-[2fr_3fr] gap-2">
+          <TabsContent
+            value="ui"
+            className="grid auto-rows-[1.6rem] grid-cols-[2fr_3fr] items-center gap-2"
+          >
             <Label>Theme:</Label>
             <Select value={theme} onValueChange={setTheme}>
               <SelectTrigger className="w-full">
@@ -77,18 +87,15 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
               onCheckedChange={setShowBoardCoordinates}
             />
           </TabsContent>
-          <TabsContent value="game" className="grid grid-cols-[2fr_3fr] gap-2">
+          <TabsContent
+            value="game"
+            className="grid auto-rows-[1.6rem] grid-cols-[2fr_3fr] items-center gap-2"
+          >
             <Label htmlFor="premoves-switch">Premoves:</Label>
             <Switch
               id="premoves-switch"
               checked={allowPremoves}
               onCheckedChange={setAllowPremoves}
-            />
-            <Label htmlFor="piece-sounds-switch">Piece Sounds:</Label>
-            <Switch
-              id="piece-sounds-switch"
-              checked={playPieceSounds}
-              onCheckedChange={setPlayPieceSounds}
             />
             <Label htmlFor="game-over-modal-switch">Game Over Modal:</Label>
             <Switch
@@ -96,6 +103,55 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
               checked={showGameOverModal}
               onCheckedChange={setShowGameOverModal}
             />
+            <Label htmlFor="piece-sounds-switch">Piece Sounds:</Label>
+            <Switch
+              id="piece-sounds-switch"
+              checked={playPieceSounds}
+              onCheckedChange={setPlayPieceSounds}
+            />
+            <Label htmlFor="game-over-sound-switch">Game Over Sound:</Label>
+            <Switch
+              id="game-over-sound-switch"
+              checked={playGameOverSound}
+              onCheckedChange={setPlayGameOverSound}
+            />
+            <Label htmlFor="low-time-sound-switch">Low Time Sound:</Label>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="low-time-sound-switch"
+                checked={playLowTimeSound}
+                onCheckedChange={setPlayLowTimeSound}
+              />
+              {playLowTimeSound && (
+                <>
+                  <Input
+                    className="w-12"
+                    value={lowTimeSoundThreshold}
+                    onChange={(e) => {
+                      const raw = e.target.value
+
+                      if (raw.length > 3) return
+
+                      if (raw === "") {
+                        setLowTimeSoundThreshold(0)
+                        return
+                      }
+
+                      let num = NaN
+
+                      if (raw[0] === "0") {
+                        num = parseInt(raw[1])
+                      } else {
+                        num = parseInt(raw)
+                      }
+
+                      if (!isNaN(num)) setLowTimeSoundThreshold(num)
+                    }}
+                  />
+                  <div>s</div>
+                </>
+              )}
+            </div>
           </TabsContent>
           <TabsContent value="account">
             {!lichessAccount.connected ? (

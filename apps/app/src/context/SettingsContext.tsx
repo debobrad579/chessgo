@@ -6,10 +6,16 @@ type SettingsContextType = {
   setShowBoardCoordinates: (value: boolean) => void
   allowPremoves: boolean
   setAllowPremoves: (value: boolean) => void
-  playPieceSounds: boolean
-  setPlayPieceSounds: (value: boolean) => void
   showGameOverModal: boolean
   setShowGameOverModal: (value: boolean) => void
+  playPieceSounds: boolean
+  setPlayPieceSounds: (value: boolean) => void
+  playGameOverSound: boolean
+  setPlayGameOverSound: (value: boolean) => void
+  playLowTimeSound: boolean
+  setPlayLowTimeSound: (value: boolean) => void
+  lowTimeSoundThreshold: number
+  setLowTimeSoundThreshold: (value: number) => void
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null)
@@ -23,13 +29,25 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     "allow-premoves",
     true,
   )
+  const [showGameOverModal, setShowGameOverModal] = useLocalStorage(
+    "show-game-over-modal",
+    true,
+  )
   const [playPieceSounds, setPlayPieceSounds] = useLocalStorage(
     "play-piece-sounds",
     true,
   )
-  const [showGameOverModal, setShowGameOverModal] = useLocalStorage(
-    "show-game-over-modal",
+  const [playGameOverSound, setPlayGameOverSound] = useLocalStorage(
+    "play-game-over-sound",
     true,
+  )
+  const [playLowTimeSound, setPlayLowTimeSound] = useLocalStorage(
+    "play-low-time-sound",
+    true,
+  )
+  const [lowTimeSoundThreshold, setLowTimeSoundThreshold] = useLocalStorage(
+    "low-time-sound-threshold",
+    60,
   )
 
   return (
@@ -39,10 +57,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         setShowBoardCoordinates,
         allowPremoves,
         setAllowPremoves,
-        playPieceSounds,
-        setPlayPieceSounds,
         showGameOverModal,
         setShowGameOverModal,
+        playPieceSounds,
+        setPlayPieceSounds,
+        playGameOverSound,
+        setPlayGameOverSound,
+        playLowTimeSound,
+        setPlayLowTimeSound,
+        lowTimeSoundThreshold,
+        setLowTimeSoundThreshold,
       }}
     >
       {children}

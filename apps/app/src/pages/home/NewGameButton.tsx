@@ -123,7 +123,6 @@ export function NewGameButton() {
                   setTime(timeControl.slice(0, plusIndex))
                   setIncrement(timeControl.slice(plusIndex + 1))
                 }}
-                disabled={!lichessAccount.connected}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
