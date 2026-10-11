@@ -89,8 +89,8 @@ function LiveGame({ gameID }: { gameID: string }) {
   }, [readyState, gameData])
 
   useEffect(() => {
-    if (showGameOverModal && gameData != null && gameData.result !== "*") {
-      setModalOpen(true)
+    if (gameData != null && gameData.result !== "*") {
+      if (showGameOverModal) setModalOpen(true)
       if (
         playGameOverSound &&
         navigator.userActivation.hasBeenActive &&

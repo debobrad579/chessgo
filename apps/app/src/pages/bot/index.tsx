@@ -53,8 +53,8 @@ export default function BotPage() {
   }, [readyState, gameData?.result])
 
   useEffect(() => {
-    if (showGameOverModal && gameData != null && gameData.result !== "*") {
-      setModalOpen(true)
+    if (gameData != null && gameData.result !== "*") {
+      if (showGameOverModal) setModalOpen(true)
       if (
         playGameOverSound &&
         navigator.userActivation.hasBeenActive &&

@@ -254,17 +254,14 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   )
 
   useEffect(() => {
-    if (
-      showGameOverModal &&
-      (aborted || (gameData != null && gameData.result !== "*"))
-    ) {
-      setModalOpen(true)
+    if (aborted || (gameData != null && gameData.result !== "*")) {
+      if (showGameOverModal) setModalOpen(true)
       if (
         playGameOverSound &&
         navigator.userActivation.hasBeenActive &&
         audioRef.current != null
       )
-        audioRef.current.play()
+        void audioRef.current.play()
     } else setModalOpen(false)
   }, [gameData?.result, aborted])
 
