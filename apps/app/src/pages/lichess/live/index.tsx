@@ -89,6 +89,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   const [blackConnected, setBlackConnected] = useState(false)
   const [resultReason, setResultReason] = useState("")
   const [pendingDrawOffer, setPendingDrawOffer] = useState<"w" | "b" | "n">("n")
+  const [pendingTakeback, setPendingTakeback] = useState<"w" | "b" | "n">("n")
   const chessGameRef = useRef<ChessGameHandle>(null)
   const castlingRights = useRef<CastlingRights>({
     K: true,
@@ -183,6 +184,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
     })
 
     setPendingDrawOffer(state.wdraw ? "w" : state.bdraw ? "b" : "n")
+    setPendingTakeback(state.wtakeback ? "w" : state.btakeback ? "b" : "n")
     setResultReason(getResultReason(state))
   }
 
@@ -397,9 +399,21 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             },
           )
         }}
+        handleTakeback={(accept) => {
+          fetch(
+            `https://lichess.org/api/board/game/${gameID}/takeback/${accept ? "yes" : "no"}`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${lichessAccount.access_token}`,
+              },
+            },
+          )
+        }}
         handleNewGame={handleNewGame}
         isNewGameLoading={isNewGameLoading}
         pendingDrawOffer={pendingDrawOffer}
+        pendingTakeback={pendingTakeback}
         whiteConnected={gameData.result === "*" ? whiteConnected : undefined}
         blackConnected={gameData.result === "*" ? blackConnected : undefined}
         clockType="lichess"

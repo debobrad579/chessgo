@@ -25,9 +25,11 @@ export type ChessGameProps = {
   handleResign?: () => void
   handleOfferDraw?: () => void
   handleRespondToDrawOffer?: (accept: boolean) => void
+  handleTakeback?: (accept: boolean) => void
   handleNewGame?: () => void
   isNewGameLoading?: boolean
   pendingDrawOffer?: "w" | "b" | "n"
+  pendingTakeback?: "w" | "b" | "n"
   rematchRequest?: "w" | "b" | "n"
   handleRematch?: () => void
   whiteConnected?: boolean
@@ -49,9 +51,11 @@ export const ChessGame = forwardRef<
     handleResign?: () => void
     handleOfferDraw?: () => void
     handleRespondToDrawOffer?: (accept: boolean) => void
+    handleTakeback?: (accept: boolean) => void
     handleNewGame?: () => void
     isNewGameLoading?: boolean
     pendingDrawOffer?: "w" | "b" | "n"
+    pendingTakeback?: "w" | "b" | "n"
     rematchRequest?: "w" | "b" | "n"
     handleRematch?: () => void
     whiteConnected?: boolean
@@ -65,9 +69,11 @@ export const ChessGame = forwardRef<
     handleResign,
     handleOfferDraw,
     handleRespondToDrawOffer,
+    handleTakeback,
     handleNewGame,
     isNewGameLoading,
     pendingDrawOffer,
+    pendingTakeback,
     rematchRequest,
     handleRematch,
     whiteConnected,
@@ -104,11 +110,13 @@ export const ChessGame = forwardRef<
         handleResign,
         handleOfferDraw,
         handleRespondToDrawOffer,
+        handleTakeback,
         handleNewGame,
         isNewGameLoading,
         rematchRequest,
         handleRematch,
         pendingDrawOffer,
+        pendingTakeback,
         whiteConnected,
         blackConnected,
         previousMove: previousMove ?? undefined,

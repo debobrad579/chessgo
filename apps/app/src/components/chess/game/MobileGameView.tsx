@@ -7,7 +7,7 @@ import { getMoveNumberArrays } from "./utils"
 import { useRef, useState } from "react"
 import { useUser } from "@/context/UserContext"
 import { useChessGameContext } from "./ChessGameContext"
-import { GameButtons } from "./GameButtons"
+import { GameButtons } from "./buttons"
 
 export function MobileGameView() {
   const user = useUser()

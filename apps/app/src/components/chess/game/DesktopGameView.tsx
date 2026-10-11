@@ -13,7 +13,7 @@ import {
 import { MoveCell } from "./MoveCell"
 import { getMoveNumberArrays } from "./utils"
 import { NavigationButtons } from "./NavigationButtons"
-import { GameButtons } from "./GameButtons"
+import { GameButtons } from "./buttons"
 import { useUser } from "@/context/UserContext"
 import { useChessGameContext } from "./ChessGameContext"
 
