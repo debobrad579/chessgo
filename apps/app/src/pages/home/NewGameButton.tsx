@@ -24,18 +24,26 @@ import { Switch } from "@chessgo/ui/switch"
 import { Input } from "@chessgo/ui/input"
 import { seekGame } from "../lichess/utils"
 import { Loader2 } from "lucide-react"
+import { useLocalStorage } from "@/hooks/useLocalStorage"
 
 export function NewGameButton() {
   const navigate = useNavigate()
   const lichessAccount = useLichessAccount()
-  const [color, setColor] = useState("random")
-  const [server, setServer] = useState(
+  const [server, setServer] = useLocalStorage(
+    "new-game-server",
     lichessAccount.connected ? "lichess" : "chessgo",
   )
-  const [time, setTime] = useState("10")
-  const [increment, setIncrement] = useState("0")
-  const [rated, setRated] = useState(lichessAccount.connected)
-  const [customTimeControl, setCustomTimeControl] = useState(false)
+  const [time, setTime] = useLocalStorage("new-game-time", "10")
+  const [increment, setIncrement] = useLocalStorage("new-game-increment", "0")
+  const [rated, setRated] = useLocalStorage(
+    "new-game-rated",
+    lichessAccount.connected,
+  )
+  const [customTimeControl, setCustomTimeControl] = useLocalStorage(
+    "new-game-custom-time-control",
+    false,
+  )
+  const [color, setColor] = useState("random")
   const [timeControlError, setTimeControlError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const controllerRef = useRef<AbortController>(null)
@@ -55,7 +63,6 @@ export function NewGameButton() {
             value={server}
             onValueChange={(newServer) => {
               setServer(newServer)
-              setRated(newServer !== "lichess" ? false : true)
             }}
             disabled={!lichessAccount.connected}
           >
@@ -157,14 +164,14 @@ export function NewGameButton() {
           <div className="flex items-center gap-2">
             <Switch
               id="rated-switch"
-              checked={rated}
+              checked={server === "chessgo" ? false : rated}
               disabled={server !== "lichess"}
               onCheckedChange={setRated}
             />
             <Label htmlFor="rated-switch">Rated</Label>
           </div>
           <div className="text-destructive">{timeControlError}</div>
-          {!rated && (
+          {(server === "chessgo" || !rated) && (
             <>
               <Label>Play as:</Label>
               <Select value={color} onValueChange={setColor}>

@@ -24,6 +24,7 @@ import { Label } from "@chessgo/ui/label"
 import { Switch } from "@chessgo/ui/switch"
 import { useSettings } from "@/context/SettingsContext"
 import { Input } from "@chessgo/ui/input"
+import { Separator } from "@chessgo/ui/separator"
 
 export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
   const user = useUser()
@@ -63,67 +64,75 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
             <TabsTrigger value="game">Game</TabsTrigger>
             {user.email && <TabsTrigger value="account">Account</TabsTrigger>}
           </TabsList>
-          <TabsContent
-            value="ui"
-            className="grid auto-rows-[1.6rem] grid-cols-[2fr_3fr] items-center gap-2"
-          >
-            <Label>Theme:</Label>
-            <Select value={theme} onValueChange={setTheme}>
-              <SelectTrigger className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-            <Label htmlFor="coords-switch">Board Coordinates:</Label>
-            <Switch
-              id="coords-switch"
-              checked={showBoardCoordinates}
-              onCheckedChange={setShowBoardCoordinates}
-            />
-          </TabsContent>
-          <TabsContent
-            value="game"
-            className="grid auto-rows-[1.6rem] grid-cols-[2fr_3fr] items-center gap-2"
-          >
-            <Label htmlFor="premoves-switch">Premoves:</Label>
-            <Switch
-              id="premoves-switch"
-              checked={allowPremoves}
-              onCheckedChange={setAllowPremoves}
-            />
-            <Label htmlFor="game-over-modal-switch">Game Over Modal:</Label>
-            <Switch
-              id="game-over-modal-switch"
-              checked={showGameOverModal}
-              onCheckedChange={setShowGameOverModal}
-            />
-            <Label htmlFor="piece-sounds-switch">Piece Sounds:</Label>
-            <Switch
-              id="piece-sounds-switch"
-              checked={playPieceSounds}
-              onCheckedChange={setPlayPieceSounds}
-            />
-            <Label htmlFor="game-over-sound-switch">Game Over Sound:</Label>
-            <Switch
-              id="game-over-sound-switch"
-              checked={playGameOverSound}
-              onCheckedChange={setPlayGameOverSound}
-            />
-            <Label htmlFor="low-time-sound-switch">Low Time Sound:</Label>
-            <div className="flex items-center gap-2">
+          <div className="min-h-40">
+            <TabsContent
+              value="ui"
+              className="grid auto-rows-[1.6rem] grid-cols-[2fr_3fr] items-center gap-2"
+            >
+              <Label>Theme:</Label>
+              <Select value={theme} onValueChange={setTheme}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+              <Label htmlFor="coords-switch">Board Coordinates:</Label>
+              <Switch
+                id="coords-switch"
+                checked={showBoardCoordinates}
+                onCheckedChange={setShowBoardCoordinates}
+              />
+            </TabsContent>
+            <TabsContent
+              value="game"
+              className="grid auto-rows-[1.6rem] grid-cols-[2fr_1fr_2fr_1fr] items-center gap-2"
+            >
+              <div className="col-span-4 text-center text-xl font-bold">
+                <h2>Behavior</h2>
+                <Separator />
+              </div>
+              <Label htmlFor="premoves-switch">Premoves:</Label>
+              <Switch
+                id="premoves-switch"
+                checked={allowPremoves}
+                onCheckedChange={setAllowPremoves}
+              />
+              <Label htmlFor="game-over-modal-switch">Result Modal:</Label>
+              <Switch
+                id="game-over-modal-switch"
+                checked={showGameOverModal}
+                onCheckedChange={setShowGameOverModal}
+              />
+              <div className="col-span-4 text-center text-xl font-bold">
+                <h2>Sounds</h2>
+                <Separator />
+              </div>
+              <Label htmlFor="piece-sounds-switch">Pieces:</Label>
+              <Switch
+                id="piece-sounds-switch"
+                checked={playPieceSounds}
+                onCheckedChange={setPlayPieceSounds}
+              />
+              <Label htmlFor="game-over-sound-switch">Game Over:</Label>
+              <Switch
+                id="game-over-sound-switch"
+                checked={playGameOverSound}
+                onCheckedChange={setPlayGameOverSound}
+              />
+              <Label htmlFor="low-time-sound-switch">Low Time:</Label>
               <Switch
                 id="low-time-sound-switch"
                 checked={playLowTimeSound}
                 onCheckedChange={setPlayLowTimeSound}
               />
               {playLowTimeSound && (
-                <>
+                <div className="flex items-center gap-2">
                   <Input
                     className="w-12"
                     value={lowTimeSoundThreshold}
@@ -149,46 +158,46 @@ export function SettingsButton({ mobile = false }: { mobile?: boolean }) {
                     }}
                   />
                   <div>s</div>
-                </>
+                </div>
               )}
-            </div>
-          </TabsContent>
-          <TabsContent value="account">
-            {!lichessAccount.connected ? (
-              <Button
-                className="w-full"
-                disabled={lichessAccount.connected}
-                onClick={() => {
-                  fetch(`${API_BASE}/lichess/tokens`, {
-                    method: "POST",
-                    credentials: "include",
-                  })
-                    .then((res) => res.json())
-                    .then((data) => {
-                      const authURL = data.authURL
-                      if (typeof authURL === "string") {
-                        window.location.href = authURL
-                      }
+            </TabsContent>
+            <TabsContent value="account">
+              {!lichessAccount.connected ? (
+                <Button
+                  className="w-full"
+                  disabled={lichessAccount.connected}
+                  onClick={() => {
+                    fetch(`${API_BASE}/lichess/tokens`, {
+                      method: "POST",
+                      credentials: "include",
                     })
-                }}
-              >
-                Link Lichess Account
-              </Button>
-            ) : (
-              <Button
-                variant="destructive"
-                className="w-full"
-                onClick={() => {
-                  fetch(`${API_BASE}/lichess/tokens`, {
-                    method: "DELETE",
-                    credentials: "include",
-                  })
-                }}
-              >
-                Unlink Lichess Account
-              </Button>
-            )}
-          </TabsContent>
+                      .then((res) => res.json())
+                      .then((data) => {
+                        const authURL = data.authURL
+                        if (typeof authURL === "string") {
+                          window.location.href = authURL
+                        }
+                      })
+                  }}
+                >
+                  Link Lichess Account
+                </Button>
+              ) : (
+                <Button
+                  variant="destructive"
+                  className="w-full"
+                  onClick={() => {
+                    fetch(`${API_BASE}/lichess/tokens`, {
+                      method: "DELETE",
+                      credentials: "include",
+                    })
+                  }}
+                >
+                  Unlink Lichess Account
+                </Button>
+              )}
+            </TabsContent>
+          </div>
         </Tabs>
       </DialogContent>
     </Dialog>
