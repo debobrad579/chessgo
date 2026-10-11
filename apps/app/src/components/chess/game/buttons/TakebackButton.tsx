@@ -1,21 +1,25 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@chessgo/ui/popover"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@chessgo/ui/tooltip"
 import { useState } from "react"
-import { useChessGameContext } from "../ChessGameContext"
 import { Button } from "@chessgo/ui/button"
 import { Undo2 } from "lucide-react"
 
 export function TakebackButton({
   playerColor,
-  disabled,
+  pendingTakeback,
+  handleTakeback,
+  disabled = false,
+  hidden = false,
 }: {
   playerColor: "w" | "b"
-  disabled: boolean
+  pendingTakeback: "w" | "b" | "n"
+  handleTakeback: (accept: boolean) => void
+  disabled?: boolean
+  hidden?: boolean
 }) {
-  const { pendingTakeback, handleTakeback } = useChessGameContext()
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
-  if (handleTakeback == null) return
+  if (hidden) return
 
   const takebackActive =
     pendingTakeback !== "n" && playerColor !== pendingTakeback

@@ -7,6 +7,8 @@ import { useWebSocket } from "@/hooks/useWebSocket"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { API_BASE } from "@/lib/api"
 import { useSettings } from "@/context/SettingsContext"
+import { ResignButton } from "@/components/chess/game/buttons/ResignButton"
+import { RematchButton } from "@/components/chess/game/buttons/RematchButton"
 
 const PING_TIMEOUT_MS = 90_000
 
@@ -101,12 +103,22 @@ export default function BotPage() {
             })
           }
         }}
-        handleResign={() => sendJsonMessage({ type: "resign" })}
-        handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
-        rematchRequest={"n"}
         whiteConnected={user.id === gameData.white.id ? connected : undefined}
         blackConnected={user.id === gameData.black.id ? connected : undefined}
         clockType="no-clocks"
+        gameButtons={[
+          <ResignButton
+            handleResign={() => sendJsonMessage({ type: "resign" })}
+            disabled={gameData.moves.length === 0}
+            hidden={gameData.result !== "*"}
+          />,
+          <RematchButton
+            playerColor={user.id === gameData.white.id ? "w" : "b"}
+            rematchRequest="n"
+            handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
+            hidden={gameData.result === "*"}
+          />,
+        ]}
       />
       <audio src="/sounds/notify.mp3" ref={audioRef} />
     </>

@@ -1,4 +1,9 @@
-import { type Dispatch, type SetStateAction, forwardRef } from "react"
+import {
+  type Dispatch,
+  type SetStateAction,
+  forwardRef,
+  type ReactNode,
+} from "react"
 import type { Game, Move, Player, Result, TimeControl } from "@/types/chess"
 import type { ChessboardProps } from "../board"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
@@ -21,17 +26,8 @@ export type ChessGameProps = {
   game: Chess
   timeControl: TimeControl
   clockType: ClockType
+  gameButtons: ReactNode[]
   onMove?: (move: Move) => void
-  handleResign?: () => void
-  handleOfferDraw?: () => void
-  handleRespondToDrawOffer?: (accept: boolean) => void
-  handleTakeback?: (accept: boolean) => void
-  handleNewGame?: () => void
-  isNewGameLoading?: boolean
-  pendingDrawOffer?: "w" | "b" | "n"
-  pendingTakeback?: "w" | "b" | "n"
-  rematchRequest?: "w" | "b" | "n"
-  handleRematch?: () => void
   whiteConnected?: boolean
   blackConnected?: boolean
   previousMove?: Move
@@ -48,37 +44,12 @@ export const ChessGame = forwardRef<
     gameData: Game
     clockType?: ClockType
     onMove?: ChessboardProps["onMove"]
-    handleResign?: () => void
-    handleOfferDraw?: () => void
-    handleRespondToDrawOffer?: (accept: boolean) => void
-    handleTakeback?: (accept: boolean) => void
-    handleNewGame?: () => void
-    isNewGameLoading?: boolean
-    pendingDrawOffer?: "w" | "b" | "n"
-    pendingTakeback?: "w" | "b" | "n"
-    rematchRequest?: "w" | "b" | "n"
-    handleRematch?: () => void
     whiteConnected?: boolean
     blackConnected?: boolean
+    gameButtons?: ReactNode[]
   }
 >(function Game(
-  {
-    gameData,
-    clockType,
-    onMove,
-    handleResign,
-    handleOfferDraw,
-    handleRespondToDrawOffer,
-    handleTakeback,
-    handleNewGame,
-    isNewGameLoading,
-    pendingDrawOffer,
-    pendingTakeback,
-    rematchRequest,
-    handleRematch,
-    whiteConnected,
-    blackConnected,
-  },
+  { gameData, clockType, onMove, gameButtons, whiteConnected, blackConnected },
   ref,
 ) {
   const {
@@ -107,20 +78,11 @@ export const ChessGame = forwardRef<
         setUndoCount,
         game,
         onMove,
-        handleResign,
-        handleOfferDraw,
-        handleRespondToDrawOffer,
-        handleTakeback,
-        handleNewGame,
-        isNewGameLoading,
-        rematchRequest,
-        handleRematch,
-        pendingDrawOffer,
-        pendingTakeback,
         whiteConnected,
         blackConnected,
         previousMove: previousMove ?? undefined,
         previousMoveIsCapture,
+        gameButtons: gameButtons ?? [],
       }}
     >
       {mobile ? <MobileGameView /> : <DesktopGameView />}

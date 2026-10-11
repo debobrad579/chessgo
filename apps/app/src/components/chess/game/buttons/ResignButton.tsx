@@ -1,15 +1,21 @@
 import { Tooltip, TooltipContent, TooltipTrigger } from "@chessgo/ui/tooltip"
-import { useChessGameContext } from "../ChessGameContext"
 import { Popover, PopoverContent, PopoverTrigger } from "@chessgo/ui/popover"
 import { Button } from "@chessgo/ui/button"
 import { Flag } from "lucide-react"
 import { useState } from "react"
 
-export function ResignButton({ disabled }: { disabled: boolean }) {
-  const { handleResign } = useChessGameContext()
+export function ResignButton({
+  handleResign,
+  disabled = false,
+  hidden = false,
+}: {
+  handleResign: () => void
+  disabled?: boolean
+  hidden?: boolean
+}) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
-  if (handleResign == null) return
+  if (hidden) return
 
   return (
     <Tooltip>

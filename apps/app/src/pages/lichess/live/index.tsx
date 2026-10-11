@@ -13,6 +13,10 @@ import type { GameState, LichessBoardStreamEvent } from "../types"
 import { Chess } from "chess.js"
 import { useSettings } from "@/context/SettingsContext"
 import { seekGame } from "../utils"
+import { ResignButton } from "@/components/chess/game/buttons/ResignButton"
+import { DrawButton } from "@/components/chess/game/buttons/DrawButton"
+import { TakebackButton } from "@/components/chess/game/buttons/TakebackButton"
+import { NewGameButton } from "@/components/chess/game/buttons/NewGameButton"
 
 type CastlingRights = {
   K: boolean
@@ -372,51 +376,71 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             )
           }
         }}
-        handleResign={() => {
-          fetch(`https://lichess.org/api/board/game/${gameID}/resign`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${lichessAccount.access_token}`,
-            },
-          })
-        }}
-        handleOfferDraw={() => {
-          fetch(`https://lichess.org/api/board/game/${gameID}/draw/yes`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${lichessAccount.access_token}`,
-            },
-          })
-        }}
-        handleRespondToDrawOffer={(accept) => {
-          fetch(
-            `https://lichess.org/api/board/game/${gameID}/draw/${accept ? "yes" : "no"}`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${lichessAccount.access_token}`,
-              },
-            },
-          )
-        }}
-        handleTakeback={(accept) => {
-          fetch(
-            `https://lichess.org/api/board/game/${gameID}/takeback/${accept ? "yes" : "no"}`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${lichessAccount.access_token}`,
-              },
-            },
-          )
-        }}
-        handleNewGame={handleNewGame}
-        isNewGameLoading={isNewGameLoading}
-        pendingDrawOffer={pendingDrawOffer}
-        pendingTakeback={pendingTakeback}
         whiteConnected={gameData.result === "*" ? whiteConnected : undefined}
         blackConnected={gameData.result === "*" ? blackConnected : undefined}
         clockType="lichess"
+        gameButtons={[
+          <ResignButton
+            handleResign={() => {
+              fetch(`https://lichess.org/api/board/game/${gameID}/resign`, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${lichessAccount.access_token}`,
+                },
+              })
+            }}
+            disabled={gameData.moves.length === 0}
+            hidden={gameData.result !== "*"}
+          />,
+          <DrawButton
+            playerColor={user.id === gameData.white.id ? "w" : "b"}
+            pendingDrawOffer={pendingDrawOffer}
+            handleOfferDraw={() => {
+              fetch(`https://lichess.org/api/board/game/${gameID}/draw/yes`, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${lichessAccount.access_token}`,
+                },
+              })
+            }}
+            handleRespondToDrawOffer={(accept: boolean) => {
+              fetch(
+                `https://lichess.org/api/board/game/${gameID}/draw/${accept ? "yes" : "no"}`,
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${lichessAccount.access_token}`,
+                  },
+                },
+              )
+            }}
+            disabled={gameData.moves.length === 0}
+            hidden={gameData.result !== "*"}
+          />,
+          <TakebackButton
+            playerColor={user.id === gameData.white.id ? "w" : "b"}
+            pendingTakeback={pendingTakeback}
+            handleTakeback={(accept: boolean) => {
+              fetch(
+                `https://lichess.org/api/board/game/${gameID}/takeback/${accept ? "yes" : "no"}`,
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${lichessAccount.access_token}`,
+                  },
+                },
+              )
+            }}
+            disabled={gameData.moves.length === 0}
+            hidden={gameData.result !== "*"}
+          />,
+          <NewGameButton
+            timeControl={gameData.time_control}
+            isLoading={isNewGameLoading}
+            handleNewGame={handleNewGame}
+            hidden={gameData.result === "*"}
+          />,
+        ]}
       />
       <audio src="/sounds/notify.mp3" ref={audioRef} />
     </>

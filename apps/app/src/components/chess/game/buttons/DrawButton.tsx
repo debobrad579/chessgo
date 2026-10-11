@@ -1,21 +1,26 @@
 import { Popover, PopoverContent, PopoverTrigger } from "@chessgo/ui/popover"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@chessgo/ui/tooltip"
 import { useState } from "react"
-import { useChessGameContext } from "../ChessGameContext"
 import { Button } from "@chessgo/ui/button"
 
 export function DrawButton({
   playerColor,
-  disabled,
+  pendingDrawOffer,
+  handleOfferDraw,
+  handleRespondToDrawOffer,
+  disabled = false,
+  hidden = false,
 }: {
   playerColor: "w" | "b"
-  disabled: boolean
+  pendingDrawOffer: "w" | "b" | "n"
+  handleOfferDraw: () => void
+  handleRespondToDrawOffer: (accept: boolean) => void
+  disabled?: boolean
+  hidden?: boolean
 }) {
-  const { pendingDrawOffer, handleOfferDraw, handleRespondToDrawOffer } =
-    useChessGameContext()
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
-  if (handleOfferDraw == null || handleRespondToDrawOffer == null) return
+  if (hidden) return
 
   const drawOfferActive =
     pendingDrawOffer !== "n" && playerColor !== pendingDrawOffer
