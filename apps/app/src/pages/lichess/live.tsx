@@ -18,6 +18,7 @@ import { DrawButton } from "@/components/chess/game/buttons/DrawButton"
 import { TakebackButton } from "@/components/chess/game/buttons/TakebackButton"
 import { NewGameButton } from "@/components/chess/game/buttons/NewGameButton"
 import { AbortButton } from "@/components/chess/game/buttons/AbortButton"
+import { ClaimWinButton } from "@/components/chess/game/buttons/ClaimWinButton"
 
 type CastlingRights = {
   K: boolean
@@ -104,6 +105,10 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   })
   const [rated, setRated] = useState(false)
   const [isNewGameLoading, setIsNewGameLoading] = useState(false)
+  const [claimWinInSeconds, setClaimWinInSeconds] = useState<
+    number | undefined
+  >()
+  const [disconnectedAt, setDisconnectedAt] = useState<number | undefined>()
   const abortControllerRef = useRef<AbortController>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
 
@@ -211,6 +216,8 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
           } else {
             setWhiteConnected(!event.gone)
           }
+          setClaimWinInSeconds(event.claimWinInSeconds)
+          setDisconnectedAt(performance.now())
           break
         }
         default: {
@@ -375,81 +382,115 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
         blackConnected={gameData.result === "*" ? blackConnected : undefined}
         clockType="lichess"
         gameButtons={[
-          <ResignButton
-            handleResign={() => {
-              fetch(`https://lichess.org/api/board/game/${gameID}/resign`, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${lichessAccount.access_token}`,
-                },
-              })
-            }}
-            hidden={gameData.moves.length < 2 || gameData.result !== "*"}
-            key="resign-button"
-          />,
-          <AbortButton
-            handleAbort={() => {
-              fetch(`https://lichess.org/api/board/game/${gameID}/abort`, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${lichessAccount.access_token}`,
-                },
-              })
-            }}
-            hidden={gameData.moves.length >= 2 || gameData.result !== "*"}
-            key="resign-button"
-          />,
-          <DrawButton
-            playerColor={user.id === gameData.white.id ? "w" : "b"}
-            pendingDrawOffer={pendingDrawOffer}
-            handleOfferDraw={() => {
-              fetch(`https://lichess.org/api/board/game/${gameID}/draw/yes`, {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${lichessAccount.access_token}`,
-                },
-              })
-            }}
-            handleRespondToDrawOffer={(accept: boolean) => {
-              fetch(
-                `https://lichess.org/api/board/game/${gameID}/draw/${accept ? "yes" : "no"}`,
-                {
+          gameData.moves.length >= 2 ||
+            (gameData.result === "*" && (
+              <ResignButton
+                handleResign={() => {
+                  fetch(`https://lichess.org/api/board/game/${gameID}/resign`, {
+                    method: "POST",
+                    headers: {
+                      Authorization: `Bearer ${lichessAccount.access_token}`,
+                    },
+                  })
+                }}
+                key="resign-button"
+              />
+            )),
+          gameData.moves.length < 2 && gameData.result !== "*" && (
+            <AbortButton
+              handleAbort={() => {
+                fetch(`https://lichess.org/api/board/game/${gameID}/abort`, {
                   method: "POST",
                   headers: {
                     Authorization: `Bearer ${lichessAccount.access_token}`,
                   },
-                },
-              )
-            }}
-            disabled={gameData.moves.length < 2}
-            hidden={gameData.result !== "*"}
-            key="draw-button"
-          />,
-          <TakebackButton
-            playerColor={user.id === gameData.white.id ? "w" : "b"}
-            pendingTakeback={pendingTakeback}
-            handleTakeback={(accept: boolean) => {
-              fetch(
-                `https://lichess.org/api/board/game/${gameID}/takeback/${accept ? "yes" : "no"}`,
-                {
+                })
+              }}
+              key="resign-button"
+            />
+          ),
+          gameData.result === "*" && (
+            <DrawButton
+              playerColor={user.id === gameData.white.id ? "w" : "b"}
+              pendingDrawOffer={pendingDrawOffer}
+              handleOfferDraw={() => {
+                fetch(`https://lichess.org/api/board/game/${gameID}/draw/yes`, {
                   method: "POST",
                   headers: {
                     Authorization: `Bearer ${lichessAccount.access_token}`,
                   },
-                },
-              )
-            }}
-            disabled={gameData.moves.length < 2}
-            hidden={gameData.result !== "*"}
-            key="takeback-button"
-          />,
-          <NewGameButton
-            timeControl={gameData.time_control}
-            isLoading={isNewGameLoading}
-            handleNewGame={handleNewGame}
-            hidden={gameData.result === "*"}
-            key="new-game-button"
-          />,
+                })
+              }}
+              handleRespondToDrawOffer={(accept: boolean) => {
+                fetch(
+                  `https://lichess.org/api/board/game/${gameID}/draw/${accept ? "yes" : "no"}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      Authorization: `Bearer ${lichessAccount.access_token}`,
+                    },
+                  },
+                )
+              }}
+              disabled={gameData.moves.length < 2}
+              key="draw-button"
+            />
+          ),
+          gameData.result === "*" && (
+            <TakebackButton
+              playerColor={user.id === gameData.white.id ? "w" : "b"}
+              pendingTakeback={pendingTakeback}
+              handleTakeback={(accept: boolean) => {
+                fetch(
+                  `https://lichess.org/api/board/game/${gameID}/takeback/${accept ? "yes" : "no"}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      Authorization: `Bearer ${lichessAccount.access_token}`,
+                    },
+                  },
+                )
+              }}
+              disabled={gameData.moves.length < 2}
+              key="takeback-button"
+            />
+          ),
+          claimWinInSeconds != null && disconnectedAt != null && (
+            <ClaimWinButton
+              handleClaimWin={() => {
+                fetch(
+                  `https://lichess.org/api/board/game/${gameID}/claim-victory`,
+                  {
+                    method: "POST",
+                    headers: {
+                      Authorization: `Bearer ${lichessAccount.access_token}`,
+                    },
+                  },
+                )
+              }}
+              handleClaimDraw={() => {
+                fetch(
+                  `https://lichess.org/api/board/game/${gameID}/claim-draw`,
+                  {
+                    method: "POST",
+                    headers: {
+                      Authorization: `Bearer ${lichessAccount.access_token}`,
+                    },
+                  },
+                )
+              }}
+              claimInSeconds={claimWinInSeconds}
+              disconnectedAt={disconnectedAt}
+            />
+          ),
+          gameData.result !== "*" && (
+            <NewGameButton
+              timeControl={gameData.time_control}
+              isLoading={isNewGameLoading}
+              handleNewGame={handleNewGame}
+              key="new-game-button"
+            />
+          ),
         ]}
       />
       <audio src="/sounds/notify.mp3" ref={audioRef} />

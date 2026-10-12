@@ -9,15 +9,11 @@ export function NewGameButton({
   handleNewGame,
   timeControl,
   isLoading = false,
-  hidden = false,
 }: {
   handleNewGame: () => void
   timeControl: TimeControl
   isLoading?: boolean
-  hidden?: boolean
 }) {
-  if (hidden) return
-
   return (
     <Tooltip>
       <TooltipTrigger asChild>

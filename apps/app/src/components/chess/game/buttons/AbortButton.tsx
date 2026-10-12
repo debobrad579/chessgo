@@ -4,16 +4,8 @@ import { Button } from "@chessgo/ui/button"
 import { X } from "lucide-react"
 import { useState } from "react"
 
-export function AbortButton({
-  handleAbort,
-  hidden = false,
-}: {
-  handleAbort: () => void
-  hidden?: boolean
-}) {
+export function AbortButton({ handleAbort }: { handleAbort: () => void }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-
-  if (hidden) return
 
   return (
     <Tooltip>

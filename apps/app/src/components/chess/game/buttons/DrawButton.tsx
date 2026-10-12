@@ -9,18 +9,14 @@ export function DrawButton({
   handleOfferDraw,
   handleRespondToDrawOffer,
   disabled = false,
-  hidden = false,
 }: {
   playerColor: "w" | "b"
   pendingDrawOffer: "w" | "b" | "n"
   handleOfferDraw: () => void
   handleRespondToDrawOffer: (accept: boolean) => void
   disabled?: boolean
-  hidden?: boolean
 }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-
-  if (hidden) return
 
   const drawOfferActive =
     pendingDrawOffer !== "n" && playerColor !== pendingDrawOffer

@@ -108,19 +108,21 @@ export default function BotPage() {
         blackConnected={user.id === gameData.black.id ? connected : undefined}
         clockType="no-clocks"
         gameButtons={[
-          <ResignButton
-            handleResign={() => sendJsonMessage({ type: "resign" })}
-            disabled={gameData.moves.length === 0}
-            hidden={gameData.result !== "*"}
-            key="resign-button"
-          />,
-          <RematchButton
-            playerColor={user.id === gameData.white.id ? "w" : "b"}
-            rematchRequest="n"
-            handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
-            hidden={gameData.result === "*"}
-            key="rematch-button"
-          />,
+          gameData.result === "*" && (
+            <ResignButton
+              handleResign={() => sendJsonMessage({ type: "resign" })}
+              disabled={gameData.moves.length === 0}
+              key="resign-button"
+            />
+          ),
+          gameData.result !== "*" && (
+            <RematchButton
+              playerColor={user.id === gameData.white.id ? "w" : "b"}
+              rematchRequest="n"
+              handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
+              key="rematch-button"
+            />
+          ),
         ]}
       />
       <audio src="/sounds/notify.mp3" ref={audioRef} />

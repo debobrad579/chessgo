@@ -7,15 +7,11 @@ import { useState } from "react"
 export function ResignButton({
   handleResign,
   disabled = false,
-  hidden = false,
 }: {
   handleResign: () => void
   disabled?: boolean
-  hidden?: boolean
 }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-
-  if (hidden) return
 
   return (
     <Tooltip>

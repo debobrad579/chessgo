@@ -187,36 +187,40 @@ function LiveGame({ gameID }: { gameID: string }) {
         blackConnected={blackConnected}
         clockType="per-move"
         gameButtons={[
-          <ResignButton
-            handleResign={() => sendJsonMessage({ type: "resign" })}
-            disabled={gameData.moves.length === 0}
-            hidden={gameData.result !== "*"}
-            key="resign-button"
-          />,
-          <DrawButton
-            playerColor={user.id === gameData.white.id ? "w" : "b"}
-            pendingDrawOffer={pendingDrawOffer}
-            handleOfferDraw={() => sendJsonMessage({ type: "draw_offer" })}
-            handleRespondToDrawOffer={(accept: boolean) => {
-              sendJsonMessage({ type: "draw_response", payload: { accept } })
-            }}
-            disabled={gameData.moves.length === 0}
-            hidden={gameData.result !== "*"}
-            key="draw-button"
-          />,
-          <NewGameButton
-            handleNewGame={handleNewGame}
-            timeControl={gameData.time_control}
-            hidden={gameData.result === "*"}
-            key="new-game-button"
-          />,
-          <RematchButton
-            playerColor={user.id === gameData.white.id ? "w" : "b"}
-            handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
-            rematchRequest={rematchRequest}
-            hidden={gameData.result === "*"}
-            key="rematch-button"
-          />,
+          gameData.result === "*" && (
+            <ResignButton
+              handleResign={() => sendJsonMessage({ type: "resign" })}
+              disabled={gameData.moves.length === 0}
+              key="resign-button"
+            />
+          ),
+          gameData.result === "*" && (
+            <DrawButton
+              playerColor={user.id === gameData.white.id ? "w" : "b"}
+              pendingDrawOffer={pendingDrawOffer}
+              handleOfferDraw={() => sendJsonMessage({ type: "draw_offer" })}
+              handleRespondToDrawOffer={(accept: boolean) => {
+                sendJsonMessage({ type: "draw_response", payload: { accept } })
+              }}
+              disabled={gameData.moves.length === 0}
+              key="draw-button"
+            />
+          ),
+          gameData.result !== "*" && (
+            <NewGameButton
+              handleNewGame={handleNewGame}
+              timeControl={gameData.time_control}
+              key="new-game-button"
+            />
+          ),
+          gameData.result !== "*" && (
+            <RematchButton
+              playerColor={user.id === gameData.white.id ? "w" : "b"}
+              handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
+              rematchRequest={rematchRequest}
+              key="rematch-button"
+            />
+          ),
         ]}
       />
       <audio src="/sounds/notify.mp3" ref={audioRef} />

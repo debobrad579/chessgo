@@ -6,15 +6,11 @@ export function RematchButton({
   playerColor,
   rematchRequest,
   handleRematch,
-  hidden = false,
 }: {
   playerColor: "w" | "b"
   rematchRequest: "w" | "b" | "n"
   handleRematch: () => void
-  hidden?: boolean
 }) {
-  if (hidden) return
-
   return (
     <Tooltip>
       <TooltipTrigger asChild>

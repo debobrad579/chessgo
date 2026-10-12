@@ -9,17 +9,13 @@ export function TakebackButton({
   pendingTakeback,
   handleTakeback,
   disabled = false,
-  hidden = false,
 }: {
   playerColor: "w" | "b"
   pendingTakeback: "w" | "b" | "n"
   handleTakeback: (accept: boolean) => void
   disabled?: boolean
-  hidden?: boolean
 }) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false)
-
-  if (hidden) return
 
   const takebackActive =
     pendingTakeback !== "n" && playerColor !== pendingTakeback

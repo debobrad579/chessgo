@@ -8,6 +8,8 @@ export function useRemainingTime(color: Color) {
   const thinkTime = useThinkTime()
   const firstMoveNumber = color === "w" ? 0 : 1
 
+  if (clockType === "no-clocks") return
+
   const clockMoves =
     clockType === "lichess" ? moves : moves.slice(0, moves.length - undoCount)
 
