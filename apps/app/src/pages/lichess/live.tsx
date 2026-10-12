@@ -217,7 +217,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             setWhiteConnected(!event.gone)
           }
           setClaimWinInSeconds(event.claimWinInSeconds)
-          setDisconnectedAt(performance.now())
+          setDisconnectedAt(event.gone ? performance.now() : undefined)
           break
         }
         default: {
@@ -382,21 +382,20 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
         blackConnected={gameData.result === "*" ? blackConnected : undefined}
         clockType="lichess"
         gameButtons={[
-          gameData.moves.length >= 2 ||
-            (gameData.result === "*" && (
-              <ResignButton
-                handleResign={() => {
-                  fetch(`https://lichess.org/api/board/game/${gameID}/resign`, {
-                    method: "POST",
-                    headers: {
-                      Authorization: `Bearer ${lichessAccount.access_token}`,
-                    },
-                  })
-                }}
-                key="resign-button"
-              />
-            )),
-          gameData.moves.length < 2 && gameData.result !== "*" && (
+          gameData.moves.length >= 2 && gameData.result === "*" && (
+            <ResignButton
+              handleResign={() => {
+                fetch(`https://lichess.org/api/board/game/${gameID}/resign`, {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${lichessAccount.access_token}`,
+                  },
+                })
+              }}
+              key="resign-button"
+            />
+          ),
+          gameData.moves.length < 2 && gameData.result === "*" && (
             <AbortButton
               handleAbort={() => {
                 fetch(`https://lichess.org/api/board/game/${gameID}/abort`, {

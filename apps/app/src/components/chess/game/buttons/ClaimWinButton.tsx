@@ -69,7 +69,7 @@ export function ClaimWinButton({
                 }}
                 disabled={!canClaim}
               >
-                Claim Win
+                Claim Victory
               </Button>
             </div>
           </div>
