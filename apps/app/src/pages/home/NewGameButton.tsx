@@ -23,8 +23,8 @@ import { useLichessAccount } from "@/context/LichessContext"
 import { Switch } from "@chessgo/ui/switch"
 import { Input } from "@chessgo/ui/input"
 import { seekGame } from "../lichess/utils"
-import { Loader2 } from "lucide-react"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
+import { Spinner } from "@chessgo/ui/spinner"
 
 export function NewGameButton() {
   const navigate = useNavigate()
@@ -272,7 +272,7 @@ export function NewGameButton() {
             }}
             className="w-full"
           >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading && <Spinner className="mr-2" />}
             {server === "lichess"
               ? isLoading
                 ? "Seeking"

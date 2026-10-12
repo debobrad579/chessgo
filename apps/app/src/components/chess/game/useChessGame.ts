@@ -115,13 +115,15 @@ export function useChessGame(
         game.move(move)
 
         const now = performance.now()
-        const len = optimisticMoves.length
-        const wasTicking = clockType !== "lichess" || len >= 2
-        const thinkTime = wasTicking ? now - anchor.startedAt : 0
+        const thinkTime =
+          clockType !== "lichess" || optimisticMoves.length >= 2
+            ? now - anchor.startedAt
+            : 0
 
-        const parity = len % 2
-        const last = optimisticMoves.filter((_, i) => i % 2 === parity).at(-1)
-        const prevTimestamp = last?.timestamp ?? gameData.time_control.base
+        const lastMove = optimisticMoves
+          .filter((_, i) => i % 2 === optimisticMoves.length % 2)
+          .at(-1)
+        const prevTimestamp = lastMove?.timestamp ?? gameData.time_control.base
         const optimisticTimestamp =
           prevTimestamp - thinkTime + (gameData.time_control.increment ?? 0)
 
@@ -129,7 +131,7 @@ export function useChessGame(
           ...m,
           { ...move, timestamp: optimisticTimestamp },
         ])
-        setAnchor({ key: `${len + 1}:*`, startedAt: now })
+        setAnchor({ key: `${optimisticMoves.length + 1}:*`, startedAt: now })
         return true
       } catch {
         return false

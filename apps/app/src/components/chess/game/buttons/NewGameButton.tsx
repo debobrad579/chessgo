@@ -1,8 +1,9 @@
 import { Button } from "@chessgo/ui/button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@chessgo/ui/tooltip"
-import { Loader2, Sword } from "lucide-react"
+import { Sword } from "lucide-react"
 import { formatTimeControl } from "@/lib/formatters"
 import type { TimeControl } from "@/types/chess"
+import { Spinner } from "@chessgo/ui/spinner"
 
 export function NewGameButton({
   handleNewGame,
@@ -25,7 +26,7 @@ export function NewGameButton({
           variant={isLoading ? "default" : "ghost"}
           onClick={handleNewGame}
         >
-          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sword />}
+          {isLoading ? <Spinner /> : <Sword />}
         </Button>
       </TooltipTrigger>
       <TooltipContent>
