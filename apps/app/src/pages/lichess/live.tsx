@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router"
-import { GameOverModal } from "./GameOverModal"
+import { GameOverModal } from "@/components/chess/game/GameOverModal"
 import { NotFound } from "@/components/errors/NotFound"
 import { useEffect, useRef, useState } from "react"
 import type { Player, Game, Move, Result } from "@/types/chess"
@@ -9,10 +9,10 @@ import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
 import { useEventStream } from "@/hooks/useEventStream"
 import { useLichessAccount } from "@/context/LichessContext"
 import { Unauthorized } from "@/components/errors/Unauthorized"
-import type { GameState, LichessBoardStreamEvent } from "../types"
+import type { GameState, LichessBoardStreamEvent } from "./types"
 import { Chess } from "chess.js"
 import { useSettings } from "@/context/SettingsContext"
-import { seekGame } from "../utils"
+import { seekGame } from "./utils"
 import { ResignButton } from "@/components/chess/game/buttons/ResignButton"
 import { DrawButton } from "@/components/chess/game/buttons/DrawButton"
 import { TakebackButton } from "@/components/chess/game/buttons/TakebackButton"
@@ -338,8 +338,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
                   : "loss"
         }
         reason={resultReason}
-        time={gameData.time_control.base / 60_000}
-        increment={gameData.time_control.increment / 1000}
+        timeControl={gameData.time_control}
         handleNewGame={handleNewGame}
         isNewGameLoading={isNewGameLoading}
       />
@@ -391,6 +390,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             }}
             disabled={gameData.moves.length === 0}
             hidden={gameData.result !== "*"}
+            key="resign-button"
           />,
           <DrawButton
             playerColor={user.id === gameData.white.id ? "w" : "b"}
@@ -416,6 +416,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             }}
             disabled={gameData.moves.length === 0}
             hidden={gameData.result !== "*"}
+            key="draw-button"
           />,
           <TakebackButton
             playerColor={user.id === gameData.white.id ? "w" : "b"}
@@ -439,8 +440,10 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             isLoading={isNewGameLoading}
             handleNewGame={handleNewGame}
             hidden={gameData.result === "*"}
+            key="new-game-button"
           />,
         ]}
+        key="takeback-button"
       />
       <audio src="/sounds/notify.mp3" ref={audioRef} />
     </>

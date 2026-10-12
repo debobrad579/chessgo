@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router"
-import { GameOverModal } from "./GameOverModal"
+import { GameOverModal } from "@/components/chess/game/GameOverModal"
 import { NotFound } from "@/components/errors/NotFound"
 import { useEffect, useRef, useState } from "react"
 import { assertLiveGame, type Game } from "@/types/chess"
@@ -191,6 +191,7 @@ function LiveGame({ gameID }: { gameID: string }) {
             handleResign={() => sendJsonMessage({ type: "resign" })}
             disabled={gameData.moves.length === 0}
             hidden={gameData.result !== "*"}
+            key="resign-button"
           />,
           <DrawButton
             playerColor={user.id === gameData.white.id ? "w" : "b"}
@@ -201,17 +202,20 @@ function LiveGame({ gameID }: { gameID: string }) {
             }}
             disabled={gameData.moves.length === 0}
             hidden={gameData.result !== "*"}
+            key="draw-button"
           />,
           <NewGameButton
             handleNewGame={handleNewGame}
             timeControl={gameData.time_control}
             hidden={gameData.result === "*"}
+            key="new-game-button"
           />,
           <RematchButton
             playerColor={user.id === gameData.white.id ? "w" : "b"}
             handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
             rematchRequest={rematchRequest}
             hidden={gameData.result === "*"}
+            key="rematch-button"
           />,
         ]}
       />

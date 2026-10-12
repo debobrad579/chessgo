@@ -1,4 +1,4 @@
-import { GameOverModal } from "./GameOverModal"
+import { GameOverModal } from "@/components/chess/game/GameOverModal"
 import { useEffect, useRef, useState } from "react"
 import { assertBotGame, type Game } from "@/types/chess"
 import { useUser } from "@/context/UserContext"
@@ -87,6 +87,7 @@ export default function BotPage() {
                 : "loss"
         }
         reason={resultReason}
+        rematchRequest="n"
         handleRematch={() => {
           sendJsonMessage({ type: "rematch_request" })
         }}
@@ -111,12 +112,14 @@ export default function BotPage() {
             handleResign={() => sendJsonMessage({ type: "resign" })}
             disabled={gameData.moves.length === 0}
             hidden={gameData.result !== "*"}
+            key="resign-button"
           />,
           <RematchButton
             playerColor={user.id === gameData.white.id ? "w" : "b"}
             rematchRequest="n"
             handleRematch={() => sendJsonMessage({ type: "rematch_request" })}
             hidden={gameData.result === "*"}
+            key="rematch-button"
           />,
         ]}
       />

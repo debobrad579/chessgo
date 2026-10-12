@@ -25,7 +25,7 @@ export function NewGameButton({
           variant={isLoading ? "default" : "ghost"}
           onClick={handleNewGame}
         >
-          {isLoading ? <Loader2 className="animate-spin" /> : <Sword />}
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sword />}
         </Button>
       </TooltipTrigger>
       <TooltipContent>
