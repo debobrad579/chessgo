@@ -13,12 +13,14 @@ import { DesktopGameView } from "./DesktopGameView"
 import { MobileGameView } from "./MobileGameView"
 import { ChessGameProvider } from "./ChessGameContext"
 
-type ClockType = "no-clocks" | "per-move" | "live" | "lichess"
+type ClockType = "no-clocks" | "per-move" | "lichess"
 
 export type ChessGameProps = {
   moves: Move[]
   result: Result
   thinkTime: number
+  turnStartedAt: number
+  clockRunning: boolean
   undoCount: number
   setUndoCount: Dispatch<SetStateAction<number>>
   white: Player
@@ -55,12 +57,13 @@ export const ChessGame = forwardRef<
   const {
     game,
     optimisticMoves,
-    optimisticThinkTime,
+    turnStartedAt,
+    clockRunning,
     undoCount,
     setUndoCount,
     previousMove,
     previousMoveIsCapture,
-  } = useChessGame(gameData, ref)
+  } = useChessGame(gameData, clockType ?? "per-move", ref)
 
   const mobile = useMediaQuery("(max-aspect-ratio: 7/6)")
 
@@ -69,7 +72,9 @@ export const ChessGame = forwardRef<
       value={{
         moves: optimisticMoves,
         result: gameData.result,
-        thinkTime: optimisticThinkTime,
+        thinkTime: gameData.think_time,
+        turnStartedAt: turnStartedAt,
+        clockRunning: clockRunning,
         white: gameData.white,
         black: gameData.black,
         timeControl: gameData.time_control,

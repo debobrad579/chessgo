@@ -185,7 +185,7 @@ function LiveGame({ gameID }: { gameID: string }) {
         }}
         whiteConnected={whiteConnected}
         blackConnected={blackConnected}
-        clockType={gameData.result === "*" ? "live" : "per-move"}
+        clockType="per-move"
         gameButtons={[
           <ResignButton
             handleResign={() => sendJsonMessage({ type: "resign" })}

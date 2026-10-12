@@ -12,14 +12,43 @@ import type { Game, Move } from "@/types/chess"
 import type { ChessGameHandle } from "."
 import { playerExists } from "./utils"
 
-export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
+const turnKey = (gameData: Game) =>
+  `${gameData.moves.length}:${gameData.result}`
+
+export function useChessGame(
+  gameData: Game,
+  clockType: string,
+  ref: Ref<ChessGameHandle>,
+) {
   const [optimisticMoves, setOptimisticMoves] = useState(gameData.moves)
-  const [optimisticThinkTime, setOptimisticThinkTime] = useState(
-    gameData.think_time,
-  )
   const [undoCount, setUndoCount] = useState(0)
   const previousMoveRef = useRef<Move | null>(null)
   const previousMoveIsCaptureRef = useRef<boolean>(false)
+  const [anchor, setAnchor] = useState({
+    key: turnKey(gameData),
+    startedAt: performance.now() - gameData.think_time,
+  })
+  const [prevGameData, setPrevGameData] = useState(gameData)
+
+  if (gameData !== prevGameData) {
+    setPrevGameData(gameData)
+    setOptimisticMoves(gameData.moves)
+    if (gameData.moves.length !== prevGameData.moves.length) setUndoCount(0)
+
+    const key = turnKey(gameData)
+    const candidate = performance.now() - gameData.think_time
+    setAnchor((a) =>
+      a.key === key
+        ? { key, startedAt: Math.min(a.startedAt, candidate) }
+        : { key, startedAt: candidate },
+    )
+  }
+
+  const clockRunning =
+    clockType !== "no-clocks" &&
+    gameData.result === "*" &&
+    playerExists(gameData.white) &&
+    playerExists(gameData.black)
 
   const game = useMemo(() => {
     const game = new Chess()
@@ -48,7 +77,6 @@ export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
 
   useEffect(() => {
     setOptimisticMoves(gameData.moves)
-    setOptimisticThinkTime(gameData.think_time)
     setUndoCount(0)
 
     if (
@@ -57,14 +85,6 @@ export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
       !playerExists(gameData.black)
     )
       return
-
-    const startTime = Date.now()
-
-    const interval = setInterval(() => {
-      setOptimisticThinkTime(gameData.think_time + (Date.now() - startTime))
-    }, 100)
-
-    return () => clearInterval(interval)
   }, [gameData])
 
   useEventListener("keydown", (e: KeyboardEvent) => {
@@ -90,23 +110,26 @@ export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
 
   useImperativeHandle(ref, () => ({
     makeMove: (move: Move) => {
+      if (undoCount !== 0) return false
       try {
         game.move(move)
 
-        const justMovedIsWhite = game.turn() === "b"
-        const playerMoves = optimisticMoves.filter((_, i) =>
-          justMovedIsWhite ? i % 2 === 0 : i % 2 === 1,
-        )
-        const lastTimestamp =
-          playerMoves.at(-1)?.timestamp ?? gameData.time_control.base
-        const optimisticTimestamp = lastTimestamp - optimisticThinkTime
+        const now = performance.now()
+        const len = optimisticMoves.length
+        const wasTicking = clockType !== "lichess" || len >= 2
+        const thinkTime = wasTicking ? now - anchor.startedAt : 0
 
-        setOptimisticMoves((prev) => [
-          ...prev,
+        const parity = len % 2
+        const last = optimisticMoves.filter((_, i) => i % 2 === parity).at(-1)
+        const prevTimestamp = last?.timestamp ?? gameData.time_control.base
+        const optimisticTimestamp =
+          prevTimestamp - thinkTime + (gameData.time_control.increment ?? 0)
+
+        setOptimisticMoves((m) => [
+          ...m,
           { ...move, timestamp: optimisticTimestamp },
         ])
-        setOptimisticThinkTime(0)
-        setUndoCount(0)
+        setAnchor({ key: `${len + 1}:*`, startedAt: now })
         return true
       } catch {
         return false
@@ -116,7 +139,8 @@ export function useChessGame(gameData: Game, ref: Ref<ChessGameHandle>) {
 
   return {
     optimisticMoves,
-    optimisticThinkTime,
+    turnStartedAt: anchor.startedAt,
+    clockRunning,
     game,
     undoCount,
     setUndoCount,

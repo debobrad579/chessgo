@@ -434,6 +434,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             }}
             disabled={gameData.moves.length === 0}
             hidden={gameData.result !== "*"}
+            key="takeback-button"
           />,
           <NewGameButton
             timeControl={gameData.time_control}
@@ -443,7 +444,6 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
             key="new-game-button"
           />,
         ]}
-        key="takeback-button"
       />
       <audio src="/sounds/notify.mp3" ref={audioRef} />
     </>

@@ -1,5 +1,6 @@
 import { Chessboard } from "@/components/chess/board"
-import { BlackClock, WhiteClock } from "./Clock"
+import { WhiteClock } from "./clocks/WhiteClock"
+import { BlackClock } from "./clocks/BlackClock"
 import { NavigationButtons } from "./NavigationButtons"
 import { ScrollArea, ScrollBar } from "@chessgo/ui/scroll-area"
 import { MoveCell } from "./MoveCell"

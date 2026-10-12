@@ -1,5 +1,6 @@
 import { Chessboard } from "@/components/chess/board"
-import { BlackClock, WhiteClock } from "./Clock"
+import { WhiteClock } from "./clocks/WhiteClock"
+import { BlackClock } from "./clocks/BlackClock"
 import { useRef, useState } from "react"
 import { ScrollArea } from "@chessgo/ui/scroll-area"
 import {
