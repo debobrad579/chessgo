@@ -21,7 +21,7 @@ export function BlackClock() {
       connected={blackConnected}
       timestamp={timestamp}
       result={getResult(result, !(undoCount !== 0 && clockType === "per-move"))}
-      materialScore={materialScore > 0 ? -materialScore : undefined}
+      materialScore={materialScore < 0 ? -materialScore : undefined}
       className="bg-gray-900 text-white hover:bg-gray-800"
     />
   )
