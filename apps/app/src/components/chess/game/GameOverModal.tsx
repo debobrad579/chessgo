@@ -47,9 +47,11 @@ export function GameOverModal({
                   ? "You Lost!"
                   : "Game Drawn!"}
           </DialogTitle>
-          <DialogDescription className="text-center">
-            by {reason}
-          </DialogDescription>
+          {result !== "aborted" && (
+            <DialogDescription className="text-center">
+              by {reason}
+            </DialogDescription>
+          )}
         </DialogHeader>
         <div className="flex gap-2">
           {handleNewGame != null && timeControl != null && (

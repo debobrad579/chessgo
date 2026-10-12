@@ -17,6 +17,7 @@ import { ResignButton } from "@/components/chess/game/buttons/ResignButton"
 import { DrawButton } from "@/components/chess/game/buttons/DrawButton"
 import { TakebackButton } from "@/components/chess/game/buttons/TakebackButton"
 import { NewGameButton } from "@/components/chess/game/buttons/NewGameButton"
+import { AbortButton } from "@/components/chess/game/buttons/AbortButton"
 
 type CastlingRights = {
   K: boolean
@@ -45,7 +46,7 @@ function getResult(state: GameState): Result {
   ) {
     if (state.winner === "white") return "1-0"
     if (state.winner === "black") return "0-1"
-  }
+  } else if (state.status === "aborted") return "aborted"
 
   return "*"
 }
@@ -101,7 +102,6 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
     k: true,
     q: true,
   })
-  const [aborted, setAborted] = useState(false)
   const [rated, setRated] = useState(false)
   const [isNewGameLoading, setIsNewGameLoading] = useState(false)
   const abortControllerRef = useRef<AbortController>(null)
@@ -114,10 +114,6 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
     initial?: number,
     increment?: number,
   ) {
-    if (state.status === "aborted") {
-      setAborted(true)
-    }
-
     setGameData((prevGame) => {
       const w = white ?? prevGame?.white
       const b = black ?? prevGame?.black
@@ -260,7 +256,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   )
 
   useEffect(() => {
-    if (aborted || (gameData != null && gameData.result !== "*")) {
+    if (gameData != null && gameData.result !== "*") {
       if (showGameOverModal) setModalOpen(true)
       if (
         playGameOverSound &&
@@ -269,7 +265,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
       )
         void audioRef.current.play()
     } else setModalOpen(false)
-  }, [gameData?.result, aborted])
+  }, [gameData?.result])
 
   useEffect(() => {
     if (user.id === gameData?.white.id) {
@@ -325,7 +321,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
         open={modalOpen}
         setOpen={setModalOpen}
         result={
-          aborted
+          gameData.result === "aborted"
             ? "aborted"
             : gameData.result === "1/2-1/2"
               ? "draw"
@@ -388,8 +384,19 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
                 },
               })
             }}
-            disabled={gameData.moves.length === 0}
-            hidden={gameData.result !== "*"}
+            hidden={gameData.moves.length < 2 || gameData.result !== "*"}
+            key="resign-button"
+          />,
+          <AbortButton
+            handleAbort={() => {
+              fetch(`https://lichess.org/api/board/game/${gameID}/abort`, {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${lichessAccount.access_token}`,
+                },
+              })
+            }}
+            hidden={gameData.moves.length >= 2 || gameData.result !== "*"}
             key="resign-button"
           />,
           <DrawButton
@@ -414,7 +421,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
                 },
               )
             }}
-            disabled={gameData.moves.length === 0}
+            disabled={gameData.moves.length < 2}
             hidden={gameData.result !== "*"}
             key="draw-button"
           />,
@@ -432,7 +439,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
                 },
               )
             }}
-            disabled={gameData.moves.length === 0}
+            disabled={gameData.moves.length < 2}
             hidden={gameData.result !== "*"}
             key="takeback-button"
           />,

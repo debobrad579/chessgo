@@ -23,7 +23,7 @@ function isMove(move: unknown): move is Move {
   )
 }
 
-export type Result = "1-0" | "0-1" | "1/2-1/2" | "*"
+export type Result = "1-0" | "0-1" | "1/2-1/2" | "*" | "aborted"
 
 function isResult(result: unknown): result is Result {
   return (
