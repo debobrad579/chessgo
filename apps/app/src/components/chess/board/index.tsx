@@ -35,6 +35,7 @@ export function Chessboard({
   const { width, ref } = useBoardWidth()
   const {
     draggedPiece,
+    setDraggedPiece,
     selectedSquare,
     handleDragStart,
     handleDragMove,
@@ -77,6 +78,11 @@ export function Chessboard({
     firstRenderRef.current = false
   }, [fen])
 
+  useEffect(() => {
+    setDraggedPiece(null)
+    setPremove(null)
+  }, [draggablePieces])
+
   const board = parseFEN(fen)
 
   const anchorPos = pendingPromotion
@@ -92,7 +98,7 @@ export function Chessboard({
   return (
     <div
       ref={ref}
-      className="relative grid aspect-square touch-none grid-cols-8 grid-rows-8"
+      className="relative grid aspect-square touch-none grid-cols-8 grid-rows-8 overflow-hidden"
       onPointerDown={(e) => {
         if (e.button !== 2) {
           handleBoardClick()

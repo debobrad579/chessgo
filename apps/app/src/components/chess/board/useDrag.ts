@@ -167,6 +167,7 @@ export function useDrag({
 
   return {
     draggedPiece,
+    setDraggedPiece,
     selectedSquare,
     handleDragStart,
     handleDragMove,

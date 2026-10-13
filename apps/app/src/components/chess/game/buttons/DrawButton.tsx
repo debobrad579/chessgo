@@ -27,7 +27,7 @@ export function DrawButton({
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
             <Button
-              className="text-2xl"
+              className="text-xl"
               size="icon"
               variant={drawOfferActive ? "default" : "ghost"}
               disabled={playerColor === pendingDrawOffer || disabled}

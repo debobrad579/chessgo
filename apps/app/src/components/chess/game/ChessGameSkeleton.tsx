@@ -37,21 +37,6 @@ function NavigationButtonsSkeleton() {
   )
 }
 
-function GameButtonsSkeleton() {
-  return (
-    <div className="flex justify-between gap-2">
-      <div className="flex gap-2">
-        <Skeleton className="h-7 w-7 rounded-md" />
-        <Skeleton className="h-7 w-7 rounded-md" />
-      </div>
-      <div className="flex gap-2">
-        <Skeleton className="h-7 w-7 rounded-md" />
-        <Skeleton className="h-7 w-7 rounded-md" />
-      </div>
-    </div>
-  )
-}
-
 const MOVE_WIDTHS: [number, number][] = [
   [16, 16],
   [20, 24],
@@ -174,7 +159,6 @@ function DesktopGameSkeleton() {
         <ClockSkeleton black />
         <NavigationButtonsSkeleton />
         <MoveTableSkeleton />
-        <GameButtonsSkeleton />
         <ClockSkeleton />
       </div>
     </div>
@@ -189,7 +173,6 @@ function MobileGameSkeleton() {
       <ClockSkeleton />
       <MoveListSkeleton />
       <NavigationButtonsSkeleton />
-      <GameButtonsSkeleton />
     </div>
   )
 }

@@ -64,7 +64,7 @@ export function NewGameButton() {
             onValueChange={(newServer) => {
               setServer(newServer)
             }}
-            disabled={!lichessAccount.connected}
+            disabled={!lichessAccount.connected || isLoading}
           >
             <SelectTrigger className="w-full">
               <SelectValue />
@@ -81,6 +81,7 @@ export function NewGameButton() {
             {customTimeControl ? (
               <>
                 <Input
+                  disabled={isLoading}
                   value={time}
                   onChange={(e) => {
                     const raw = e.target.value
@@ -102,6 +103,7 @@ export function NewGameButton() {
                 />
                 <span>+</span>
                 <Input
+                  disabled={isLoading}
                   value={increment}
                   onChange={(e) => {
                     const raw = e.target.value
@@ -124,6 +126,7 @@ export function NewGameButton() {
               </>
             ) : (
               <Select
+                disabled={isLoading}
                 value={`${time}+${increment}`}
                 onValueChange={(timeControl) => {
                   const plusIndex = timeControl.indexOf("+")
@@ -155,6 +158,7 @@ export function NewGameButton() {
               </Select>
             )}
             <Button
+              disabled={isLoading}
               variant={customTimeControl ? "default" : "secondary"}
               onClick={() => setCustomTimeControl((prev) => !prev)}
             >
@@ -165,7 +169,7 @@ export function NewGameButton() {
             <Switch
               id="rated-switch"
               checked={server === "chessgo" ? false : rated}
-              disabled={server !== "lichess"}
+              disabled={server !== "lichess" || isLoading}
               onCheckedChange={setRated}
             />
             <Label htmlFor="rated-switch">Rated</Label>
@@ -174,7 +178,11 @@ export function NewGameButton() {
           {(server === "chessgo" || !rated) && (
             <>
               <Label>Play as:</Label>
-              <Select value={color} onValueChange={setColor}>
+              <Select
+                disabled={isLoading}
+                value={color}
+                onValueChange={setColor}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
