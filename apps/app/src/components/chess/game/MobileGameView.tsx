@@ -100,7 +100,10 @@ export function MobileGameView() {
         undoCount={undoCount}
         setUndoCount={setUndoCount}
       />
-      <Toolbar handleFlipBoard={() => setFlipBoard((prev) => !prev)} />
+      <Toolbar
+        handleFlipBoard={() => setFlipBoard((prev) => !prev)}
+        showChatButton
+      />
     </div>
   )
 }

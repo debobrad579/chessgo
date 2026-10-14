@@ -409,7 +409,7 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
           user:
             message.user === lichessAccount.username ? user.name : message.user,
         }))}
-        onSendMessage={async (message) => {
+        onSendMessage={(message) => {
           fetch(`https://lichess.org/api/board/game/${gameID}/chat`, {
             method: "POST",
             headers: {

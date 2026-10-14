@@ -168,7 +168,7 @@ export function DesktopGameView() {
               </div>
             </ScrollArea>
             <Textarea
-              className="max-h-[4.85rem] resize-none overflow-hidden"
+              className="max-h-[5.4rem] resize-none overflow-hidden"
               placeholder="Send a message in chat"
               value={message}
               onChange={(e) => setMessage(e.target.value)}
