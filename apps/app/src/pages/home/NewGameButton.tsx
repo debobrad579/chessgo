@@ -25,6 +25,7 @@ import { Input } from "@chessgo/ui/input"
 import { seekGame } from "../lichess/utils"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { Spinner } from "@chessgo/ui/spinner"
+import { cn } from "@/lib/utils"
 
 export function NewGameButton() {
   const navigate = useNavigate()
@@ -58,7 +59,14 @@ export function NewGameButton() {
           <DialogTitle>New Game</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-[1fr_2fr] gap-4">
-          <Label>Server:</Label>
+          <Label
+            className={cn(
+              (!lichessAccount.connected || isLoading) &&
+                "text-muted-foreground",
+            )}
+          >
+            Server:
+          </Label>
           <Select
             value={server}
             onValueChange={(newServer) => {
@@ -76,7 +84,9 @@ export function NewGameButton() {
               </SelectGroup>
             </SelectContent>
           </Select>
-          <Label>Time Control:</Label>
+          <Label className={cn(isLoading && "text-muted-foreground")}>
+            Time Control:
+          </Label>
           <div className="flex items-center gap-2">
             {customTimeControl ? (
               <>
@@ -177,7 +187,9 @@ export function NewGameButton() {
           <div className="text-destructive">{timeControlError}</div>
           {(server === "chessgo" || !rated) && (
             <>
-              <Label>Play as:</Label>
+              <Label className={cn(isLoading && "text-muted-foreground")}>
+                Play as:
+              </Label>
               <Select
                 disabled={isLoading}
                 value={color}
