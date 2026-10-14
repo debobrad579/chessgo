@@ -194,3 +194,26 @@ export function assertBotGame(game: unknown): asserts game is LiveGame {
   if (!("result_reason" in game) || typeof game.result_reason !== "string")
     throw new Error(`Invalid LiveGame: ${JSON.stringify(game)}`)
 }
+
+export type ChatMessage = { text: string; user: string }
+
+export function assertChatMessages(
+  chatMessages: unknown,
+): asserts chatMessages is ChatMessage[] {
+  if (!Array.isArray(chatMessages)) {
+    throw new TypeError("Expected an array of ChatMessage")
+  }
+
+  for (const chatMessage of chatMessages) {
+    if (
+      typeof chatMessage !== "object" ||
+      chatMessage === null ||
+      !("text" in chatMessage) ||
+      typeof chatMessage.text !== "string" ||
+      !("user" in chatMessage) ||
+      typeof chatMessage.user !== "string"
+    ) {
+      throw new TypeError("Invalid ChatMessage in array")
+    }
+  }
+}

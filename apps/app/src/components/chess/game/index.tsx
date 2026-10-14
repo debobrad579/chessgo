@@ -4,7 +4,14 @@ import {
   forwardRef,
   type ReactNode,
 } from "react"
-import type { Game, Move, Player, Result, TimeControl } from "@/types/chess"
+import type {
+  Game,
+  Move,
+  Player,
+  Result,
+  TimeControl,
+  ChatMessage,
+} from "@/types/chess"
 import type { ChessboardProps } from "../board"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
 import { useChessGame } from "./useChessGame"
@@ -18,6 +25,7 @@ type ClockType = "no-clocks" | "per-move" | "lichess"
 export type ChessGameProps = {
   moves: Move[]
   result: Result
+  resultReason: string
   thinkTime: number
   turnStartedAt: number
   clockRunning: boolean
@@ -29,6 +37,9 @@ export type ChessGameProps = {
   timeControl: TimeControl
   clockType: ClockType
   gameButtons: ReactNode[]
+  rated: boolean
+  chat?: ChatMessage[]
+  onSendMessage?: (message: string) => void
   onMove?: (move: Move) => void
   whiteConnected?: boolean
   blackConnected?: boolean
@@ -44,14 +55,29 @@ export const ChessGame = forwardRef<
   ChessGameHandle,
   {
     gameData: Game
+    resultReason: string
+    rated?: boolean
     clockType?: ClockType
     onMove?: ChessboardProps["onMove"]
+    onSendMessage?: ChessGameProps["onSendMessage"]
     whiteConnected?: boolean
     blackConnected?: boolean
     gameButtons?: ReactNode[]
+    chat?: ChatMessage[]
   }
 >(function Game(
-  { gameData, clockType, onMove, gameButtons, whiteConnected, blackConnected },
+  {
+    gameData,
+    resultReason,
+    clockType,
+    onSendMessage,
+    onMove,
+    gameButtons,
+    whiteConnected,
+    blackConnected,
+    chat,
+    rated,
+  },
   ref,
 ) {
   const {
@@ -72,6 +98,7 @@ export const ChessGame = forwardRef<
       value={{
         moves: optimisticMoves,
         result: gameData.result,
+        resultReason,
         thinkTime: gameData.think_time,
         turnStartedAt: turnStartedAt,
         clockRunning: clockRunning,
@@ -88,6 +115,9 @@ export const ChessGame = forwardRef<
         previousMove: previousMove ?? undefined,
         previousMoveIsCapture,
         gameButtons: gameButtons ?? [],
+        chat,
+        onSendMessage,
+        rated: rated ?? false,
       }}
     >
       {mobile ? <MobileGameView /> : <DesktopGameView />}

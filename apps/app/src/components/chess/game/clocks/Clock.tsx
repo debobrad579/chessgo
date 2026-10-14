@@ -59,7 +59,7 @@ export function Clock({
         className,
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         {result === "win" ? (
           <div className="text-green-500">1</div>
         ) : result === "loss" ? (
@@ -69,21 +69,21 @@ export function Clock({
         ) : (
           timestamp != null && <div>{formatMilliseconds(timestamp)}</div>
         )}
-        {materialScore != null && (
-          <div className="text-sm">+{materialScore}</div>
-        )}
+        <div className="w-[2ch] text-sm">
+          {materialScore != null && `+${materialScore}`}
+        </div>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-2">
         {connected != null && (
           <span
             className={cn(
-              "h-2.5 w-2.5 rounded-full",
+              "h-2.5 w-2.5 shrink-0 rounded-full",
               connected ? "bg-green-500" : "bg-red-500",
             )}
           />
         )}
-        <div className="font-bold">{name}</div>
-        {rating != null && <div className="text-sm">({rating})</div>}
+        <div className="truncate font-bold">{name}</div>
+        {rating != null && <div className="shrink-0 text-sm">({rating})</div>}
       </div>
       <audio src="/sounds/lowtime.mp3" ref={audioRef} />
     </div>

@@ -2,7 +2,14 @@ import { useNavigate, useParams } from "react-router"
 import { GameOverModal } from "@/components/chess/game/GameOverModal"
 import { NotFound } from "@/components/errors/NotFound"
 import { useEffect, useRef, useState } from "react"
-import type { Player, Game, Move, Result } from "@/types/chess"
+import {
+  type Player,
+  type Game,
+  type Move,
+  type Result,
+  assertChatMessages,
+  type ChatMessage,
+} from "@/types/chess"
 import { useUser } from "@/context/UserContext"
 import { ChessGameSkeleton } from "@/components/chess/game/ChessGameSkeleton"
 import { ChessGame, type ChessGameHandle } from "@/components/chess/game"
@@ -19,6 +26,7 @@ import { TakebackButton } from "@/components/chess/game/buttons/TakebackButton"
 import { NewGameButton } from "@/components/chess/game/buttons/NewGameButton"
 import { AbortButton } from "@/components/chess/game/buttons/AbortButton"
 import { ClaimWinButton } from "@/components/chess/game/buttons/ClaimWinButton"
+import { useFetch } from "@/hooks/useFetch"
 
 type CastlingRights = {
   K: boolean
@@ -111,6 +119,17 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
   const [disconnectedAt, setDisconnectedAt] = useState<number | undefined>()
   const abortControllerRef = useRef<AbortController>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
+
+  const { data: chat } = useFetch(
+    `https://lichess.org/api/board/game/${gameID}/chat`,
+    {
+      headers: {
+        Authorization: `Bearer ${lichessAccount.access_token}`,
+      },
+    },
+    assertChatMessages,
+  )
+  const [newChatMessages, setNewChatMessages] = useState<ChatMessage[]>([])
 
   function updateGameState(
     state: GameState,
@@ -207,6 +226,10 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
           break
         }
         case "chatLine": {
+          setNewChatMessages((prev) => [
+            ...prev,
+            { text: event.text, user: event.username },
+          ])
           break
         }
         case "opponentGone": {
@@ -381,6 +404,26 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
         whiteConnected={gameData.result === "*" ? whiteConnected : undefined}
         blackConnected={gameData.result === "*" ? blackConnected : undefined}
         clockType="lichess"
+        chat={chat.concat(newChatMessages).map((message) => ({
+          text: message.text,
+          user:
+            message.user === lichessAccount.username ? user.name : message.user,
+        }))}
+        onSendMessage={async (message) => {
+          fetch(`https://lichess.org/api/board/game/${gameID}/chat`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${lichessAccount.access_token}`,
+            },
+            body: new URLSearchParams({
+              room: "player",
+              text: message,
+            }),
+          })
+        }}
+        rated={rated}
+        resultReason={resultReason}
         gameButtons={[
           gameData.moves.length >= 2 && gameData.result === "*" && (
             <ResignButton

@@ -88,6 +88,14 @@ export function useChessGame(
   }, [gameData])
 
   useEventListener("keydown", (e: KeyboardEvent) => {
+    const target = e.target as HTMLElement
+
+    if (
+      document.activeElement?.tagName === "TEXTAREA" ||
+      target.closest('[role="tablist"]')
+    )
+      return
+
     const actions: Record<string, () => void> = {
       ArrowLeft: () => {
         if (undoCount === optimisticMoves.length) return
@@ -102,6 +110,7 @@ export function useChessGame(
         setUndoCount(0)
       },
     }
+
     if (e.key in actions) {
       e.preventDefault()
       actions[e.key]()

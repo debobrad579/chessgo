@@ -1,5 +1,5 @@
 import { Chess, type Color } from "chess.js"
-import type { Move, Player, Result } from "@/types/chess"
+import type { Move, Player, Result, TimeControl } from "@/types/chess"
 
 export function moveToSan(fen: string, move: Move): string | null {
   const chess = new Chess(fen)
@@ -117,4 +117,14 @@ export function getMaterialScore(fen: string): number {
   }
 
   return score
+}
+
+export function timeControlType(timeControl: TimeControl) {
+  const baseSeconds = timeControl.base / 1000
+  const incrementSeconds = timeControl.increment / 1000
+
+  if (baseSeconds + incrementSeconds * 40 < 180) return "Bullet"
+  if (baseSeconds + incrementSeconds * 40 < 480) return "Blitz"
+  if (baseSeconds + incrementSeconds * 40 < 1500) return "Rapid"
+  return "Classical"
 }

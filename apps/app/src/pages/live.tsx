@@ -172,6 +172,7 @@ function LiveGame({ gameID }: { gameID: string }) {
       <ChessGame
         ref={chessGameRef}
         gameData={gameData}
+        resultReason={resultReason}
         onMove={(move) => {
           if (!playerExists(gameData.white) || !playerExists(gameData.black))
             return

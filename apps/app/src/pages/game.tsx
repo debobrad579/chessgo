@@ -17,7 +17,7 @@ function GamePageContent() {
     assertGame,
   )
 
-  return <ChessGame gameData={data} />
+  return <ChessGame resultReason="" gameData={data} />
 }
 
 export default function GamePage() {
