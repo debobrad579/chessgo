@@ -423,7 +423,6 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
           })
         }}
         rated={rated}
-        resultReason={resultReason}
         gameButtons={[
           gameData.moves.length >= 2 && gameData.result === "*" && (
             <ResignButton

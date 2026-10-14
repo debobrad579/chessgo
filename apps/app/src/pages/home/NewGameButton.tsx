@@ -71,6 +71,13 @@ export function NewGameButton() {
             value={server}
             onValueChange={(newServer) => {
               setServer(newServer)
+              if (
+                newServer === "lichess" &&
+                !(parseInt(time) * 60 + parseInt(increment) * 40 >= 480)
+              ) {
+                setTime("10")
+                setIncrement("0")
+              }
             }}
             disabled={!lichessAccount.connected || isLoading}
           >

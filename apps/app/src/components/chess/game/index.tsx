@@ -25,7 +25,6 @@ type ClockType = "no-clocks" | "per-move" | "lichess"
 export type ChessGameProps = {
   moves: Move[]
   result: Result
-  resultReason: string
   thinkTime: number
   turnStartedAt: number
   clockRunning: boolean
@@ -55,7 +54,6 @@ export const ChessGame = forwardRef<
   ChessGameHandle,
   {
     gameData: Game
-    resultReason: string
     rated?: boolean
     clockType?: ClockType
     onMove?: ChessboardProps["onMove"]
@@ -68,7 +66,6 @@ export const ChessGame = forwardRef<
 >(function Game(
   {
     gameData,
-    resultReason,
     clockType,
     onSendMessage,
     onMove,
@@ -98,7 +95,6 @@ export const ChessGame = forwardRef<
       value={{
         moves: optimisticMoves,
         result: gameData.result,
-        resultReason,
         thinkTime: gameData.think_time,
         turnStartedAt: turnStartedAt,
         clockRunning: clockRunning,

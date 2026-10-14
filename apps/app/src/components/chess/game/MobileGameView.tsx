@@ -8,7 +8,7 @@ import { getMoveNumberArrays } from "./utils"
 import { useRef, useState } from "react"
 import { useUser } from "@/context/UserContext"
 import { useChessGameContext } from "./ChessGameContext"
-import { GameButtons } from "./buttons"
+import { Toolbar } from "./Toolbar"
 
 export function MobileGameView() {
   const user = useUser()
@@ -100,7 +100,7 @@ export function MobileGameView() {
         undoCount={undoCount}
         setUndoCount={setUndoCount}
       />
-      <GameButtons handleFlipBoard={() => setFlipBoard((prev) => !prev)} />
+      <Toolbar handleFlipBoard={() => setFlipBoard((prev) => !prev)} />
     </div>
   )
 }

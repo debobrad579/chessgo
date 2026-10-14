@@ -69,7 +69,7 @@ export function Clock({
         ) : (
           timestamp != null && <div>{formatMilliseconds(timestamp)}</div>
         )}
-        <div className="w-[2ch] text-sm">
+        <div className="w-[3ch] text-sm">
           {materialScore != null && `+${materialScore}`}
         </div>
       </div>

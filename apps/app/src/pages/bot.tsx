@@ -96,7 +96,6 @@ export default function BotPage() {
         key={user.id === gameData.white.id ? "white" : "black"}
         ref={chessGameRef}
         gameData={gameData}
-        resultReason={resultReason}
         onMove={(move) => {
           if (chessGameRef.current?.makeMove(move)) {
             sendJsonMessage({

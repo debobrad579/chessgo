@@ -12,23 +12,19 @@ import {
   TableRow,
 } from "@chessgo/ui/table"
 import { MoveCell } from "./MoveCell"
-import { getMoveNumberArrays, timeControlType } from "./utils"
+import { getMoveNumberArrays } from "./utils"
 import { NavigationButtons } from "./NavigationButtons"
-import { GameButtons } from "./buttons"
 import { useUser } from "@/context/UserContext"
 import { useChessGameContext } from "./ChessGameContext"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@chessgo/ui/tabs"
 import { useLocalStorage } from "@/hooks/useLocalStorage"
 import { Textarea } from "@chessgo/ui/textarea"
-import { formatTimeControl } from "@/lib/formatters"
-import { Badge } from "@chessgo/ui/badge"
-import type { Result } from "@/types/chess"
+import { Toolbar } from "./Toolbar"
 
 export function DesktopGameView() {
   const user = useUser()
   const {
     moves,
-    timeControl,
     result,
     undoCount,
     white,
@@ -40,14 +36,12 @@ export function DesktopGameView() {
     previousMoveIsCapture,
     chat,
     onSendMessage,
-    rated,
-    resultReason,
   } = useChessGameContext()
 
   const [message, setMessage] = useState("")
   const [flipBoard, setFlipBoard] = useState(user.id === black.id)
   const tableScrollAreaRef = useRef<HTMLDivElement>(null)
-  const [tab, setTab] = useLocalStorage("lichess-tab", "moves")
+  const [tab, setTab] = useLocalStorage("game-tab", "moves")
 
   return (
     <div className="flex h-full gap-2">
@@ -93,7 +87,7 @@ export function DesktopGameView() {
           {chat != null && (
             <TabsList className="w-full" variant="line">
               <TabsTrigger value="moves">Moves</TabsTrigger>
-              <TabsTrigger value="game">Game</TabsTrigger>
+              <TabsTrigger value="chat">Chat</TabsTrigger>
             </TabsList>
           )}
           <TabsContent value="moves" className="flex min-h-0 flex-1 flex-col">
@@ -161,23 +155,11 @@ export function DesktopGameView() {
             </ScrollArea>
           </TabsContent>
           <TabsContent
-            value="game"
+            value="chat"
             className="flex min-h-0 flex-1 flex-col gap-2"
           >
             <ScrollArea className="flex-1 overflow-hidden">
               <div className="space-y-2">
-                <div className="flex gap-2">
-                  <Badge variant="secondary">
-                    {formatTimeControl(timeControl)} •{" "}
-                    {rated ? "Rated" : "Casual"} •{" "}
-                    {timeControlType(timeControl)}
-                  </Badge>
-                  {result !== "*" && (
-                    <Badge variant="secondary">
-                      {getResultText(result, resultReason)}
-                    </Badge>
-                  )}
-                </div>
                 {chat?.map((message, i) => (
                   <p key={i} className="break-words">
                     [{message.user}]: {message.text}
@@ -202,24 +184,9 @@ export function DesktopGameView() {
             />
           </TabsContent>
         </Tabs>
-        <GameButtons handleFlipBoard={() => setFlipBoard((prev) => !prev)} />
+        <Toolbar handleFlipBoard={() => setFlipBoard((prev) => !prev)} />
         {flipBoard ? <BlackClock /> : <WhiteClock />}
       </div>
     </div>
   )
-}
-
-function getResultText(result: Result, resultReason: string) {
-  switch (result) {
-    case "*":
-      return ""
-    case "aborted":
-      return "Game aborted"
-    case "1-0":
-      return `White won by ${resultReason}`
-    case "0-1":
-      return `Black won by ${resultReason}`
-    case "1/2-1/2":
-      return `Game drawn by ${resultReason}`
-  }
 }
