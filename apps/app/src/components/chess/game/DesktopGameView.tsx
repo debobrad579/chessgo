@@ -86,7 +86,7 @@ export function DesktopGameView() {
           setUndoCount={setUndoCount}
         />
         <Tabs
-          value={tab}
+          value={chat == null ? "moves" : tab}
           onValueChange={(value) => setTab(value)}
           className="flex min-h-0 flex-1 flex-col"
         >
