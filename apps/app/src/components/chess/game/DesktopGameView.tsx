@@ -1,7 +1,7 @@
 import { Chessboard } from "@/components/chess/board"
 import { WhiteClock } from "./clocks/WhiteClock"
 import { BlackClock } from "./clocks/BlackClock"
-import { useRef, useState } from "react"
+import { useRef, useState, useEffect } from "react"
 import { ScrollArea } from "@chessgo/ui/scroll-area"
 import {
   Table,
@@ -42,6 +42,15 @@ export function DesktopGameView() {
   const [flipBoard, setFlipBoard] = useState(user.id === black.id)
   const tableScrollAreaRef = useRef<HTMLDivElement>(null)
   const [tab, setTab] = useLocalStorage("game-tab", "moves")
+  const [read, setRead] = useState(false)
+
+  useEffect(() => {
+    if (chat != null && tab !== "chat") setRead(false)
+  }, [chat])
+
+  useEffect(() => {
+    if (chat != null && tab === "chat") setRead(true)
+  }, [tab])
 
   return (
     <div className="flex h-full gap-2">
@@ -87,7 +96,12 @@ export function DesktopGameView() {
           {chat != null && (
             <TabsList className="w-full" variant="line">
               <TabsTrigger value="moves">Moves</TabsTrigger>
-              <TabsTrigger value="chat">Chat</TabsTrigger>
+              <TabsTrigger value="chat" className="relative">
+                Chat{" "}
+                {!read && chat.length !== 0 && (
+                  <span className="absolute ml-12 h-1.5 w-1.5 shrink-0 rounded-full bg-primary" />
+                )}
+              </TabsTrigger>
             </TabsList>
           )}
           <TabsContent value="moves" className="flex min-h-0 flex-1 flex-col">

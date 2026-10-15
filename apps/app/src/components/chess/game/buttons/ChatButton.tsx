@@ -8,22 +8,35 @@ import {
   SheetTrigger,
 } from "@chessgo/ui/sheet"
 import { Textarea } from "@chessgo/ui/textarea"
-import { MessageSquare } from "lucide-react"
-import { useChessGameContext } from "../ChessGameContext"
-import { useState } from "react"
+import { MessageSquare, MessageSquareDot } from "lucide-react"
+import { useState, useEffect } from "react"
 import { ScrollArea } from "@chessgo/ui/scroll-area"
+import type { ChatMessage } from "@/types/chess"
 
-export function ChatButton() {
-  const { chat, onSendMessage } = useChessGameContext()
+export function ChatButton({
+  chat,
+  onSendMessage,
+}: {
+  chat: ChatMessage[]
+  onSendMessage: (message: string) => void
+}) {
   const [message, setMessage] = useState("")
+  const [read, setRead] = useState(false)
+  const [open, setOpen] = useState(false)
 
-  if (chat == null) return
+  useEffect(() => {
+    if (!open) setRead(false)
+  }, [chat])
+
+  useEffect(() => {
+    if (open) setRead(true)
+  }, [open])
 
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button size="icon" variant="ghost">
-          <MessageSquare />
+          {chat.length === 0 || read ? <MessageSquare /> : <MessageSquareDot />}
         </Button>
       </SheetTrigger>
       <SheetContent side="bottom">

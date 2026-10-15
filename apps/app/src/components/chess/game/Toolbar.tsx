@@ -13,13 +13,16 @@ export function Toolbar({
   handleFlipBoard: () => void
   showChatButton?: boolean
 }) {
-  const { gameButtons, timeControl, rated, clockType } = useChessGameContext()
+  const { gameButtons, timeControl, rated, clockType, chat, onSendMessage } =
+    useChessGameContext()
 
   return (
     <div className="@container flex justify-between gap-2 overflow-hidden">
       <div className="flex items-center gap-2">{gameButtons}</div>
       <div className="flex items-center gap-2">
-        {showChatButton && <ChatButton />}
+        {showChatButton && chat != null && onSendMessage != null && (
+          <ChatButton chat={chat} onSendMessage={onSendMessage} />
+        )}
         <FlipBoardButton handleFlipBoard={handleFlipBoard} />
         <CopyURLButton />
         {clockType !== "no-clocks" && (

@@ -23,6 +23,8 @@ export function MobileGameView() {
     onMove,
     previousMove,
     previousMoveIsCapture,
+    chat,
+    onSendMessage,
   } = useChessGameContext()
 
   const [flipBoard, setFlipBoard] = useState(user.id === black.id)
