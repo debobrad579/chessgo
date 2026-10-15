@@ -37,6 +37,7 @@ export function Chessboard({
     draggedPiece,
     setDraggedPiece,
     selectedSquare,
+    setSelectedSquare,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
@@ -80,6 +81,7 @@ export function Chessboard({
 
   useEffect(() => {
     setDraggedPiece(null)
+    setSelectedSquare(null)
     setPremove(null)
   }, [draggablePieces])
 

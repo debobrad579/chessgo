@@ -169,6 +169,7 @@ export function useDrag({
     draggedPiece,
     setDraggedPiece,
     selectedSquare,
+    setSelectedSquare,
     handleDragStart,
     handleDragMove,
     handleDragEnd,
