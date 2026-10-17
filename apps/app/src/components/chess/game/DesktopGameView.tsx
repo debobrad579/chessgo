@@ -44,9 +44,17 @@ export function DesktopGameView() {
   const [tab, setTab] = useLocalStorage("game-tab", "moves")
   const [read, setRead] = useState(false)
 
+  const chatString =
+    chat == null || chat.length === 0
+      ? ""
+      : chat.reduce((acc, message) => ({
+          user: "",
+          text: acc + `${message.user}${message.text}`,
+        })).text
+
   useEffect(() => {
     if (chat != null && tab !== "chat") setRead(false)
-  }, [chat])
+  }, [chatString])
 
   useEffect(() => {
     if (chat != null && tab === "chat") setRead(true)

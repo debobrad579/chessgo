@@ -24,9 +24,17 @@ export function ChatButton({
   const [read, setRead] = useState(false)
   const [open, setOpen] = useState(false)
 
+  const chatString =
+    chat.length === 0
+      ? ""
+      : chat.reduce((acc, message) => ({
+          user: "",
+          text: acc + `${message.user}${message.text}`,
+        })).text
+
   useEffect(() => {
     if (!open) setRead(false)
-  }, [chat])
+  }, [chatString])
 
   useEffect(() => {
     if (open) setRead(true)
