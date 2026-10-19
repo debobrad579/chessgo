@@ -2,6 +2,10 @@ use crate::{position::Position, search::Search};
 
 impl Search {
     pub fn quiescence(&mut self, position: &mut Position, mut alpha: i32, beta: i32) -> i32 {
+        if self.stopped() {
+            return 0;
+        }
+
         self.nodes += 1;
 
         let stand_pat = position.evaluation(position.turn());
@@ -29,6 +33,10 @@ impl Search {
             }
 
             alpha = alpha.max(evaluation);
+        }
+
+        if self.stopped() {
+            return 0;
         }
 
         alpha

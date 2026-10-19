@@ -7,7 +7,10 @@ use std::{
 
 use oxchess::{
     position::Position,
-    uci::{go::go_cmd, position::position_cmd},
+    uci::{
+        go::{UciSearch, go_cmd},
+        position::position_cmd,
+    },
 };
 
 fn main() {
@@ -35,7 +38,8 @@ fn handle_client(mut stream: TcpStream) {
     let reader_stream = stream.try_clone().unwrap();
     let mut reader = BufReader::new(reader_stream);
 
-    let mut game_state: Option<Position> = None;
+    let mut current_position: Option<Position> = None;
+    let mut current_search: Option<UciSearch> = None;
 
     println!("Connected: {}", peer);
 
@@ -58,7 +62,7 @@ fn handle_client(mut stream: TcpStream) {
                     writeln!(stream, "readyok").unwrap();
                 }
                 ["ucinewgame", ..] => {
-                    game_state = match position_cmd(&["startpos"]) {
+                    current_position = match position_cmd(&["startpos"]) {
                         Ok(position) => Some(position),
                         Err(e) => {
                             writeln!(stream, "{}", e).unwrap();
@@ -67,7 +71,7 @@ fn handle_client(mut stream: TcpStream) {
                     }
                 }
                 ["position", args @ ..] => {
-                    game_state = match position_cmd(args) {
+                    current_position = match position_cmd(args) {
                         Ok(position) => Some(position),
                         Err(e) => {
                             writeln!(stream, "{}", e).unwrap();
@@ -76,22 +80,36 @@ fn handle_client(mut stream: TcpStream) {
                     }
                 }
                 ["go", args @ ..] => {
-                    if let Some(ref mut game_state) = game_state {
-                        let search = match go_cmd(game_state, args) {
-                            Ok(search) => search,
+                    if let Some(game_state) = current_position.as_ref() {
+                        if let Some(search) = current_search.take() {
+                            search.stop();
+                        }
+
+                        let mut out = match stream.try_clone() {
+                            Ok(s) => s,
                             Err(e) => {
-                                writeln!(stream, "{}", e).unwrap();
+                                writeln!(stream, "failed to clone stream: {}", e).unwrap();
                                 continue;
                             }
                         };
 
-                        if let Some(bestmove) = search.bestmove() {
-                            writeln!(stream, "bestmove {}", bestmove).unwrap();
-                        } else {
-                            writeln!(stream, "no legal moves").unwrap();
-                        }
+                        match go_cmd(game_state.clone(), args, move |bestmove| {
+                            if let Some(bestmove) = bestmove {
+                                writeln!(out, "bestmove {}", bestmove).unwrap();
+                            } else {
+                                writeln!(out, "no legal moves").unwrap();
+                            }
+                        }) {
+                            Ok(search) => current_search = Some(search),
+                            Err(e) => writeln!(stream, "{}", e).unwrap(),
+                        };
                     } else {
                         writeln!(stream, "game not initialized").unwrap();
+                    }
+                }
+                ["stop"] => {
+                    if let Some(search) = current_search.take() {
+                        search.stop();
                     }
                 }
                 _ => writeln!(stream, "unknown command").unwrap(),

@@ -92,7 +92,7 @@ func (room *gameRoom) getEngineMove(state *chess.GameState) (*chess.Move, error)
 	}
 
 	fmt.Fprintf(conn, "%s\n", positionCmd.String())
-	fmt.Fprintf(conn, "go depth 7\n")
+	fmt.Fprintf(conn, "go movetime 1500\n")
 
 	message, err := bufio.NewReader(conn).ReadString('\n')
 	if err != nil {

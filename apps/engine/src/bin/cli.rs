@@ -2,11 +2,15 @@ use std::io;
 
 use oxchess::{
     position::Position,
-    uci::{go::go_cmd, position::position_cmd},
+    uci::{
+        go::{UciSearch, go_cmd},
+        position::position_cmd,
+    },
 };
 
 fn main() {
-    let mut game_state: Option<Position> = None;
+    let mut current_position: Option<Position> = None;
+    let mut current_search: Option<UciSearch> = None;
 
     loop {
         let mut input = String::new();
@@ -23,7 +27,7 @@ fn main() {
             }
             ["isready", ..] => println!("readyok"),
             ["ucinewgame"] => {
-                game_state = match position_cmd(&["startpos"]) {
+                current_position = match position_cmd(&["startpos"]) {
                     Ok(position) => Some(position),
                     Err(e) => {
                         eprintln!("{}", e);
@@ -32,7 +36,7 @@ fn main() {
                 }
             }
             ["position", args @ ..] => {
-                game_state = match position_cmd(args) {
+                current_position = match position_cmd(args) {
                     Ok(position) => Some(position),
                     Err(e) => {
                         eprintln!("{}", e);
@@ -41,23 +45,28 @@ fn main() {
                 }
             }
             ["go", args @ ..] => {
-                if let Some(ref mut game_state) = game_state {
-                    let search = match go_cmd(game_state, args) {
-                        Ok(search) => search,
-                        Err(e) => {
-                            eprintln!("{}", e);
-                            continue;
-                        }
-                    };
-                    println!("nodes {}", search.nodes());
-
-                    if let Some(bestmove) = search.bestmove() {
-                        println!("bestmove {}", bestmove);
-                    } else {
-                        eprintln!("no legal moves")
+                if let Some(ref mut game_state) = current_position {
+                    if let Some(search) = current_search.take() {
+                        search.stop();
                     }
+
+                    match go_cmd(game_state.clone(), args, |bestmove| {
+                        if let Some(bestmove) = bestmove {
+                            println!("bestmove {}", bestmove);
+                        } else {
+                            eprintln!("no legal moves")
+                        }
+                    }) {
+                        Ok(search) => current_search = Some(search),
+                        Err(e) => eprintln!("{}", e),
+                    };
                 } else {
                     eprintln!("game not initialized");
+                }
+            }
+            ["stop"] => {
+                if let Some(search) = current_search.take() {
+                    search.stop();
                 }
             }
             _ => eprintln!("unknown command"),

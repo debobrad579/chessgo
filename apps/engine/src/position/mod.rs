@@ -6,7 +6,7 @@ mod hash;
 pub mod fen;
 pub mod movegen;
 
-#[derive(Debug, PartialEq, Default)]
+#[derive(Clone, Debug, PartialEq, Default)]
 pub struct Position {
     turn: Color,
     castling_rights: u8,

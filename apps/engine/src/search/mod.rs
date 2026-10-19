@@ -1,3 +1,8 @@
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
+
 use crate::types::{ColorArray, Move};
 
 mod negamax;
@@ -15,6 +20,7 @@ pub struct Search {
     pv_table: [[Option<Move>; MAX_PLY]; MAX_PLY],
     pv_length: [usize; MAX_PLY],
     tt: tt::TranspositionTable,
+    stop: Option<Arc<AtomicBool>>,
 }
 
 impl Default for Search {
@@ -26,12 +32,27 @@ impl Default for Search {
             pv_table: [[None; MAX_PLY]; MAX_PLY],
             pv_length: [0; MAX_PLY],
             tt: tt::TranspositionTable::new(10),
+            stop: None,
         }
     }
 }
 
 impl Search {
+    pub fn new(stop: Arc<AtomicBool>) -> Self {
+        Self {
+            stop: Some(stop),
+            ..Default::default()
+        }
+    }
+
     pub fn nodes(&self) -> u32 {
         self.nodes
+    }
+
+    pub fn stopped(&self) -> bool {
+        match self.stop.as_ref() {
+            Some(stop) => stop.load(Ordering::Relaxed),
+            None => false,
+        }
     }
 }
