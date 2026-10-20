@@ -2,6 +2,7 @@ pub mod magic_numbers;
 
 mod leapers;
 mod magic_bitboards;
+mod masks;
 mod sliders;
 
 macro_rules! compute_table {
@@ -30,6 +31,11 @@ static MAGIC_BISHOP_ATTACKS: [[u64; 512]; 64] =
     compute_table!(magic_bitboards::compute_bishop_magic_bitboards);
 static MAGIC_ROOK_ATTACKS: [[u64; 4096]; 64] =
     compute_table!(magic_bitboards::compute_rook_magic_bitboards);
+
+pub static WHITE_PASSED_PAWN_MASKS: [u64; 64] =
+    compute_table!(masks::compute_white_passed_pawn_mask);
+pub static BLACK_PASSED_PAWN_MASKS: [u64; 64] =
+    compute_table!(masks::compute_black_passed_pawn_mask);
 
 #[inline(always)]
 pub fn get_bishop_attacks(square: usize, occupancy: u64) -> u64 {

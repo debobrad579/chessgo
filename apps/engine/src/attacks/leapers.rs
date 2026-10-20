@@ -1,7 +1,4 @@
-const NOT_A: u64 = 0xFEFEFEFEFEFEFEFE;
-const NOT_H: u64 = 0x7F7F7F7F7F7F7F7F;
-const NOT_AB: u64 = 0xFCFCFCFCFCFCFCFC;
-const NOT_GH: u64 = 0x3F3F3F3F3F3F3F3F;
+use crate::attacks::masks::{NOT_A, NOT_AB, NOT_GH, NOT_H};
 
 pub(super) const fn compute_white_pawn_attacks(square: usize) -> u64 {
     let bit = 1u64 << square;
