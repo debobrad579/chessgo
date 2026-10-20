@@ -48,8 +48,9 @@ Visit [chessgo.ca](https://www.chessgo.ca)
 - [cargo-watch](https://github.com/watchexec/cargo-watch) — `cargo install cargo-watch`
 - [goose](https://github.com/pressly/goose) — `go install github.com/pressly/goose/v3/cmd/goose@latest`
 - [just](https://github.com/casey/just) (optional, required to run commands via `just`) — `cargo install just`
-- [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
 - [air](https://github.com/air-verse/air) (optional, required for `just dev`) — `go install github.com/air-verse/air@latest`
+- [sqlc](https://sqlc.dev/) (optional, required for `just generate`) — `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest`
+- [fastchess](https://github.com/Disservin/fastchess/) (optional, required for `just sprt`)
 
 1. **Clone the repository**
 
@@ -107,8 +108,10 @@ Open the app at [http://localhost:4321](http://localhost:4321)
 | `just dev` | Start development environment |
 | `just lint <api\|app\|www>` | Lint application |
 | `just lint-all` | Lint all applications in parallel |
-| `just perft [depth=6]` | Run engine perft |
-| `just search [depth=6]` | Test engine search |
+| `just perft [depth=6]` | Run engine move generation performance test |
+| `just search [depth=6]` | Run engine search node count test |
+| `just sprt <new> <old> [rounds=200] [threads=4]` | Run engine sequential probability ratio test |
+| `just build-sprt <name>` | Build an engine binary for SPRT |
 | `just test <api\|bot>` | Run tests |
 | `just test-all` | Run all tests in parallel |
 | `just generate` | Regenerate sqlc query code |

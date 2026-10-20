@@ -73,15 +73,37 @@ test-all:
     "cd apps/api && go test ./..." \
     "cd apps/engine && cargo test --color=always"
 
-# Run engine perft
-[group("dev")]
+# Run engine move generation performance test
+[group("engine")]
 perft depth="6":
   @cd apps/engine && cargo run --bin perft --release -- {{depth}}
 
-# Test engine search
-[group("dev")]
+# Run engine search node count test
+[group("engine")]
 search depth="6":
   @cd apps/engine && cargo run --bin search --release -- {{depth}}
+
+# Run engine sequential probability ratio test
+[group("engine")]
+[arg("rounds", long="rounds")]
+[arg("threads", long="threads")]
+sprt new old rounds="200" threads="4":
+  @fastchess \
+    -config outname=./apps/engine/target/sprt.json \
+    -engine cmd=./apps/engine/target/sprt/{{new}} name={{new}} \
+    -engine cmd=./apps/engine/target/sprt/{{old}} name={{old}} \
+    -openings file="$SPRT_BOOK_FILEPATH" format=pgn order=random \
+    -rounds {{rounds}} -repeat -concurrency {{threads}} \
+    -each tc=1+0.1 timemargin=1000 \
+    -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05
+
+# Build an engine binary for SPRT
+[group("engine")]
+build-sprt name:
+  @cd apps/engine && cargo build --release --bin cli
+  @mkdir -p apps/engine/target/sprt
+  @cp apps/engine/target/release/cli apps/engine/target/sprt/{{name}}
+
 
 # Regenerate sqlc query code
 [group("dev")]

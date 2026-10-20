@@ -9,18 +9,17 @@ use std::{
 
 use thiserror::Error;
 
-use crate::{position::Position, search::Search, types::Move, uci::position::MoveError};
+use crate::{
+    position::Position,
+    search::Search,
+    types::{Color, Move},
+    uci::position::MoveError,
+};
 
 #[derive(Debug, Error)]
 pub enum GoCmdError {
     #[error("invalid arguments")]
     InvalidArgs,
-
-    #[error("invalid depth: {0}")]
-    InvalidDepth(String),
-
-    #[error("invalid movetime: {0}")]
-    InvalidMovetime(String),
 
     #[error(transparent)]
     MoveError(#[from] MoveError),
@@ -42,42 +41,64 @@ pub fn go_cmd<F>(position: Position, args: &[&str], on_done: F) -> Result<UciSea
 where
     F: FnOnce(Option<Move>) + Send + 'static,
 {
-    match args {
-        ["depth", depth] => {
-            let depth: u32 = depth
-                .parse()
-                .map_err(|_| GoCmdError::InvalidDepth(depth.to_string()))?;
+    let mut max_depth: Option<u32> = None;
+    let mut movetime: Option<u64> = None;
+    let mut wtime: Option<u64> = None;
+    let mut btime: Option<u64> = None;
+    let mut winc: u64 = 0;
+    let mut binc: u64 = 0;
 
-            let stop = Arc::new(AtomicBool::new(false));
-            let thread = iterative_search(position, Some(depth), stop.clone(), on_done);
-            Ok(UciSearch { stop, thread })
+    let mut iter = args.iter();
+
+    while let Some(arg) = iter.next() {
+        if *arg == "infinite" {
+            continue;
         }
-        ["infinite"] => {
-            let stop = Arc::new(AtomicBool::new(false));
-            let thread = iterative_search(position, None, stop.clone(), on_done);
-            Ok(UciSearch { stop, thread })
+
+        let value = iter.next().and_then(|v| v.parse::<u64>().ok());
+
+        match (*arg, value) {
+            ("depth", Some(v)) => max_depth = Some(v as u32),
+            ("movetime", Some(v)) => movetime = Some(v),
+            ("wtime", Some(v)) => wtime = Some(v),
+            ("btime", Some(v)) => btime = Some(v),
+            ("winc", Some(v)) => winc = v,
+            ("binc", Some(v)) => binc = v,
+            ("movestogo", Some(_)) => {}
+            _ => return Err(GoCmdError::InvalidArgs),
         }
-        ["movetime", movetime] => {
-            let movetime: u64 = movetime
-                .parse()
-                .map_err(|_| GoCmdError::InvalidMovetime(movetime.to_string()))?;
-
-            let stop = Arc::new(AtomicBool::new(false));
-
-            let thread_stop = stop.clone();
-            thread::spawn(move || {
-                thread::sleep(Duration::from_millis(movetime));
-                thread_stop.store(true, Ordering::Relaxed)
-            });
-
-            let thread = iterative_search(position, None, stop.clone(), on_done);
-            Ok(UciSearch { stop, thread })
-        }
-        [..] => Err(GoCmdError::InvalidArgs),
     }
+
+    let (time, inc) = if position.turn() == Color::White {
+        (wtime, winc)
+    } else {
+        (btime, binc)
+    };
+
+    let movetime = if movetime.is_some() {
+        movetime
+    } else {
+        time.map(|time| time / 20 + inc / 2)
+    };
+
+    let stop = Arc::new(AtomicBool::new(false));
+
+    if let Some(movetime) = movetime {
+        schedule_stop(movetime, stop.clone());
+    }
+
+    let thread = iterative_deepening_search(position, max_depth, stop.clone(), on_done);
+    Ok(UciSearch { stop, thread })
 }
 
-fn iterative_search<F>(
+fn schedule_stop(movetime: u64, stop: Arc<AtomicBool>) {
+    thread::spawn(move || {
+        thread::sleep(Duration::from_millis(movetime));
+        stop.store(true, Ordering::Relaxed)
+    });
+}
+
+fn iterative_deepening_search<F>(
     mut position: Position,
     max_depth: Option<u32>,
     stop: Arc<AtomicBool>,
