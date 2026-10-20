@@ -12,6 +12,7 @@ mod quiescence;
 mod tt;
 
 const MAX_PLY: usize = 128;
+const MATE_SCORE: i32 = 1_000_000_000;
 
 pub struct Search {
     nodes: u32,

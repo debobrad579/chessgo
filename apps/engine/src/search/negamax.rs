@@ -1,10 +1,32 @@
 use crate::{
     position::Position,
     search::{
-        MAX_PLY, Search,
+        MATE_SCORE, MAX_PLY, Search,
         tt::{Entry, NodeType},
     },
 };
+
+const MATE_THRESHOLD: i32 = MATE_SCORE - MAX_PLY as i32;
+
+fn score_to_tt(score: i32, ply: usize) -> i32 {
+    if score >= MATE_THRESHOLD {
+        score + ply as i32
+    } else if score <= -MATE_THRESHOLD {
+        score - ply as i32
+    } else {
+        score
+    }
+}
+
+fn score_from_tt(score: i32, ply: usize) -> i32 {
+    if score >= MATE_THRESHOLD {
+        score - ply as i32
+    } else if score <= -MATE_THRESHOLD {
+        score + ply as i32
+    } else {
+        score
+    }
+}
 
 impl Search {
     pub fn negamax(
@@ -19,40 +41,39 @@ impl Search {
             return 0;
         }
 
-        if let Some(entry) = self.tt.probe(position.zobrist_key())
-            && entry.depth >= depth
-        {
-            match entry.node_type {
-                NodeType::Exact => {
-                    return entry.evaluation;
-                }
-                NodeType::Beta => {
-                    if entry.evaluation >= beta {
-                        return entry.evaluation;
-                    }
-                }
-                NodeType::Alpha => {
-                    if entry.evaluation <= alpha {
-                        return alpha;
-                    }
-                }
-            }
-        }
-
         self.nodes += 1;
-
         self.init_pv_ply(ply);
 
-        if position.is_draw() {
+        if ply > 0 && position.is_draw() {
             return 0;
+        }
+
+        if ply >= MAX_PLY {
+            return position.evaluation(position.turn());
         }
 
         if depth == 0 {
             return self.quiescence(position, alpha, beta);
         }
 
-        if ply >= MAX_PLY {
-            return position.evaluation(position.turn());
+        if ply > 0
+            && let Some(entry) = self.tt.probe(position.zobrist_key())
+            && entry.depth >= depth
+        {
+            let eval = score_from_tt(entry.evaluation, ply);
+            match entry.node_type {
+                NodeType::Exact => return eval.clamp(alpha, beta),
+                NodeType::Beta => {
+                    if eval >= beta {
+                        return beta;
+                    }
+                }
+                NodeType::Alpha => {
+                    if eval <= alpha {
+                        return alpha;
+                    }
+                }
+            }
         }
 
         let mut moves = position.generate_pseudolegal_moves();
@@ -61,7 +82,6 @@ impl Search {
 
         let mut legal_move_count = 0;
         let original_alpha = alpha;
-        let mut exact = false;
 
         for mv in moves {
             let undo = position.make_move(mv);
@@ -71,12 +91,10 @@ impl Search {
             }
 
             let evaluation = if legal_move_count == 0 {
-                exact = true;
                 -self.negamax(position, depth - 1, -beta, -alpha, ply + 1)
             } else {
                 let nws = -self.negamax(position, depth - 1, -alpha - 1, -alpha, ply + 1);
                 if nws > alpha && nws < beta {
-                    exact = true;
                     -self.negamax(position, depth - 1, -beta, -alpha, ply + 1)
                 } else {
                     nws
@@ -102,7 +120,7 @@ impl Search {
                 self.tt.store(Entry {
                     zobrist_key: position.zobrist_key(),
                     depth,
-                    evaluation: beta,
+                    evaluation: score_to_tt(beta, ply),
                     node_type: NodeType::Beta,
                 });
 
@@ -117,24 +135,22 @@ impl Search {
 
         if legal_move_count == 0 {
             return if position.in_check(position.turn()) {
-                -1_000_000_000 + (ply as i32)
+                -MATE_SCORE + (ply as i32)
             } else {
                 0
             };
         }
 
-        if alpha > original_alpha {
-            self.tt.store(Entry {
-                zobrist_key: position.zobrist_key(),
-                depth,
-                evaluation: alpha,
-                node_type: if exact {
-                    NodeType::Exact
-                } else {
-                    NodeType::Alpha
-                },
-            });
-        }
+        self.tt.store(Entry {
+            zobrist_key: position.zobrist_key(),
+            depth,
+            evaluation: score_to_tt(alpha, ply),
+            node_type: if alpha > original_alpha {
+                NodeType::Exact
+            } else {
+                NodeType::Alpha
+            },
+        });
 
         alpha
     }
