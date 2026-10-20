@@ -110,7 +110,6 @@ where
     thread::spawn(move || {
         let mut search = Search::new(stop);
         let mut current_depth = 1;
-        let mut bestmove: Option<Move> = None;
 
         loop {
             if let Some(max_depth) = max_depth
@@ -131,10 +130,9 @@ where
                 break;
             }
 
-            bestmove = search.bestmove();
             current_depth += 1;
         }
 
-        on_done(bestmove);
+        on_done(search.bestmove());
     })
 }

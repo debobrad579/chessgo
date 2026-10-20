@@ -18,7 +18,11 @@ const MVV_LVA: PieceArray<PieceArray<u32>> = PieceArray::new([
 
 impl Search {
     pub fn move_score(&self, mv: Move, turn: Color, ply: usize) -> u32 {
-        if let Some(victim) = mv.capture() {
+        if let Some(bestmove) = self.bestmove()
+            && bestmove == mv
+        {
+            1_000_000
+        } else if let Some(victim) = mv.capture() {
             MVV_LVA[mv.piece()][victim] + 10000
         } else if Some(mv) == self.killer_moves[ply][0] {
             9000
