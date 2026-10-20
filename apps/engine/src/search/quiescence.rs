@@ -28,15 +28,15 @@ impl Search {
             let evaluation = -self.quiescence(position, -beta, -alpha);
             position.undo_move(capture, undo);
 
+            if self.stopped() {
+                return 0;
+            }
+
             if evaluation >= beta {
                 return beta;
             }
 
             alpha = alpha.max(evaluation);
-        }
-
-        if self.stopped() {
-            return 0;
         }
 
         alpha
