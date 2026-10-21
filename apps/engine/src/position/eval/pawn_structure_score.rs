@@ -31,7 +31,7 @@ impl Position {
     }
 
     #[inline(always)]
-    fn pawn_structure_score<const IS_BLACK: bool>(&mut self) -> i32 {
+    fn pawn_structure_score<const IS_BLACK: bool>(&self) -> i32 {
         let mut score = 0;
         let color = if IS_BLACK { Color::Black } else { Color::White };
         let opp_color = if IS_BLACK { Color::White } else { Color::Black };
@@ -56,9 +56,7 @@ impl Position {
             if ISOLATED_PAWN_MASKS[square as usize] & self.piece_bitboards[color][Piece::Pawn] == 0
             {
                 score += ISOLATED_PAWN_PENALTY;
-            }
-
-            if BACKWARD_PAWN_MASKS[color as usize][square as usize]
+            } else if BACKWARD_PAWN_MASKS[color as usize][square as usize]
                 & self.piece_bitboards[color][Piece::Pawn]
                 == 0
                 && PAWN_ATTACKS[color as usize][(square as i32 + below_offset) as usize]
@@ -67,11 +65,6 @@ impl Position {
             {
                 score += BACKWARD_PAWN_PENALTY;
             }
-        });
-
-        self.pawn_hash_table.store(Entry {
-            zobrist_key: self.pawn_hash_key(),
-            evaluation: score,
         });
 
         score

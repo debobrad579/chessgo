@@ -6,7 +6,7 @@ pub(in crate::position::eval) const MATERIAL_SCORES: PieceArray<i32> =
 pub(in crate::position::eval) const PASSED_PAWN_BONUSES: [i32; 8] = [0, 5, 10, 20, 35, 60, 100, 0];
 pub(in crate::position::eval) const DOUBLED_PAWN_PENALTY: i32 = -20;
 pub(in crate::position::eval) const ISOLATED_PAWN_PENALTY: i32 = -10;
-pub(in crate::position::eval) const BACKWARD_PAWN_PENALTY: i32 = -30;
+pub(in crate::position::eval) const BACKWARD_PAWN_PENALTY: i32 = -5;
 
 #[rustfmt::skip]
 const PAWN_POSITIONAL_SCORES: [i32; 64] = [
