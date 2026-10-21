@@ -1,6 +1,9 @@
 use crate::attacks::{
     leapers::compute_pawn_attacks,
-    masks::{compute_doubled_pawn_mask, compute_isolated_pawn_mask, compute_passed_pawn_mask},
+    masks::{
+        compute_backward_pawn_mask, compute_doubled_pawn_mask, compute_isolated_pawn_mask,
+        compute_passed_pawn_mask,
+    },
 };
 
 pub mod magic_numbers;
@@ -59,6 +62,7 @@ pub static PAWN_ATTACKS: [[u64; 64]; 2] = compute_pawn_table!(compute_pawn_attac
 pub static PASSED_PAWN_MASKS: [[u64; 64]; 2] = compute_pawn_table!(compute_passed_pawn_mask);
 pub static DOUBLED_PAWN_MASKS: [[u64; 64]; 2] = compute_pawn_table!(compute_doubled_pawn_mask);
 pub static ISOLATED_PAWN_MASKS: [u64; 64] = compute_table!(compute_isolated_pawn_mask);
+pub static BACKWARD_PAWN_MASKS: [[u64; 64]; 2] = compute_pawn_table!(compute_backward_pawn_mask);
 
 #[inline(always)]
 pub fn get_bishop_attacks(square: usize, occupancy: u64) -> u64 {

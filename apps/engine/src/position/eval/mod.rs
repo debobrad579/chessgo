@@ -1,9 +1,14 @@
 use crate::{
-    attacks::{DOUBLED_PAWN_MASKS, ISOLATED_PAWN_MASKS, PASSED_PAWN_MASKS},
+    attacks::{
+        BACKWARD_PAWN_MASKS, DOUBLED_PAWN_MASKS, ISOLATED_PAWN_MASKS, PASSED_PAWN_MASKS,
+        PAWN_ATTACKS,
+    },
     bitboard::BitboardOperations,
     position::{
         Position,
-        eval::scores::{DOUBLED_PAWN_PENALTY, ISOLATED_PAWN_PENALTY, PASSED_PAWN_BONUSES},
+        eval::scores::{
+            BACKWARD_PAWN_PENALTY, DOUBLED_PAWN_PENALTY, ISOLATED_PAWN_PENALTY, PASSED_PAWN_BONUSES,
+        },
     },
     types::{Color, Piece},
 };
@@ -51,6 +56,25 @@ impl Position {
                         == 0
                     {
                         score += ISOLATED_PAWN_PENALTY;
+                    }
+
+                    if BACKWARD_PAWN_MASKS[color as usize][square as usize]
+                        & self.piece_bitboards[color][Piece::Pawn]
+                        == 0
+                        && match color {
+                            Color::White => {
+                                PAWN_ATTACKS[Color::White as usize][square as usize + 8]
+                                    & self.piece_bitboards[Color::Black][Piece::Pawn]
+                                    != 0
+                            }
+                            Color::Black => {
+                                PAWN_ATTACKS[Color::Black as usize][square as usize - 8]
+                                    & self.piece_bitboards[Color::White][Piece::Pawn]
+                                    != 0
+                            }
+                        }
+                    {
+                        score += BACKWARD_PAWN_PENALTY;
                     }
                 }
             });

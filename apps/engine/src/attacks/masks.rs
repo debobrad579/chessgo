@@ -77,9 +77,38 @@ pub(super) const fn compute_isolated_pawn_mask(square: usize) -> u64 {
     return mask;
 }
 
+pub(super) const fn compute_backward_pawn_mask(square: usize) -> u64 {
+    let mut mask = 0u64;
+
+    let rank = (square / 8) as i32;
+    let file = (square % 8) as i32;
+
+    let bit = 1u64 << square;
+
+    if (bit & NOT_H) != 0 {
+        let mut r = rank;
+        while r >= 1 {
+            mask |= 1u64 << (r * 8 + file + 1);
+            r -= 1;
+        }
+    }
+
+    if (bit & NOT_A) != 0 {
+        let mut r = rank;
+        while r >= 1 {
+            mask |= 1u64 << (r * 8 + file - 1);
+            r -= 1;
+        }
+    }
+
+    return mask;
+}
+
 #[cfg(test)]
 mod test {
-    use crate::attacks::{DOUBLED_PAWN_MASKS, ISOLATED_PAWN_MASKS, PASSED_PAWN_MASKS};
+    use crate::attacks::{
+        BACKWARD_PAWN_MASKS, DOUBLED_PAWN_MASKS, ISOLATED_PAWN_MASKS, PASSED_PAWN_MASKS,
+    };
 
     #[test]
     fn white_passed_pawn_masks() {
@@ -110,5 +139,19 @@ mod test {
         assert_eq!(ISOLATED_PAWN_MASKS[28], 0x00028282828282800); // e4
         assert_eq!(ISOLATED_PAWN_MASKS[31], 0x00040404040404000); // h4
         assert_eq!(ISOLATED_PAWN_MASKS[24], 0x00002020202020200); // a4
+    }
+
+    #[test]
+    fn white_backward_pawn_masks() {
+        assert_eq!(BACKWARD_PAWN_MASKS[0][28], 0x00000000028282800); // e4
+        assert_eq!(BACKWARD_PAWN_MASKS[0][31], 0x00000000040404000); // h4
+        assert_eq!(BACKWARD_PAWN_MASKS[0][24], 0x00000000002020200); // a4
+    }
+
+    #[test]
+    fn black_backward_pawn_masks() {
+        assert_eq!(BACKWARD_PAWN_MASKS[1][36], 0x0028282800000000); // e5
+        assert_eq!(BACKWARD_PAWN_MASKS[1][39], 0x0040404000000000); // h5
+        assert_eq!(BACKWARD_PAWN_MASKS[1][32], 0x0002020200000000); // a5
     }
 }
