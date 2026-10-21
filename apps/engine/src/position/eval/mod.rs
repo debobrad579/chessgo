@@ -1,5 +1,5 @@
 use crate::{
-    attacks::{BLACK_PASSED_PAWN_MASKS, WHITE_PASSED_PAWN_MASKS},
+    attacks::{DOUBLED_PAWN_MASKS, PASSED_PAWN_MASKS},
     bitboard::BitboardOperations,
     position::Position,
     types::{Color, Piece},
@@ -12,11 +12,6 @@ impl Position {
     fn evaluate(&self, color: Color) -> i32 {
         let mut score = 0;
         let is_endgame = self.is_endgame();
-        let passed_pawn_masks = if color == Color::White {
-            WHITE_PASSED_PAWN_MASKS
-        } else {
-            BLACK_PASSED_PAWN_MASKS
-        };
 
         for piece in Piece::iter() {
             self.piece_bitboards[color][piece].foreach(|square| {
@@ -33,12 +28,20 @@ impl Position {
                     scores::MIDDLEGAME_POSITIONAL_SCORES[piece][relative_square]
                 };
 
-                if piece == Piece::Pawn
-                    && (passed_pawn_masks[square as usize]
-                        & self.piece_bitboards[!color][Piece::Pawn])
+                if piece == Piece::Pawn {
+                    if PASSED_PAWN_MASKS[color as usize][square as usize]
+                        & self.piece_bitboards[!color][Piece::Pawn]
                         == 0
-                {
-                    score += 10 * (relative_square / 8) as i32
+                    {
+                        score += 10 * (relative_square / 8) as i32
+                    }
+
+                    if DOUBLED_PAWN_MASKS[color as usize][square as usize]
+                        & self.piece_bitboards[color][Piece::Pawn]
+                        != 0
+                    {
+                        score -= 30;
+                    }
                 }
             });
         }

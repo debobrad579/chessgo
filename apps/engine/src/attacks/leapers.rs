@@ -1,21 +1,11 @@
 use crate::attacks::masks::{NOT_A, NOT_AB, NOT_GH, NOT_H};
 
-pub(super) const fn compute_white_pawn_attacks(square: usize) -> u64 {
+pub(super) const fn compute_pawn_attacks(square: usize) -> u64 {
     let bit = 1u64 << square;
     let mut attacks = 0u64;
 
     attacks |= (bit & NOT_H) << 9; // north-east
     attacks |= (bit & NOT_A) << 7; // north-west
-
-    return attacks;
-}
-
-pub(super) const fn compute_black_pawn_attacks(square: usize) -> u64 {
-    let bit = 1u64 << square;
-    let mut attacks = 0u64;
-
-    attacks |= (bit & NOT_H) >> 7; // south-east
-    attacks |= (bit & NOT_A) >> 9; // south-west
 
     return attacks;
 }
@@ -57,23 +47,23 @@ pub(super) const fn compute_king_attacks(square: usize) -> u64 {
 
 #[cfg(test)]
 mod test {
-    use crate::attacks::leapers::{
-        compute_black_pawn_attacks, compute_king_attacks, compute_knight_attacks,
-        compute_white_pawn_attacks,
+    use crate::attacks::{
+        PAWN_ATTACKS,
+        leapers::{compute_king_attacks, compute_knight_attacks},
     };
 
     #[test]
     fn white_pawn_attacks() {
-        assert_eq!(compute_white_pawn_attacks(28), 0x0000002800000000); // e4
-        assert_eq!(compute_white_pawn_attacks(31), 0x0000004000000000); // h4
-        assert_eq!(compute_white_pawn_attacks(24), 0x0000000200000000); // a4
+        assert_eq!(PAWN_ATTACKS[0][28], 0x0000002800000000); // e4
+        assert_eq!(PAWN_ATTACKS[0][31], 0x0000004000000000); // h4
+        assert_eq!(PAWN_ATTACKS[0][24], 0x0000000200000000); // a4
     }
 
     #[test]
     fn black_pawn_attacks() {
-        assert_eq!(compute_black_pawn_attacks(36), 0x0000000028000000); // e5
-        assert_eq!(compute_black_pawn_attacks(39), 0x0000000040000000); // h5
-        assert_eq!(compute_black_pawn_attacks(32), 0x0000000002000000); // a5
+        assert_eq!(PAWN_ATTACKS[1][36], 0x0000000028000000); // e5
+        assert_eq!(PAWN_ATTACKS[1][39], 0x0000000040000000); // h5
+        assert_eq!(PAWN_ATTACKS[1][32], 0x0000000002000000); // a5
     }
 
     #[test]

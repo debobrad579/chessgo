@@ -94,7 +94,7 @@ sprt new old rounds="200" threads="4":
     -engine cmd=./apps/engine/target/sprt/{{old}} name={{old}} \
     -openings file="$SPRT_BOOK_FILEPATH" format=pgn order=random \
     -rounds {{rounds}} -repeat -concurrency {{threads}} \
-    -each tc=1+0.1 timemargin=1000 \
+    -each st=0.1 timemargin=1000 \
     -sprt elo0=0 elo1=10 alpha=0.05 beta=0.05
 
 # Build an engine binary for SPRT

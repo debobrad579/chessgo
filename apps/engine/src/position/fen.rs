@@ -1,5 +1,5 @@
 use crate::{
-    attacks::{BLACK_PAWN_ATTACKS, WHITE_PAWN_ATTACKS},
+    attacks::PAWN_ATTACKS,
     bitboard::BitboardOperations,
     position::Position,
     types::{Color, Piece},
@@ -133,18 +133,10 @@ impl TryFrom<&str> for Position {
             };
 
             if position.piece_bitboards[!position.turn][Piece::Pawn].contains(pawn_square as u32) {
-                if match position.turn {
-                    Color::White => {
-                        BLACK_PAWN_ATTACKS[square as usize]
-                            & position.piece_bitboards[Color::White][Piece::Pawn]
-                            != 0
-                    }
-                    Color::Black => {
-                        WHITE_PAWN_ATTACKS[square as usize]
-                            & position.piece_bitboards[Color::Black][Piece::Pawn]
-                            != 0
-                    }
-                } {
+                if PAWN_ATTACKS[!position.turn as usize][square as usize]
+                    & position.piece_bitboards[position.turn][Piece::Pawn]
+                    != 0
+                {
                     position.zobrist_key.toggle_enpassant(square);
                     position.enpassant = Some(square);
                 }

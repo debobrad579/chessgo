@@ -1,3 +1,8 @@
+use crate::attacks::{
+    leapers::compute_pawn_attacks,
+    masks::{compute_doubled_pawn_mask, compute_passed_pawn_mask},
+};
+
 pub mod magic_numbers;
 
 mod leapers;
@@ -19,8 +24,26 @@ macro_rules! compute_table {
     }};
 }
 
-pub static WHITE_PAWN_ATTACKS: [u64; 64] = compute_table!(leapers::compute_white_pawn_attacks);
-pub static BLACK_PAWN_ATTACKS: [u64; 64] = compute_table!(leapers::compute_black_pawn_attacks);
+macro_rules! compute_pawn_table {
+    ($f:expr) => {{
+        let mut table = [[($f)(0); 64]; 2];
+
+        let mut i = 1;
+        while i < 64 {
+            table[0][i] = ($f)(i);
+            i += 1;
+        }
+
+        let mut i = 1;
+        while i < 64 {
+            table[1][i] = ($f)(i ^ 56).swap_bytes();
+            i += 1;
+        }
+
+        table
+    }};
+}
+
 pub static KNIGHT_ATTACKS: [u64; 64] = compute_table!(leapers::compute_knight_attacks);
 pub static KING_ATTACKS: [u64; 64] = compute_table!(leapers::compute_king_attacks);
 
@@ -32,10 +55,9 @@ static MAGIC_BISHOP_ATTACKS: [[u64; 512]; 64] =
 static MAGIC_ROOK_ATTACKS: [[u64; 4096]; 64] =
     compute_table!(magic_bitboards::compute_rook_magic_bitboards);
 
-pub static WHITE_PASSED_PAWN_MASKS: [u64; 64] =
-    compute_table!(masks::compute_white_passed_pawn_mask);
-pub static BLACK_PASSED_PAWN_MASKS: [u64; 64] =
-    compute_table!(masks::compute_black_passed_pawn_mask);
+pub static PAWN_ATTACKS: [[u64; 64]; 2] = compute_pawn_table!(compute_pawn_attacks);
+pub static PASSED_PAWN_MASKS: [[u64; 64]; 2] = compute_pawn_table!(compute_passed_pawn_mask);
+pub static DOUBLED_PAWN_MASKS: [[u64; 64]; 2] = compute_pawn_table!(compute_doubled_pawn_mask);
 
 #[inline(always)]
 pub fn get_bishop_attacks(square: usize, occupancy: u64) -> u64 {

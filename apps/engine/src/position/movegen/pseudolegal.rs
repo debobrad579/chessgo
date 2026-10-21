@@ -2,8 +2,8 @@ use arrayvec::ArrayVec;
 
 use crate::{
     attacks::{
-        BLACK_PAWN_ATTACKS, KING_ATTACKS, KNIGHT_ATTACKS, WHITE_PAWN_ATTACKS, get_bishop_attacks,
-        get_queen_attacks, get_rook_attacks,
+        KING_ATTACKS, KNIGHT_ATTACKS, PAWN_ATTACKS, get_bishop_attacks, get_queen_attacks,
+        get_rook_attacks,
     },
     bitboard::BitboardOperations,
     position::Position,
@@ -12,10 +12,10 @@ use crate::{
 
 macro_rules! get_attacks {
     (Pawn, White, $square:expr) => {
-        WHITE_PAWN_ATTACKS[$square]
+        PAWN_ATTACKS[0][$square]
     };
     (Pawn, Black, $square:expr) => {
-        BLACK_PAWN_ATTACKS[$square]
+        PAWN_ATTACKS[1][$square]
     };
     (Knight, $square:expr) => {
         KNIGHT_ATTACKS[$square]
@@ -62,11 +62,10 @@ impl Position {
     pub fn generate_pseudolegal_moves(&self) -> ArrayVec<Move, 256> {
         let own = self.side_bitboards[self.turn];
         let opp = self.side_bitboards[!self.turn];
-        let (pawn_attacks, pawn_offset, second_rank, last_rank, castling_source, castling_bit) =
-            match self.turn {
-                Color::White => (&WHITE_PAWN_ATTACKS, 8, 8..16, 56..64, 4, 0),
-                Color::Black => (&BLACK_PAWN_ATTACKS, -8, 48..56, 0..8, 60, 2),
-            };
+        let (pawn_offset, second_rank, last_rank, castling_source, castling_bit) = match self.turn {
+            Color::White => (8, 8..16, 56..64, 4, 0),
+            Color::Black => (-8, 48..56, 0..8, 60, 2),
+        };
         let mut moves = ArrayVec::<Move, 256>::new();
 
         self.piece_bitboards[self.turn][Piece::Pawn].foreach(|source| {
@@ -123,7 +122,7 @@ impl Position {
                 }
             }
 
-            pawn_attacks[source as usize].foreach(|target| {
+            PAWN_ATTACKS[self.turn as usize][source as usize].foreach(|target| {
                 if opp.contains(target) {
                     if last_rank.contains(&target) {
                         gen_promotions!(target, self.get_target_piece(target));
@@ -227,14 +226,14 @@ impl Position {
 
     pub fn generate_pseudolegal_captures(&self) -> ArrayVec<Move, 256> {
         let opp = self.side_bitboards[!self.turn];
-        let (pawn_attacks, last_rank) = match self.turn {
-            Color::White => (&WHITE_PAWN_ATTACKS, 56..64),
-            Color::Black => (&BLACK_PAWN_ATTACKS, 0..8),
+        let last_rank = match self.turn {
+            Color::White => 56..64,
+            Color::Black => 0..8,
         };
         let mut moves = ArrayVec::<Move, 256>::new();
 
         self.piece_bitboards[self.turn][Piece::Pawn].foreach(|source| {
-            pawn_attacks[source as usize].foreach(|target| {
+            PAWN_ATTACKS[self.turn as usize][source as usize].foreach(|target| {
                 if opp.contains(target) {
                     if last_rank.contains(&target) {
                         for piece in PromotionPiece::iter() {
