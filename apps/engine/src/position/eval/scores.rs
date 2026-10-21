@@ -3,6 +3,10 @@ use crate::types::PieceArray;
 pub(in crate::position::eval) const MATERIAL_SCORES: PieceArray<i32> =
     PieceArray::new([100, 320, 350, 500, 950, 20000]);
 
+pub(in crate::position::eval) const PASSED_PAWN_BONUSES: [i32; 8] = [0, 5, 10, 20, 35, 60, 100, 0];
+pub(in crate::position::eval) const DOUBLED_PAWN_PENALTY: i32 = -20;
+pub(in crate::position::eval) const ISOLATED_PAWN_PENALTY: i32 = -10;
+
 #[rustfmt::skip]
 const PAWN_POSITIONAL_SCORES: [i32; 64] = [
      0,   0,   0,   0,   0,   0,   0,   0,  // rank 1

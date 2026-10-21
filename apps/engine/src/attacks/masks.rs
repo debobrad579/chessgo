@@ -51,9 +51,35 @@ pub(super) const fn compute_doubled_pawn_mask(square: usize) -> u64 {
     return mask;
 }
 
+pub(super) const fn compute_isolated_pawn_mask(square: usize) -> u64 {
+    let mut mask = 0u64;
+
+    let file = (square % 8) as i32;
+
+    let bit = 1u64 << square;
+
+    if (bit & NOT_H) != 0 {
+        let mut r = 1;
+        while r <= 6 {
+            mask |= 1u64 << (r * 8 + file + 1);
+            r += 1;
+        }
+    }
+
+    if (bit & NOT_A) != 0 {
+        let mut r = 1;
+        while r <= 6 {
+            mask |= 1u64 << (r * 8 + file - 1);
+            r += 1;
+        }
+    }
+
+    return mask;
+}
+
 #[cfg(test)]
 mod test {
-    use crate::attacks::{DOUBLED_PAWN_MASKS, PASSED_PAWN_MASKS};
+    use crate::attacks::{DOUBLED_PAWN_MASKS, ISOLATED_PAWN_MASKS, PASSED_PAWN_MASKS};
 
     #[test]
     fn white_passed_pawn_masks() {
@@ -77,5 +103,12 @@ mod test {
     #[test]
     fn black_doubled_pawn_masks() {
         assert_eq!(DOUBLED_PAWN_MASKS[1][54], 0x0000404040404000); // g7
+    }
+
+    #[test]
+    fn isolated_pawn_masks() {
+        assert_eq!(ISOLATED_PAWN_MASKS[28], 0x00028282828282800); // e4
+        assert_eq!(ISOLATED_PAWN_MASKS[31], 0x00040404040404000); // h4
+        assert_eq!(ISOLATED_PAWN_MASKS[24], 0x00002020202020200); // a4
     }
 }

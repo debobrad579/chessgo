@@ -1,7 +1,10 @@
 use crate::{
-    attacks::{DOUBLED_PAWN_MASKS, PASSED_PAWN_MASKS},
+    attacks::{DOUBLED_PAWN_MASKS, ISOLATED_PAWN_MASKS, PASSED_PAWN_MASKS},
     bitboard::BitboardOperations,
-    position::Position,
+    position::{
+        Position,
+        eval::scores::{DOUBLED_PAWN_PENALTY, ISOLATED_PAWN_PENALTY, PASSED_PAWN_BONUSES},
+    },
     types::{Color, Piece},
 };
 
@@ -33,14 +36,21 @@ impl Position {
                         & self.piece_bitboards[!color][Piece::Pawn]
                         == 0
                     {
-                        score += 10 * (relative_square / 8) as i32
+                        score += PASSED_PAWN_BONUSES[relative_square / 8];
                     }
 
                     if DOUBLED_PAWN_MASKS[color as usize][square as usize]
                         & self.piece_bitboards[color][Piece::Pawn]
                         != 0
                     {
-                        score -= 30;
+                        score += DOUBLED_PAWN_PENALTY;
+                    }
+
+                    if ISOLATED_PAWN_MASKS[square as usize]
+                        & self.piece_bitboards[color][Piece::Pawn]
+                        == 0
+                    {
+                        score += ISOLATED_PAWN_PENALTY;
                     }
                 }
             });
