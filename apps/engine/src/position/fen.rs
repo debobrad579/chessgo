@@ -82,6 +82,9 @@ impl TryFrom<&str> for Position {
                     position.piece_bitboards[color][piece].set(square);
                     position.side_bitboards[color].set(square);
                     position.zobrist_key.toggle_piece(square, color, piece);
+                    if piece == Piece::Pawn {
+                        position.pawn_hash_key.toggle_pawn(square, color);
+                    }
 
                     file += 1;
                 }

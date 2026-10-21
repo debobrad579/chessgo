@@ -46,6 +46,16 @@ impl Position {
 
         if let Some(capture) = mv.capture() {
             set_piece!(!self.turn, capture, target);
+            if capture == Piece::Pawn {
+                self.pawn_hash_key.toggle_pawn(target, !self.turn);
+            }
+        }
+
+        if source_piece == Piece::Pawn {
+            self.pawn_hash_key.toggle_pawn(source, self.turn);
+            if mv.promotion().is_none() {
+                self.pawn_hash_key.toggle_pawn(target, self.turn);
+            }
         }
 
         let square_behind = match self.turn {
@@ -55,6 +65,7 @@ impl Position {
 
         if mv.is_enpassant() {
             set_piece!(!self.turn, Piece::Pawn, square_behind);
+            self.pawn_hash_key.toggle_pawn(square_behind, !self.turn);
         }
 
         if mv.is_castling() {

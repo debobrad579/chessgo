@@ -13,10 +13,12 @@ pub struct Position {
     enpassant: Option<u8>,
     half_moves: u16,
     zobrist_key: hash::ZobristKey,
+    pawn_hash_key: hash::PawnHashKey,
     occupancy: u64,
     side_bitboards: ColorArray<u64>,
     piece_bitboards: ColorArray<PieceArray<u64>>,
     history: Vec<u64>,
+    pawn_hash_table: hash::pawn_hash_table::PawnHashTable,
 }
 
 impl Position {
@@ -26,6 +28,10 @@ impl Position {
 
     pub fn zobrist_key(&self) -> u64 {
         self.zobrist_key.value()
+    }
+
+    pub fn pawn_hash_key(&self) -> u64 {
+        self.pawn_hash_key.value()
     }
 
     pub fn in_check(&self, color: Color) -> bool {

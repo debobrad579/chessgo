@@ -51,11 +51,17 @@ impl Position {
                 }
                 self.zobrist_key
                     .toggle_castling_rights(self.castling_rights);
+            } else if capture == Piece::Pawn {
+                self.pawn_hash_key.toggle_pawn(target, !self.turn);
             }
         }
 
         if source_piece == Piece::Pawn {
             self.half_moves = 0;
+            self.pawn_hash_key.toggle_pawn(source, self.turn);
+            if mv.promotion().is_none() {
+                self.pawn_hash_key.toggle_pawn(target, self.turn);
+            }
         }
 
         if let Some(promoted) = mv.promotion() {
@@ -72,6 +78,7 @@ impl Position {
 
         if mv.is_enpassant() {
             pop_piece!(!self.turn, Piece::Pawn, square_behind);
+            self.pawn_hash_key.toggle_pawn(square_behind, !self.turn);
         }
 
         if let Some(enpassant) = self.enpassant {

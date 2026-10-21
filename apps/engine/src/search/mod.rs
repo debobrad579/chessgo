@@ -32,7 +32,7 @@ impl Default for Search {
             history_moves: ColorArray::new([[[0; 64]; 64], [[0; 64]; 64]]),
             pv_table: [[None; MAX_PLY]; MAX_PLY],
             pv_length: [0; MAX_PLY],
-            tt: tt::TranspositionTable::new(10),
+            tt: tt::TranspositionTable::new(64),
             stop: None,
         }
     }

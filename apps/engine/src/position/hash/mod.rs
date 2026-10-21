@@ -4,6 +4,7 @@ use crate::{
 };
 
 pub mod keys;
+pub mod pawn_hash_table;
 
 #[derive(Clone, Copy, PartialEq, Default, Debug)]
 pub struct ZobristKey(u64);
@@ -27,5 +28,18 @@ impl ZobristKey {
 
     pub fn toggle_turn(&mut self) {
         self.0 ^= TURN_KEY;
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Default, Debug)]
+pub struct PawnHashKey(u64);
+
+impl PawnHashKey {
+    pub fn value(&self) -> u64 {
+        self.0
+    }
+
+    pub fn toggle_pawn(&mut self, square: u32, color: Color) {
+        self.0 ^= PIECE_KEYS[square as usize][color as usize][Piece::Pawn as usize];
     }
 }

@@ -1,8 +1,4 @@
 use crate::{
-    attacks::{
-        BACKWARD_PAWN_MASKS, DOUBLED_PAWN_MASKS, ISOLATED_PAWN_MASKS, PASSED_PAWN_MASKS,
-        PAWN_ATTACKS,
-    },
     bitboard::BitboardOperations,
     position::{
         Position,
@@ -13,11 +9,12 @@ use crate::{
     types::{Color, Piece},
 };
 
+mod pawn_structure;
 mod scores;
 
 impl Position {
     #[inline(always)]
-    fn evaluate(&self, color: Color) -> i32 {
+    fn evaluate(&mut self, color: Color) -> i32 {
         let mut score = 0;
         let is_endgame = self.is_endgame();
 
@@ -35,52 +32,10 @@ impl Position {
                 } else {
                     scores::MIDDLEGAME_POSITIONAL_SCORES[piece][relative_square]
                 };
-
-                if piece == Piece::Pawn {
-                    if PASSED_PAWN_MASKS[color as usize][square as usize]
-                        & self.piece_bitboards[!color][Piece::Pawn]
-                        == 0
-                    {
-                        score += PASSED_PAWN_BONUSES[relative_square / 8];
-                    }
-
-                    if DOUBLED_PAWN_MASKS[color as usize][square as usize]
-                        & self.piece_bitboards[color][Piece::Pawn]
-                        != 0
-                    {
-                        score += DOUBLED_PAWN_PENALTY;
-                    }
-
-                    if ISOLATED_PAWN_MASKS[square as usize]
-                        & self.piece_bitboards[color][Piece::Pawn]
-                        == 0
-                    {
-                        score += ISOLATED_PAWN_PENALTY;
-                    }
-
-                    if BACKWARD_PAWN_MASKS[color as usize][square as usize]
-                        & self.piece_bitboards[color][Piece::Pawn]
-                        == 0
-                        && match color {
-                            Color::White => {
-                                PAWN_ATTACKS[Color::White as usize][square as usize + 8]
-                                    & self.piece_bitboards[Color::Black][Piece::Pawn]
-                                    != 0
-                            }
-                            Color::Black => {
-                                PAWN_ATTACKS[Color::Black as usize][square as usize - 8]
-                                    & self.piece_bitboards[Color::White][Piece::Pawn]
-                                    != 0
-                            }
-                        }
-                    {
-                        score += BACKWARD_PAWN_PENALTY;
-                    }
-                }
             });
         }
 
-        score
+        score + self.pawn_structure_score(color)
     }
 
     #[inline(always)]
@@ -93,7 +48,7 @@ impl Position {
     }
 
     #[inline(always)]
-    pub fn evaluation(&self, color: Color) -> i32 {
+    pub fn evaluation(&mut self, color: Color) -> i32 {
         self.evaluate(color) - self.evaluate(!color)
     }
 }
