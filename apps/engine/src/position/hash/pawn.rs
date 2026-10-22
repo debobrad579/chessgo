@@ -1,12 +1,30 @@
+use crate::{
+    position::hash::keys::PIECE_KEYS,
+    types::{Color, Piece},
+};
+
+#[derive(Clone, Copy, PartialEq, Default, Debug)]
+pub struct PawnHashKey(u64);
+
+impl PawnHashKey {
+    pub fn value(&self) -> u64 {
+        self.0
+    }
+
+    pub fn toggle_pawn(&mut self, square: u32, color: Color) {
+        self.0 ^= PIECE_KEYS[square as usize][color as usize][Piece::Pawn as usize];
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub(in crate::position) struct Entry {
+pub(in crate::position) struct PawnHashTableEntry {
     pub zobrist_key: u64,
     pub evaluation: i32,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub(in crate::position) struct PawnHashTable {
-    entries: Vec<Option<Entry>>,
+    entries: Vec<Option<PawnHashTableEntry>>,
     size: usize,
 }
 
@@ -18,7 +36,7 @@ impl Default for PawnHashTable {
 
 impl PawnHashTable {
     pub fn new(size_kb: usize) -> Self {
-        let size = (size_kb * 1024) / std::mem::size_of::<Option<Entry>>();
+        let size = (size_kb * 1024) / std::mem::size_of::<Option<PawnHashTableEntry>>();
 
         Self {
             entries: vec![None; size],
@@ -26,11 +44,11 @@ impl PawnHashTable {
         }
     }
 
-    pub fn store(&mut self, entry: Entry) {
+    pub fn store(&mut self, entry: PawnHashTableEntry) {
         self.entries[(entry.zobrist_key as usize) % self.size] = Some(entry);
     }
 
-    pub fn probe(&self, zobrist_key: u64) -> Option<&Entry> {
+    pub fn probe(&self, zobrist_key: u64) -> Option<&PawnHashTableEntry> {
         self.entries[(zobrist_key as usize) % self.size]
             .as_ref()
             .filter(|e| e.zobrist_key == zobrist_key)
@@ -40,8 +58,8 @@ impl PawnHashTable {
 #[cfg(test)]
 mod test {
     use crate::{
-        position::{Position, hash::PawnHashKey},
-        types::{Color, Move},
+        position::{Position, hash::pawn::PawnHashKey},
+        types::{Color, Move, Square},
     };
 
     fn starting_pawn_key() -> PawnHashKey {
@@ -53,11 +71,11 @@ mod test {
         key
     }
 
-    fn get_move(position: &Position, source: u32, target: u32) -> Move {
+    fn get_move(position: &Position, source: Square, target: Square) -> Move {
         *position
             .generate_pseudolegal_moves()
             .iter()
-            .find(|mv| mv.source() == source && mv.target() == target)
+            .find(|mv| mv.source() == source as u32 && mv.target() == target as u32)
             .unwrap()
     }
 
@@ -76,7 +94,7 @@ mod test {
             &mut Position::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
                 .unwrap();
 
-        let mv = get_move(position, 12, 28); // e2 to e4
+        let mv = get_move(position, Square::E2, Square::E4);
 
         let undo = position.make_move(mv);
 
@@ -97,11 +115,11 @@ mod test {
             &mut Position::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
                 .unwrap();
 
-        position.make_move(get_move(position, 12, 28)); // e2 to e4
-        position.make_move(get_move(position, 51, 35)); // d7 to d5
-        position.make_move(get_move(position, 28, 35)); // e4 takes d5
+        position.make_move(get_move(position, Square::E2, Square::E4));
+        position.make_move(get_move(position, Square::D7, Square::D5));
+        position.make_move(get_move(position, Square::E4, Square::D5));
 
-        let mv = get_move(position, 59, 35); // d8 takes d5
+        let mv = get_move(position, Square::D8, Square::D5);
         let undo = position.make_move(mv);
 
         let mut hash = starting_pawn_key();
@@ -126,12 +144,12 @@ mod test {
             &mut Position::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
                 .unwrap();
 
-        position.make_move(get_move(position, 12, 28)); // e2 to e4
-        position.make_move(get_move(position, 51, 35)); // d7 to d5
-        position.make_move(get_move(position, 28, 36)); // e4 to e5
-        position.make_move(get_move(position, 53, 37)); // f7 to f5
+        position.make_move(get_move(position, Square::E2, Square::E4));
+        position.make_move(get_move(position, Square::D7, Square::D5));
+        position.make_move(get_move(position, Square::E4, Square::E5));
+        position.make_move(get_move(position, Square::F7, Square::F5));
 
-        let mv = get_move(position, 36, 45); // e5 takes f6
+        let mv = get_move(position, Square::E5, Square::F6);
         let undo = position.make_move(mv);
 
         let mut hash = starting_pawn_key();

@@ -188,62 +188,66 @@ pub(super) const fn compute_rook_attacks(square: usize, blockers: u64) -> u64 {
 
 #[cfg(test)]
 mod test {
-    use crate::attacks::sliders::{
-        compute_bishop_attacks, compute_rook_attacks, mask_bishop_attacks, mask_rook_attacks,
+    use crate::{
+        attacks::{
+            BISHOP_MASKS, ROOK_MASKS,
+            sliders::{compute_bishop_attacks, compute_rook_attacks},
+        },
+        types::Square,
     };
 
     #[test]
     fn bishop_masks() {
-        assert_eq!(mask_bishop_attacks(28), 0x0002442800284400); // e4
-        assert_eq!(mask_bishop_attacks(9), 0x0040201008040000); // b2
-        assert_eq!(mask_bishop_attacks(26), 0x0020100A000A1000); // c4
-        assert_eq!(mask_bishop_attacks(61), 0x0050080402000000); // f8
+        assert_eq!(BISHOP_MASKS[Square::E4 as usize], 0x0002442800284400);
+        assert_eq!(BISHOP_MASKS[Square::B2 as usize], 0x0040201008040000);
+        assert_eq!(BISHOP_MASKS[Square::C4 as usize], 0x0020100A000A1000);
+        assert_eq!(BISHOP_MASKS[Square::F8 as usize], 0x0050080402000000);
     }
 
     #[test]
     fn bishop_attacks() {
         assert_eq!(
-            compute_bishop_attacks(28, 0x0000440000004400),
+            compute_bishop_attacks(Square::E4 as usize, 0x0000440000004400),
             0x0000442800284400
         );
         assert_eq!(
-            compute_bishop_attacks(9, 0x0040000000000000),
+            compute_bishop_attacks(Square::B2 as usize, 0x0040000000000000),
             0x0040201008050005
         );
         assert_eq!(
-            compute_bishop_attacks(26, 0x0020000200000000),
+            compute_bishop_attacks(Square::C4 as usize, 0x0020000200000000),
             0x0020100A000A1120
         );
         assert_eq!(
-            compute_bishop_attacks(61, 0x0040000002000000),
+            compute_bishop_attacks(Square::F8 as usize, 0x0040000002000000),
             0x0050080402000000
         );
     }
 
     #[test]
     fn rook_masks() {
-        assert_eq!(mask_rook_attacks(0), 0x000101010101017E); // a1
-        assert_eq!(mask_rook_attacks(28), 0x001010106E101000); // e4
-        assert_eq!(mask_rook_attacks(61), 0x5E20202020202000); // f8
-        assert_eq!(mask_rook_attacks(10), 0x0004040404047A00); // c2
+        assert_eq!(ROOK_MASKS[Square::A1 as usize], 0x000101010101017E);
+        assert_eq!(ROOK_MASKS[Square::E4 as usize], 0x001010106E101000);
+        assert_eq!(ROOK_MASKS[Square::F8 as usize], 0x5E20202020202000);
+        assert_eq!(ROOK_MASKS[Square::C2 as usize], 0x0004040404047A00);
     }
 
     #[test]
     fn rook_attacks() {
         assert_eq!(
-            compute_rook_attacks(0, 0x0000000100000010),
+            compute_rook_attacks(Square::A1 as usize, 0x0000000100000010),
             0x000000010101011E
         );
         assert_eq!(
-            compute_rook_attacks(28, 0x0000100020000000),
+            compute_rook_attacks(Square::E4 as usize, 0x0000100020000000),
             0x000010102F101010
         );
         assert_eq!(
-            compute_rook_attacks(61, 0x4000000020000000),
+            compute_rook_attacks(Square::F8 as usize, 0x4000000020000000),
             0x5F20202020000000
         );
         assert_eq!(
-            compute_rook_attacks(10, 0x0000000400002204),
+            compute_rook_attacks(Square::C2 as usize, 0x0000000400002204),
             0x0000000404043A04
         );
     }

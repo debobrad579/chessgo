@@ -9,7 +9,7 @@ use crate::{
         eval::scores::{
             BACKWARD_PAWN_PENALTY, DOUBLED_PAWN_PENALTY, ISOLATED_PAWN_PENALTY, PASSED_PAWN_BONUSES,
         },
-        hash::pawn_hash_table::Entry,
+        hash::pawn::PawnHashTableEntry,
     },
     types::{Color, Piece},
 };
@@ -22,7 +22,7 @@ impl Position {
         }
 
         let score = self.pawn_structure_score::<false>() - self.pawn_structure_score::<true>();
-        self.pawn_hash_table.store(Entry {
+        self.pawn_hash_table.store(PawnHashTableEntry {
             zobrist_key: self.pawn_hash_key(),
             evaluation: score,
         });

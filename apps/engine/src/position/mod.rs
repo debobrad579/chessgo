@@ -12,13 +12,13 @@ pub struct Position {
     castling_rights: u8,
     enpassant: Option<u8>,
     half_moves: u16,
-    zobrist_key: hash::ZobristKey,
-    pawn_hash_key: hash::PawnHashKey,
+    zobrist_key: hash::zobrist::ZobristKey,
+    pawn_hash_key: hash::pawn::PawnHashKey,
     occupancy: u64,
     side_bitboards: ColorArray<u64>,
     piece_bitboards: ColorArray<PieceArray<u64>>,
     history: Vec<u64>,
-    pawn_hash_table: hash::pawn_hash_table::PawnHashTable,
+    pawn_hash_table: hash::pawn::PawnHashTable,
 }
 
 impl Position {

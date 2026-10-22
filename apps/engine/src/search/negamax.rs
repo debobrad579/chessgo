@@ -2,7 +2,7 @@ use crate::{
     position::Position,
     search::{
         MATE_SCORE, MAX_PLY, Search,
-        tt::{Entry, NodeType},
+        tt::{NodeType, TranspositionTableEntry},
     },
 };
 
@@ -117,7 +117,7 @@ impl Search {
                         [mv.target() as usize] += depth * depth;
                 }
 
-                self.tt.store(Entry {
+                self.tt.store(TranspositionTableEntry {
                     zobrist_key: position.zobrist_key(),
                     depth,
                     evaluation: score_to_tt(beta, ply),
@@ -141,7 +141,7 @@ impl Search {
             };
         }
 
-        self.tt.store(Entry {
+        self.tt.store(TranspositionTableEntry {
             zobrist_key: position.zobrist_key(),
             depth,
             evaluation: score_to_tt(alpha, ply),

@@ -48,50 +48,68 @@ pub(super) const fn compute_rook_magic_bitboards(square: usize) -> [u64; 4096] {
 
 #[cfg(test)]
 mod test {
-    use crate::attacks::{get_bishop_attacks, get_queen_attacks, get_rook_attacks};
+    use crate::{
+        attacks::{get_bishop_attacks, get_queen_attacks, get_rook_attacks},
+        types::Square,
+    };
 
     #[test]
     fn bishop_attacks() {
         assert_eq!(
-            get_bishop_attacks(28, 0x0000440000004400),
+            get_bishop_attacks(Square::E4 as usize, 0x0000440000004400),
             0x0000442800284400
         );
         assert_eq!(
-            get_bishop_attacks(9, 0x0040000000000000),
+            get_bishop_attacks(Square::B2 as usize, 0x0040000000000000),
             0x0040201008050005
         );
         assert_eq!(
-            get_bishop_attacks(26, 0x0020000200000000),
+            get_bishop_attacks(Square::C4 as usize, 0x0020000200000000),
             0x0020100A000A1120
         );
         assert_eq!(
-            get_bishop_attacks(61, 0x0040000002000000),
+            get_bishop_attacks(Square::F8 as usize, 0x0040000002000000),
             0x0050080402000000
         );
     }
 
     #[test]
     fn rook_attacks() {
-        assert_eq!(get_rook_attacks(0, 0x0000000100000010), 0x000000010101011E);
-        assert_eq!(get_rook_attacks(28, 0x0000100020000000), 0x000010102F101010);
-        assert_eq!(get_rook_attacks(61, 0x4000000020000000), 0x5F20202020000000);
-        assert_eq!(get_rook_attacks(10, 0x0000000400002204), 0x0000000404043A04);
+        assert_eq!(
+            get_rook_attacks(Square::A1 as usize, 0x0000000100000010),
+            0x000000010101011E
+        );
+        assert_eq!(
+            get_rook_attacks(Square::E4 as usize, 0x0000100020000000),
+            0x000010102F101010
+        );
+        assert_eq!(
+            get_rook_attacks(Square::F8 as usize, 0x4000000020000000),
+            0x5F20202020000000
+        );
+        assert_eq!(
+            get_rook_attacks(Square::C2 as usize, 0x0000000400002204),
+            0x0000000404043A04
+        );
     }
 
     #[test]
     fn queen_attacks() {
         assert_eq!(
-            get_queen_attacks(28, 0x0000000000000000),
+            get_queen_attacks(Square::E4 as usize, 0x0000000000000000),
             0x11925438EF385492
         );
         assert_eq!(
-            get_queen_attacks(18, 0x0000001000200400),
+            get_queen_attacks(Square::C3 as usize, 0x0000001000200400),
             0x040404150E3B0E11
         );
         assert_eq!(
-            get_queen_attacks(32, 0xF7F304000804E7F7),
+            get_queen_attacks(Square::A5 as usize, 0xF7F304000804E7F7),
             0x080503FE03050100
         );
-        assert_eq!(get_queen_attacks(3, 0xBDF3240C2834E3B3), 0x00000000092A1C16);
+        assert_eq!(
+            get_queen_attacks(Square::D1 as usize, 0xBDF3240C2834E3B3),
+            0x00000000092A1C16
+        );
     }
 }

@@ -47,45 +47,45 @@ pub(super) const fn compute_king_attacks(square: usize) -> u64 {
 
 #[cfg(test)]
 mod test {
-    use crate::attacks::{
-        PAWN_ATTACKS,
-        leapers::{compute_king_attacks, compute_knight_attacks},
+    use crate::{
+        attacks::{KING_ATTACKS, KNIGHT_ATTACKS, PAWN_ATTACKS},
+        types::Square,
     };
 
     #[test]
     fn white_pawn_attacks() {
-        assert_eq!(PAWN_ATTACKS[0][28], 0x0000002800000000); // e4
-        assert_eq!(PAWN_ATTACKS[0][31], 0x0000004000000000); // h4
-        assert_eq!(PAWN_ATTACKS[0][24], 0x0000000200000000); // a4
+        assert_eq!(PAWN_ATTACKS[0][Square::E4 as usize], 0x0000002800000000);
+        assert_eq!(PAWN_ATTACKS[0][Square::H4 as usize], 0x0000004000000000);
+        assert_eq!(PAWN_ATTACKS[0][Square::A4 as usize], 0x0000000200000000);
     }
 
     #[test]
     fn black_pawn_attacks() {
-        assert_eq!(PAWN_ATTACKS[1][36], 0x0000000028000000); // e5
-        assert_eq!(PAWN_ATTACKS[1][39], 0x0000000040000000); // h5
-        assert_eq!(PAWN_ATTACKS[1][32], 0x0000000002000000); // a5
+        assert_eq!(PAWN_ATTACKS[1][Square::E5 as usize], 0x0000000028000000);
+        assert_eq!(PAWN_ATTACKS[1][Square::H5 as usize], 0x0000000040000000);
+        assert_eq!(PAWN_ATTACKS[1][Square::A5 as usize], 0x0000000002000000);
     }
 
     #[test]
     fn knight_attacks() {
-        assert_eq!(compute_knight_attacks(18), 0x0000000A1100110A); // c3
-        assert_eq!(compute_knight_attacks(45), 0x5088008850000000); // f6
-        assert_eq!(compute_knight_attacks(0), 0x0000000000020400); // a1
-        assert_eq!(compute_knight_attacks(1), 0x0000000000050800); // b1
-        assert_eq!(compute_knight_attacks(6), 0x0000000000A01000); // g1
-        assert_eq!(compute_knight_attacks(7), 0x0000000000402000); // h1
-        assert_eq!(compute_knight_attacks(22), 0x000000A0100010A0); // g3
-        assert_eq!(compute_knight_attacks(41), 0x0508000805000000); // b6
+        assert_eq!(KNIGHT_ATTACKS[Square::C3 as usize], 0x0000000A1100110A);
+        assert_eq!(KNIGHT_ATTACKS[Square::F6 as usize], 0x5088008850000000);
+        assert_eq!(KNIGHT_ATTACKS[Square::A1 as usize], 0x0000000000020400);
+        assert_eq!(KNIGHT_ATTACKS[Square::B1 as usize], 0x0000000000050800);
+        assert_eq!(KNIGHT_ATTACKS[Square::G1 as usize], 0x0000000000A01000);
+        assert_eq!(KNIGHT_ATTACKS[Square::H1 as usize], 0x0000000000402000);
+        assert_eq!(KNIGHT_ATTACKS[Square::G3 as usize], 0x000000A0100010A0);
+        assert_eq!(KNIGHT_ATTACKS[Square::B6 as usize], 0x0508000805000000);
     }
 
     #[test]
     fn king_attacks() {
-        assert_eq!(compute_king_attacks(28), 0x0000003828380000); // e4
-        assert_eq!(compute_king_attacks(6), 0x000000000000E0A0); // g1
-        assert_eq!(compute_king_attacks(7), 0x000000000000C040); // h1
-        assert_eq!(compute_king_attacks(57), 0x0507000000000000); // b8
-        assert_eq!(compute_king_attacks(56), 0x0203000000000000); // a8
-        assert_eq!(compute_king_attacks(31), 0x000000C040C00000); // h4
-        assert_eq!(compute_king_attacks(24), 0x0000000302030000); // a4
+        assert_eq!(KING_ATTACKS[Square::E4 as usize], 0x0000003828380000);
+        assert_eq!(KING_ATTACKS[Square::G1 as usize], 0x000000000000E0A0);
+        assert_eq!(KING_ATTACKS[Square::H1 as usize], 0x000000000000C040);
+        assert_eq!(KING_ATTACKS[Square::B8 as usize], 0x0507000000000000);
+        assert_eq!(KING_ATTACKS[Square::A8 as usize], 0x0203000000000000);
+        assert_eq!(KING_ATTACKS[Square::H4 as usize], 0x000000C040C00000);
+        assert_eq!(KING_ATTACKS[Square::A4 as usize], 0x0000000302030000);
     }
 }
