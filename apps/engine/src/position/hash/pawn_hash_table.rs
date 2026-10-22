@@ -76,7 +76,7 @@ mod test {
             &mut Position::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
                 .unwrap();
 
-        let mv = get_move(position, 12, 28);
+        let mv = get_move(position, 12, 28); // e2 to e4
 
         let undo = position.make_move(mv);
 
@@ -89,5 +89,70 @@ mod test {
         position.undo_move(mv, undo);
 
         assert_eq!(position.pawn_hash_key, starting_pawn_key());
+    }
+
+    #[test]
+    fn scandi_pawn_hash() {
+        let position =
+            &mut Position::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+                .unwrap();
+
+        position.make_move(get_move(position, 12, 28)); // e2 to e4
+        position.make_move(get_move(position, 51, 35)); // d7 to d5
+        position.make_move(get_move(position, 28, 35)); // e4 takes d5
+
+        let mv = get_move(position, 59, 35); // d8 takes d5
+        let undo = position.make_move(mv);
+
+        let mut hash = starting_pawn_key();
+        hash.toggle_pawn(12, Color::White);
+        hash.toggle_pawn(51, Color::Black);
+
+        assert_eq!(position.pawn_hash_key, hash);
+
+        position.undo_move(mv, undo);
+
+        let mut hash = starting_pawn_key();
+        hash.toggle_pawn(12, Color::White);
+        hash.toggle_pawn(51, Color::Black);
+        hash.toggle_pawn(35, Color::White);
+
+        assert_eq!(position.pawn_hash_key, hash);
+    }
+
+    #[test]
+    fn enpassant_pawn_hash() {
+        let position =
+            &mut Position::try_from("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1")
+                .unwrap();
+
+        position.make_move(get_move(position, 12, 28)); // e2 to e4
+        position.make_move(get_move(position, 51, 35)); // d7 to d5
+        position.make_move(get_move(position, 28, 36)); // e4 to e5
+        position.make_move(get_move(position, 53, 37)); // f7 to f5
+
+        let mv = get_move(position, 36, 45); // e5 takes f6
+        let undo = position.make_move(mv);
+
+        let mut hash = starting_pawn_key();
+        hash.toggle_pawn(12, Color::White);
+        hash.toggle_pawn(51, Color::Black);
+        hash.toggle_pawn(35, Color::Black);
+        hash.toggle_pawn(53, Color::Black);
+        hash.toggle_pawn(45, Color::White);
+
+        assert_eq!(position.pawn_hash_key, hash);
+
+        position.undo_move(mv, undo);
+
+        let mut hash = starting_pawn_key();
+        hash.toggle_pawn(12, Color::White);
+        hash.toggle_pawn(36, Color::White);
+        hash.toggle_pawn(51, Color::Black);
+        hash.toggle_pawn(35, Color::Black);
+        hash.toggle_pawn(53, Color::Black);
+        hash.toggle_pawn(37, Color::Black);
+
+        assert_eq!(position.pawn_hash_key, hash);
     }
 }
