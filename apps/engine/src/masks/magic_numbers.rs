@@ -1,5 +1,5 @@
 use crate::{
-    attacks::{
+    masks::{
         BISHOP_MASKS, ROOK_MASKS,
         sliders::{compute_bishop_attacks, compute_rook_attacks},
     },

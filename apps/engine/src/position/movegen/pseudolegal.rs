@@ -1,11 +1,12 @@
 use arrayvec::ArrayVec;
 
 use crate::{
-    attacks::{
-        KING_ATTACKS, KNIGHT_ATTACKS, PAWN_ATTACKS, get_bishop_attacks, get_queen_attacks,
-        get_rook_attacks,
-    },
     bitboard::BitboardOperations,
+    masks::{
+        leapers::{KING_ATTACKS, KNIGHT_ATTACKS},
+        magic_bitboards::{get_bishop_attacks, get_queen_attacks, get_rook_attacks},
+        pawns::PAWN_ATTACKS,
+    },
     position::Position,
     types::{Color, Move, Piece, PromotionPiece},
 };

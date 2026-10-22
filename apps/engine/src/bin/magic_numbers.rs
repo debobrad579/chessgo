@@ -1,4 +1,4 @@
-use oxchess::attacks::magic_numbers::{find_bishop_magic_number, find_rook_magic_number};
+use oxchess::masks::magic_numbers::{find_bishop_magic_number, find_rook_magic_number};
 
 fn main() {
     println!("#[rustfmt::skip]");

@@ -1,3 +1,8 @@
+use crate::compute_table;
+
+pub static BISHOP_MASKS: [u64; 64] = compute_table!(mask_bishop_attacks);
+pub static ROOK_MASKS: [u64; 64] = compute_table!(mask_rook_attacks);
+
 pub(super) const fn mask_bishop_attacks(square: usize) -> u64 {
     let mut attacks = 0u64;
 
@@ -189,10 +194,7 @@ pub(super) const fn compute_rook_attacks(square: usize, blockers: u64) -> u64 {
 #[cfg(test)]
 mod test {
     use crate::{
-        attacks::{
-            BISHOP_MASKS, ROOK_MASKS,
-            sliders::{compute_bishop_attacks, compute_rook_attacks},
-        },
+        masks::sliders::{BISHOP_MASKS, ROOK_MASKS, compute_bishop_attacks, compute_rook_attacks},
         types::Square,
     };
 

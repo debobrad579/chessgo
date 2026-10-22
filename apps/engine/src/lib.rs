@@ -1,5 +1,5 @@
-pub mod attacks;
 pub mod bitboard;
+pub mod masks;
 pub mod position;
 pub mod random;
 pub mod search;

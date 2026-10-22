@@ -1,8 +1,33 @@
-use crate::attacks::{
-    BISHOP_MASKS, ROOK_MASKS,
-    magic_numbers::{BISHOP_MAGIC_NUMBERS, ROOK_MAGIC_NUMBERS},
-    sliders::{compute_bishop_attacks, compute_rook_attacks},
+use crate::{
+    compute_table,
+    masks::{
+        BISHOP_MASKS, ROOK_MASKS,
+        magic_numbers::{BISHOP_MAGIC_NUMBERS, ROOK_MAGIC_NUMBERS},
+        sliders::{compute_bishop_attacks, compute_rook_attacks},
+    },
 };
+
+static MAGIC_BISHOP_ATTACKS: [[u64; 512]; 64] = compute_table!(compute_bishop_magic_bitboards);
+static MAGIC_ROOK_ATTACKS: [[u64; 4096]; 64] = compute_table!(compute_rook_magic_bitboards);
+
+#[inline(always)]
+pub fn get_bishop_attacks(square: usize, occupancy: u64) -> u64 {
+    MAGIC_BISHOP_ATTACKS[square][(((occupancy & BISHOP_MASKS[square])
+        .wrapping_mul(BISHOP_MAGIC_NUMBERS[square]))
+        >> (64 - BISHOP_MASKS[square].count_ones())) as usize]
+}
+
+#[inline(always)]
+pub fn get_rook_attacks(square: usize, occupancy: u64) -> u64 {
+    MAGIC_ROOK_ATTACKS[square][(((occupancy & ROOK_MASKS[square])
+        .wrapping_mul(ROOK_MAGIC_NUMBERS[square]))
+        >> (64 - ROOK_MASKS[square].count_ones())) as usize]
+}
+
+#[inline(always)]
+pub fn get_queen_attacks(square: usize, occupancy: u64) -> u64 {
+    get_bishop_attacks(square, occupancy) | get_rook_attacks(square, occupancy)
+}
 
 pub(super) const fn compute_bishop_magic_bitboards(square: usize) -> [u64; 512] {
     let mut attacks = [0u64; 512];
@@ -49,7 +74,7 @@ pub(super) const fn compute_rook_magic_bitboards(square: usize) -> [u64; 4096] {
 #[cfg(test)]
 mod test {
     use crate::{
-        attacks::{get_bishop_attacks, get_queen_attacks, get_rook_attacks},
+        masks::magic_bitboards::{get_bishop_attacks, get_queen_attacks, get_rook_attacks},
         types::Square,
     };
 

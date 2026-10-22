@@ -1,6 +1,6 @@
 use crate::{
-    attacks::PAWN_ATTACKS,
     bitboard::BitboardOperations,
+    masks::pawns::PAWN_ATTACKS,
     position::Position,
     types::{Color, Piece},
 };

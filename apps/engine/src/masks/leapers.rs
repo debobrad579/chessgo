@@ -1,14 +1,10 @@
-use crate::attacks::masks::{NOT_A, NOT_AB, NOT_GH, NOT_H};
+use crate::{
+    compute_table,
+    masks::{NOT_A, NOT_AB, NOT_GH, NOT_H},
+};
 
-pub(super) const fn compute_pawn_attacks(square: usize) -> u64 {
-    let bit = 1u64 << square;
-    let mut attacks = 0u64;
-
-    attacks |= (bit & NOT_H) << 9; // north-east
-    attacks |= (bit & NOT_A) << 7; // north-west
-
-    return attacks;
-}
+pub static KNIGHT_ATTACKS: [u64; 64] = compute_table!(compute_knight_attacks);
+pub static KING_ATTACKS: [u64; 64] = compute_table!(compute_king_attacks);
 
 pub(super) const fn compute_knight_attacks(square: usize) -> u64 {
     let bit = 1u64 << square;
@@ -48,23 +44,9 @@ pub(super) const fn compute_king_attacks(square: usize) -> u64 {
 #[cfg(test)]
 mod test {
     use crate::{
-        attacks::{KING_ATTACKS, KNIGHT_ATTACKS, PAWN_ATTACKS},
+        masks::leapers::{KING_ATTACKS, KNIGHT_ATTACKS},
         types::Square,
     };
-
-    #[test]
-    fn white_pawn_attacks() {
-        assert_eq!(PAWN_ATTACKS[0][Square::E4 as usize], 0x0000002800000000);
-        assert_eq!(PAWN_ATTACKS[0][Square::H4 as usize], 0x0000004000000000);
-        assert_eq!(PAWN_ATTACKS[0][Square::A4 as usize], 0x0000000200000000);
-    }
-
-    #[test]
-    fn black_pawn_attacks() {
-        assert_eq!(PAWN_ATTACKS[1][Square::E5 as usize], 0x0000000028000000);
-        assert_eq!(PAWN_ATTACKS[1][Square::H5 as usize], 0x0000000040000000);
-        assert_eq!(PAWN_ATTACKS[1][Square::A5 as usize], 0x0000000002000000);
-    }
 
     #[test]
     fn knight_attacks() {

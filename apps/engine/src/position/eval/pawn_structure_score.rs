@@ -1,9 +1,9 @@
 use crate::{
-    attacks::{
+    bitboard::BitboardOperations,
+    masks::pawns::{
         BACKWARD_PAWN_MASKS, DOUBLED_PAWN_MASKS, ISOLATED_PAWN_MASKS, PASSED_PAWN_MASKS,
         PAWN_ATTACKS,
     },
-    bitboard::BitboardOperations,
     position::{
         Position,
         eval::scores::{
