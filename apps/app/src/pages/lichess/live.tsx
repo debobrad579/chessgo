@@ -496,34 +496,36 @@ function LichessLiveGame({ gameID }: { gameID: string }) {
               key="takeback-button"
             />
           ),
-          claimWinInSeconds != null && disconnectedAt != null && (
-            <ClaimWinButton
-              handleClaimWin={() => {
-                fetch(
-                  `https://lichess.org/api/board/game/${gameID}/claim-victory`,
-                  {
-                    method: "POST",
-                    headers: {
-                      Authorization: `Bearer ${lichessAccount.access_token}`,
+          gameData.result === "*" &&
+            claimWinInSeconds != null &&
+            disconnectedAt != null && (
+              <ClaimWinButton
+                handleClaimWin={() => {
+                  fetch(
+                    `https://lichess.org/api/board/game/${gameID}/claim-victory`,
+                    {
+                      method: "POST",
+                      headers: {
+                        Authorization: `Bearer ${lichessAccount.access_token}`,
+                      },
                     },
-                  },
-                )
-              }}
-              handleClaimDraw={() => {
-                fetch(
-                  `https://lichess.org/api/board/game/${gameID}/claim-draw`,
-                  {
-                    method: "POST",
-                    headers: {
-                      Authorization: `Bearer ${lichessAccount.access_token}`,
+                  )
+                }}
+                handleClaimDraw={() => {
+                  fetch(
+                    `https://lichess.org/api/board/game/${gameID}/claim-draw`,
+                    {
+                      method: "POST",
+                      headers: {
+                        Authorization: `Bearer ${lichessAccount.access_token}`,
+                      },
                     },
-                  },
-                )
-              }}
-              claimInSeconds={claimWinInSeconds}
-              disconnectedAt={disconnectedAt}
-            />
-          ),
+                  )
+                }}
+                claimInSeconds={claimWinInSeconds}
+                disconnectedAt={disconnectedAt}
+              />
+            ),
           gameData.result !== "*" && (
             <NewGameButton
               timeControl={gameData.time_control}
